@@ -26,7 +26,7 @@ import (
 func partToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 	if getValueByPath(fromObject, []string{"videoMetadata"}) != nil {
-		return nil, fmt.Errorf("video_metadata parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("videoMetadata parameter is not supported in Gemini API")
 	}
 
 	fromThought := getValueByPath(fromObject, []string{"thought"})
@@ -168,7 +168,7 @@ func contentToVertex(ac *apiClient, fromObject map[string]any, parentObject map[
 func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 	if getValueByPath(fromObject, []string{"minItems"}) != nil {
-		return nil, fmt.Errorf("min_items parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("minItems parameter is not supported in Gemini API")
 	}
 
 	if getValueByPath(fromObject, []string{"example"}) != nil {
@@ -176,7 +176,7 @@ func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[st
 	}
 
 	if getValueByPath(fromObject, []string{"propertyOrdering"}) != nil {
-		return nil, fmt.Errorf("property_ordering parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("propertyOrdering parameter is not supported in Gemini API")
 	}
 
 	if getValueByPath(fromObject, []string{"pattern"}) != nil {
@@ -192,11 +192,11 @@ func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[st
 	}
 
 	if getValueByPath(fromObject, []string{"anyOf"}) != nil {
-		return nil, fmt.Errorf("any_of parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("anyOf parameter is not supported in Gemini API")
 	}
 
 	if getValueByPath(fromObject, []string{"maxLength"}) != nil {
-		return nil, fmt.Errorf("max_length parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("maxLength parameter is not supported in Gemini API")
 	}
 
 	if getValueByPath(fromObject, []string{"title"}) != nil {
@@ -204,15 +204,15 @@ func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[st
 	}
 
 	if getValueByPath(fromObject, []string{"minLength"}) != nil {
-		return nil, fmt.Errorf("min_length parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("minLength parameter is not supported in Gemini API")
 	}
 
 	if getValueByPath(fromObject, []string{"minProperties"}) != nil {
-		return nil, fmt.Errorf("min_properties parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("minProperties parameter is not supported in Gemini API")
 	}
 
 	if getValueByPath(fromObject, []string{"maxItems"}) != nil {
-		return nil, fmt.Errorf("max_items parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("maxItems parameter is not supported in Gemini API")
 	}
 
 	if getValueByPath(fromObject, []string{"maximum"}) != nil {
@@ -224,7 +224,7 @@ func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[st
 	}
 
 	if getValueByPath(fromObject, []string{"maxProperties"}) != nil {
-		return nil, fmt.Errorf("max_properties parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("maxProperties parameter is not supported in Gemini API")
 	}
 
 	fromType := getValueByPath(fromObject, []string{"type"})
@@ -909,7 +909,7 @@ func generateContentConfigToMldev(ac *apiClient, fromObject map[string]any, pare
 	}
 
 	if getValueByPath(fromObject, []string{"routingConfig"}) != nil {
-		return nil, fmt.Errorf("routing_config parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("routingConfig parameter is not supported in Gemini API")
 	}
 
 	fromSafetySettings := getValueByPath(fromObject, []string{"safetySettings"})
@@ -969,7 +969,7 @@ func generateContentConfigToMldev(ac *apiClient, fromObject map[string]any, pare
 	}
 
 	if getValueByPath(fromObject, []string{"mediaResolution"}) != nil {
-		return nil, fmt.Errorf("media_resolution parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("mediaResolution parameter is not supported in Gemini API")
 	}
 
 	fromSpeechConfig := getValueByPath(fromObject, []string{"speechConfig"})
@@ -988,7 +988,7 @@ func generateContentConfigToMldev(ac *apiClient, fromObject map[string]any, pare
 	}
 
 	if getValueByPath(fromObject, []string{"audioTimestamp"}) != nil {
-		return nil, fmt.Errorf("audio_timestamp parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("audioTimestamp parameter is not supported in Gemini API")
 	}
 
 	fromThinkingConfig := getValueByPath(fromObject, []string{"thinkingConfig"})
@@ -1283,7 +1283,7 @@ func generateImagesConfigToMldev(ac *apiClient, fromObject map[string]any, paren
 	toObject = make(map[string]any)
 
 	if getValueByPath(fromObject, []string{"outputGcsUri"}) != nil {
-		return nil, fmt.Errorf("output_gcs_uri parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("outputGcsUri parameter is not supported in Gemini API")
 	}
 
 	fromNegativePrompt := getValueByPath(fromObject, []string{"negativePrompt"})
@@ -1341,7 +1341,7 @@ func generateImagesConfigToMldev(ac *apiClient, fromObject map[string]any, paren
 	}
 
 	if getValueByPath(fromObject, []string{"addWatermark"}) != nil {
-		return nil, fmt.Errorf("add_watermark parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("addWatermark parameter is not supported in Gemini API")
 	}
 
 	fromAspectRatio := getValueByPath(fromObject, []string{"aspectRatio"})
@@ -1529,7 +1529,7 @@ func countTokensConfigToMldev(ac *apiClient, fromObject map[string]any, parentOb
 	}
 
 	if getValueByPath(fromObject, []string{"generationConfig"}) != nil {
-		return nil, fmt.Errorf("generation_config parameter is not supported in Gemini API")
+		return nil, fmt.Errorf("generationConfig parameter is not supported in Gemini API")
 	}
 
 	return toObject, nil
@@ -2478,7 +2478,7 @@ func (m Models) ComputeTokens(ctx context.Context, model string, contents []*Con
 	deepMarshal(kwargs, &parameterMap)
 
 	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
-		return nil, fmt.Errorf("method ComputeTokens is only supported in Vertex AI backend.")
+		return nil, fmt.Errorf("method ComputeTokens is only supported in the Vertex AI client.")
 	}
 
 	var response = new(ComputeTokensResponse)

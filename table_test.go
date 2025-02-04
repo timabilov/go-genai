@@ -36,6 +36,17 @@ func snakeToPascal(s string) string {
 	return strings.Join(parts, "")
 }
 
+func snakeToCamel(s string) string {
+	parts := strings.Split(s, "_")
+	for i, part := range parts {
+		if i == 0 {
+			continue
+		}
+		parts[i] = strings.ToUpper(part[:1]) + part[1:]
+	}
+	return strings.Join(parts, "")
+}
+
 func extractArgs(ctx context.Context, t *testing.T, method reflect.Value, testTableFile *testTableFile, testTableItem *testTableItem) []reflect.Value {
 	t.Helper()
 	args := []reflect.Value{
@@ -43,7 +54,7 @@ func extractArgs(ctx context.Context, t *testing.T, method reflect.Value, testTa
 	}
 	fromParams := []any{ctx}
 	for i := 1; i < method.Type().NumIn(); i++ {
-		parameterName := testTableFile.ParameterNames[i-1]
+		parameterName := snakeToCamel(testTableFile.ParameterNames[i-1])
 		parameterValue, ok := testTableItem.Parameters[parameterName]
 		if ok {
 			paramType := method.Type().In(i)
