@@ -1349,9 +1349,8 @@ func generateImagesConfigToMldev(ac *apiClient, fromObject map[string]any, paren
 		setValueByPath(parentObject, []string{"parameters", "aspectRatio"}, fromAspectRatio)
 	}
 
-	fromEnhancePrompt := getValueByPath(fromObject, []string{"enhancePrompt"})
-	if fromEnhancePrompt != nil {
-		setValueByPath(parentObject, []string{"parameters", "enhancePrompt"}, fromEnhancePrompt)
+	if getValueByPath(fromObject, []string{"enhancePrompt"}) != nil {
+		return nil, fmt.Errorf("enhancePrompt parameter is not supported in Gemini API")
 	}
 
 	return toObject, nil
@@ -2122,11 +2121,6 @@ func generatedImageFromMldev(ac *apiClient, fromObject map[string]any, parentObj
 	fromRaiFilteredReason := getValueByPath(fromObject, []string{"raiFilteredReason"})
 	if fromRaiFilteredReason != nil {
 		setValueByPath(toObject, []string{"raiFilteredReason"}, fromRaiFilteredReason)
-	}
-
-	fromEnhancedPrompt := getValueByPath(fromObject, []string{"prompt"})
-	if fromEnhancedPrompt != nil {
-		setValueByPath(toObject, []string{"enhancedPrompt"}, fromEnhancedPrompt)
 	}
 
 	return toObject, nil
