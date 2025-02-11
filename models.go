@@ -968,8 +968,9 @@ func generateContentConfigToMldev(ac *apiClient, fromObject map[string]any, pare
 		setValueByPath(toObject, []string{"responseModalities"}, fromResponseModalities)
 	}
 
-	if getValueByPath(fromObject, []string{"mediaResolution"}) != nil {
-		return nil, fmt.Errorf("mediaResolution parameter is not supported in Gemini API")
+	fromMediaResolution := getValueByPath(fromObject, []string{"mediaResolution"})
+	if fromMediaResolution != nil {
+		setValueByPath(toObject, []string{"mediaResolution"}, fromMediaResolution)
 	}
 
 	fromSpeechConfig := getValueByPath(fromObject, []string{"speechConfig"})
