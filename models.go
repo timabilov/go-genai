@@ -175,8 +175,9 @@ func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[st
 		return nil, fmt.Errorf("example parameter is not supported in Gemini API")
 	}
 
-	if getValueByPath(fromObject, []string{"propertyOrdering"}) != nil {
-		return nil, fmt.Errorf("propertyOrdering parameter is not supported in Gemini API")
+	fromPropertyOrdering := getValueByPath(fromObject, []string{"propertyOrdering"})
+	if fromPropertyOrdering != nil {
+		setValueByPath(toObject, []string{"propertyOrdering"}, fromPropertyOrdering)
 	}
 
 	if getValueByPath(fromObject, []string{"pattern"}) != nil {
