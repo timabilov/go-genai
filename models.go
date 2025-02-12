@@ -1501,6 +1501,200 @@ func generateImagesParametersToVertex(ac *apiClient, fromObject map[string]any, 
 	return toObject, nil
 }
 
+func imageToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+	if getValueByPath(fromObject, []string{"gcsUri"}) != nil {
+		return nil, fmt.Errorf("gcsUri parameter is not supported in Gemini API")
+	}
+
+	fromImageBytes := getValueByPath(fromObject, []string{"imageBytes"})
+	if fromImageBytes != nil {
+		fromImageBytes, err = tBytes(ac, fromImageBytes)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"bytesBase64Encoded"}, fromImageBytes)
+	}
+
+	fromMimeType := getValueByPath(fromObject, []string{"mimeType"})
+	if fromMimeType != nil {
+		setValueByPath(toObject, []string{"mimeType"}, fromMimeType)
+	}
+
+	return toObject, nil
+}
+
+func imageToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromGcsUri := getValueByPath(fromObject, []string{"gcsUri"})
+	if fromGcsUri != nil {
+		setValueByPath(toObject, []string{"gcsUri"}, fromGcsUri)
+	}
+
+	fromImageBytes := getValueByPath(fromObject, []string{"imageBytes"})
+	if fromImageBytes != nil {
+		fromImageBytes, err = tBytes(ac, fromImageBytes)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"bytesBase64Encoded"}, fromImageBytes)
+	}
+
+	fromMimeType := getValueByPath(fromObject, []string{"mimeType"})
+	if fromMimeType != nil {
+		setValueByPath(toObject, []string{"mimeType"}, fromMimeType)
+	}
+
+	return toObject, nil
+}
+
+func upscaleImageAPIConfigToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromIncludeRaiReason := getValueByPath(fromObject, []string{"includeRaiReason"})
+	if fromIncludeRaiReason != nil {
+		setValueByPath(parentObject, []string{"parameters", "includeRaiReason"}, fromIncludeRaiReason)
+	}
+
+	fromOutputMimeType := getValueByPath(fromObject, []string{"outputMimeType"})
+	if fromOutputMimeType != nil {
+		setValueByPath(parentObject, []string{"parameters", "outputOptions", "mimeType"}, fromOutputMimeType)
+	}
+
+	fromOutputCompressionQuality := getValueByPath(fromObject, []string{"outputCompressionQuality"})
+	if fromOutputCompressionQuality != nil {
+		setValueByPath(parentObject, []string{"parameters", "outputOptions", "compressionQuality"}, fromOutputCompressionQuality)
+	}
+
+	fromNumberOfImages := getValueByPath(fromObject, []string{"numberOfImages"})
+	if fromNumberOfImages != nil {
+		setValueByPath(parentObject, []string{"parameters", "sampleCount"}, fromNumberOfImages)
+	}
+
+	fromMode := getValueByPath(fromObject, []string{"mode"})
+	if fromMode != nil {
+		setValueByPath(parentObject, []string{"parameters", "mode"}, fromMode)
+	}
+
+	return toObject, nil
+}
+
+func upscaleImageAPIConfigToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromIncludeRaiReason := getValueByPath(fromObject, []string{"includeRaiReason"})
+	if fromIncludeRaiReason != nil {
+		setValueByPath(parentObject, []string{"parameters", "includeRaiReason"}, fromIncludeRaiReason)
+	}
+
+	fromOutputMimeType := getValueByPath(fromObject, []string{"outputMimeType"})
+	if fromOutputMimeType != nil {
+		setValueByPath(parentObject, []string{"parameters", "outputOptions", "mimeType"}, fromOutputMimeType)
+	}
+
+	fromOutputCompressionQuality := getValueByPath(fromObject, []string{"outputCompressionQuality"})
+	if fromOutputCompressionQuality != nil {
+		setValueByPath(parentObject, []string{"parameters", "outputOptions", "compressionQuality"}, fromOutputCompressionQuality)
+	}
+
+	fromNumberOfImages := getValueByPath(fromObject, []string{"numberOfImages"})
+	if fromNumberOfImages != nil {
+		setValueByPath(parentObject, []string{"parameters", "sampleCount"}, fromNumberOfImages)
+	}
+
+	fromMode := getValueByPath(fromObject, []string{"mode"})
+	if fromMode != nil {
+		setValueByPath(parentObject, []string{"parameters", "mode"}, fromMode)
+	}
+
+	return toObject, nil
+}
+
+func upscaleImageAPIParametersToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromModel := getValueByPath(fromObject, []string{"model"})
+	if fromModel != nil {
+		fromModel, err = tModel(ac, fromModel)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"_url", "model"}, fromModel)
+	}
+
+	fromImage := getValueByPath(fromObject, []string{"image"})
+	if fromImage != nil {
+		fromImage, err = imageToMldev(ac, fromImage.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"instances", "image"}, fromImage)
+	}
+
+	fromUpscaleFactor := getValueByPath(fromObject, []string{"upscaleFactor"})
+	if fromUpscaleFactor != nil {
+		setValueByPath(toObject, []string{"parameters", "upscaleConfig", "upscaleFactor"}, fromUpscaleFactor)
+	}
+
+	fromConfig := getValueByPath(fromObject, []string{"config"})
+	if fromConfig != nil {
+		fromConfig, err = upscaleImageAPIConfigToMldev(ac, fromConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"config"}, fromConfig)
+	}
+
+	return toObject, nil
+}
+
+func upscaleImageAPIParametersToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromModel := getValueByPath(fromObject, []string{"model"})
+	if fromModel != nil {
+		fromModel, err = tModel(ac, fromModel)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"_url", "model"}, fromModel)
+	}
+
+	fromImage := getValueByPath(fromObject, []string{"image"})
+	if fromImage != nil {
+		fromImage, err = imageToVertex(ac, fromImage.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"instances", "image"}, fromImage)
+	}
+
+	fromUpscaleFactor := getValueByPath(fromObject, []string{"upscaleFactor"})
+	if fromUpscaleFactor != nil {
+		setValueByPath(toObject, []string{"parameters", "upscaleConfig", "upscaleFactor"}, fromUpscaleFactor)
+	}
+
+	fromConfig := getValueByPath(fromObject, []string{"config"})
+	if fromConfig != nil {
+		fromConfig, err = upscaleImageAPIConfigToVertex(ac, fromConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"config"}, fromConfig)
+	}
+
+	return toObject, nil
+}
+
 func countTokensConfigToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -2186,6 +2380,38 @@ func generateImagesResponseFromVertex(ac *apiClient, fromObject map[string]any, 
 	return toObject, nil
 }
 
+func upscaleImageResponseFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromGeneratedImages := getValueByPath(fromObject, []string{"predictions"})
+	if fromGeneratedImages != nil {
+		fromGeneratedImages, err = applyConverterToSlice(ac, fromGeneratedImages.([]any), generatedImageFromMldev)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"generatedImages"}, fromGeneratedImages)
+	}
+
+	return toObject, nil
+}
+
+func upscaleImageResponseFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromGeneratedImages := getValueByPath(fromObject, []string{"predictions"})
+	if fromGeneratedImages != nil {
+		fromGeneratedImages, err = applyConverterToSlice(ac, fromGeneratedImages.([]any), generatedImageFromVertex)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"generatedImages"}, fromGeneratedImages)
+	}
+
+	return toObject, nil
+}
+
 func countTokensResponseFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -2412,6 +2638,65 @@ func (m Models) GenerateImages(ctx context.Context, model string, prompt string,
 	return response, nil
 }
 
+func (m Models) upscaleImage(ctx context.Context, model string, image *Image, upscaleFactor string, config *upscaleImageAPIConfig) (*UpscaleImageResponse, error) {
+	parameterMap := make(map[string]any)
+
+	kwargs := map[string]any{"model": model, "image": image, "upscaleFactor": upscaleFactor, "config": config}
+	deepMarshal(kwargs, &parameterMap)
+
+	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
+		return nil, fmt.Errorf("method UpscaleImage is only supported in the Vertex AI client.")
+	}
+
+	var response = new(UpscaleImageResponse)
+	var responseMap map[string]any
+	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
+	var toConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
+	if m.apiClient.clientConfig.Backend == BackendVertexAI {
+		toConverter = upscaleImageAPIParametersToVertex
+		fromConverter = upscaleImageResponseFromVertex
+	} else {
+		toConverter = upscaleImageAPIParametersToMldev
+		fromConverter = upscaleImageResponseFromMldev
+	}
+
+	body, err := toConverter(m.apiClient, parameterMap, nil)
+	if err != nil {
+		return nil, err
+	}
+	var path string
+	var urlParams map[string]any
+	if _, ok := body["_url"]; ok {
+		urlParams = body["_url"].(map[string]any)
+		delete(body, "_url")
+	}
+	if m.apiClient.clientConfig.Backend == BackendVertexAI {
+		path, err = formatMap("{model}:predict", urlParams)
+	} else {
+		path, err = formatMap("None", urlParams)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("invalid url params: %#v.\n%w", urlParams, err)
+	}
+
+	if _, ok := body["config"]; ok {
+		delete(body, "config")
+	}
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, &body)
+	if err != nil {
+		return nil, err
+	}
+	responseMap, err = fromConverter(m.apiClient, responseMap, nil)
+	if err != nil {
+		return nil, err
+	}
+	err = mapToStruct(responseMap, response)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
 func (m Models) CountTokens(ctx context.Context, model string, contents []*Content, config *CountTokensConfig) (*CountTokensResponse, error) {
 	parameterMap := make(map[string]any)
 
@@ -2546,4 +2831,18 @@ func (m Models) GenerateContentStream(ctx context.Context, model string, content
 		c.setDefaults()
 	}
 	return m.generateContentStream(ctx, model, contents, config)
+}
+
+// UpscaleImage calls the upscaleImage method on the model.
+func (m Models) UpscaleImage(ctx context.Context, model string, image *Image, upscaleFactor string, config *UpscaleImageConfig) (*UpscaleImageResponse, error) {
+	// Convert to API config.
+	apiConfig := &upscaleImageAPIConfig{Mode: "upscale", NumberOfImages: 1}
+
+	if config != nil {
+		apiConfig.OutputMIMEType = config.OutputMIMEType
+		apiConfig.OutputCompressionQuality = config.OutputCompressionQuality
+		apiConfig.IncludeRAIReason = config.IncludeRAIReason
+	}
+
+	return m.upscaleImage(ctx, model, image, upscaleFactor, apiConfig)
 }

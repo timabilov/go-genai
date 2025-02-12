@@ -1222,6 +1222,41 @@ type GenerateImagesResponse struct {
 	GeneratedImages []*GeneratedImage `json:"generatedImages,omitempty"`
 }
 
+// API config for UpscaleImage with fields not exposed to users.
+// These fields require default values sent to the API which are not intended
+// to be modifiable or exposed to users in the SDK method.
+type upscaleImageAPIConfig struct {
+	// Whether to include a reason for filtered-out images in the
+	// response.
+	IncludeRAIReason bool `json:"includeRaiReason,omitempty"`
+	// The image format that the output should be saved as.
+	OutputMIMEType string `json:"outputMimeType,omitempty"`
+	// The level of compression if the ``output_mime_type`` is
+	// ``image/jpeg``.
+	OutputCompressionQuality *int64 `json:"outputCompressionQuality,omitempty"`
+
+	NumberOfImages int64 `json:"numberOfImages,omitempty"`
+
+	Mode string `json:"mode,omitempty"`
+}
+
+// API parameters for UpscaleImage.
+type UpscaleImageAPIParameters struct {
+	// The model to use.
+	Model string `json:"model,omitempty"`
+	// The input image to upscale.
+	Image *Image `json:"image,omitempty"`
+	// The factor to upscale the image (x2 or x4).
+	UpscaleFactor string `json:"upscaleFactor,omitempty"`
+	// Configuration for upscaling.
+	Config *upscaleImageAPIConfig `json:"config,omitempty"`
+}
+
+type UpscaleImageResponse struct {
+	// Generated images.
+	GeneratedImages []*GeneratedImage `json:"generatedImages,omitempty"`
+}
+
 // Generation config. You can find API default values and more details at https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig
 // and https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/content-generation-parameters.
 type GenerationConfig struct {

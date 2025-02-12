@@ -21,11 +21,11 @@ export GOOGLE_GENAI_USE_VERTEXAI=true
 export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
 export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
 
-# For Gemini AI API
+# For Gemini AI API (upscale is not supported in Gemini AI API)
 export GOOGLE_GENAI_USE_VERTEXAI=false
 export GOOGLE_API_KEY={YOUR_API_KEY}
 
-go run samples/generate_image.go --model=imagen-3.0-generate-001
+go run samples/upscale_image.go --model=imagen-3.0-generate-001
 */
 
 import (
@@ -40,24 +40,32 @@ import (
 
 var model = flag.String("model", "imagen-3.0-generate-001", "the model name, e.g. imagen-3.0-generate-001")
 
-func generateImage(ctx context.Context) {
+func upscaleImage(ctx context.Context) {
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	if client.ClientConfig().Backend == genai.BackendVertexAI {
-		fmt.Println("Calling VertexAI GenerateImage API...")
+		fmt.Println("Calling VertexAI UpscaleImage API...")
 	} else {
-		fmt.Println("Calling GeminiAI GenerateImage API...")
+		fmt.Println("Calling GeminiAI UpscaleImage API...")
 	}
-	// Pass in basic config
-	var config *genai.GenerateImageConfig = &genai.GenerateImageConfig{
+
+	// First, generate an image.
+	var generateImagesConfig *genai.GenerateImagesConfig = &genai.GenerateImagesConfig{
 		NumberOfImages:   genai.Ptr[int64](1),
 		OutputMIMEType:   "image/jpeg",
 		IncludeRAIReason: true,
 	}
-	// Call the GenerateContent method.
-	result, err := client.Models.GenerateImage(ctx, *model, "Create a blue circle", config)
+	generationResult, err := client.Models.GenerateImages(ctx, *model, "Create a blue circle", generateImagesConfig)
+
+	// Call the UpscaleImage method.
+	var config *genai.UpscaleImageConfig = &genai.UpscaleImageConfig{
+		OutputMIMEType:   "image/jpeg",
+		IncludeRAIReason: true,
+	}
+	var image *genai.Image = generationResult.GeneratedImages[0].Image
+	result, err := client.Models.UpscaleImage(ctx, *model, image, "x2", config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,5 +81,5 @@ func generateImage(ctx context.Context) {
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	generateImage(ctx)
+	upscaleImage(ctx)
 }
