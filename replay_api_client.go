@@ -186,8 +186,10 @@ func (rac *replayAPIClient) assertRequest(sdkRequest *http.Request, replayReques
 		rac.t.Errorf("Error reading request body, err: %+v", err)
 	}
 	bodySegment := make(map[string]any)
-	if err := json.Unmarshal(sdkRequestBody, &bodySegment); err != nil {
-		rac.t.Errorf("Error unmarshalling body, err: %+v", err)
+	if len(sdkRequestBody) > 0 {
+		if err := json.Unmarshal(sdkRequestBody, &bodySegment); err != nil {
+			rac.t.Errorf("Error unmarshalling body, err: %+v", err)
+		}
 	}
 	bodySegment = redactRequestBody(bodySegment)
 

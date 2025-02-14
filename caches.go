@@ -522,7 +522,7 @@ func (m Caches) Create(ctx context.Context, model string, config *CreateCachedCo
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, &body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
 	if err != nil {
 		return nil, err
 	}
@@ -577,7 +577,7 @@ func (m Caches) Get(ctx context.Context, name string, config *GetCachedContentCo
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodGet, &body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodGet, body)
 	if err != nil {
 		return nil, err
 	}
@@ -632,7 +632,7 @@ func (m Caches) Delete(ctx context.Context, name string, config *DeleteCachedCon
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodDelete, &body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodDelete, body)
 	if err != nil {
 		return nil, err
 	}
@@ -687,7 +687,7 @@ func (m Caches) Update(ctx context.Context, name string, config *UpdateCachedCon
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPatch, &body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPatch, body)
 	if err != nil {
 		return nil, err
 	}

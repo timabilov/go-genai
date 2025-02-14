@@ -2505,7 +2505,7 @@ func (m Models) generateContent(ctx context.Context, model string, contents []*C
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, &body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2565,7 +2565,7 @@ func (m Models) generateContentStream(ctx context.Context, model string, content
 	}
 	delete(body, "_url")
 	delete(body, "config")
-	err = sendStreamRequest(ctx, m.apiClient, path, http.MethodPost, &body, &rs)
+	err = sendStreamRequest(ctx, m.apiClient, path, http.MethodPost, body, &rs)
 	if err != nil {
 		return yieldErrorAndEndIterator(err)
 	}
@@ -2623,7 +2623,7 @@ func (m Models) GenerateImages(ctx context.Context, model string, prompt string,
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, &body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2737,7 +2737,7 @@ func (m Models) CountTokens(ctx context.Context, model string, contents []*Conte
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, &body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2796,7 +2796,7 @@ func (m Models) ComputeTokens(ctx context.Context, model string, contents []*Con
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, &body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
 	if err != nil {
 		return nil, err
 	}

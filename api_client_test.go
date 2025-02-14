@@ -19,7 +19,7 @@ func TestSendRequest(t *testing.T) {
 		desc         string
 		path         string
 		method       string
-		requestBody  any
+		requestBody  map[string]any
 		responseCode int
 		responseBody string
 		want         map[string]any
@@ -39,7 +39,7 @@ func TestSendRequest(t *testing.T) {
 			desc:         "successful get request",
 			path:         "foo",
 			method:       http.MethodGet,
-			requestBody:  map[string]any{"key": "value"},
+			requestBody:  map[string]any{},
 			responseCode: http.StatusOK,
 			responseBody: `{"response": "ok"}`,
 			want:         map[string]any{"response": "ok"},

@@ -34,7 +34,7 @@ type apiClient struct {
 }
 
 // sendStreamRequest issues an server streaming API request and returns a map of the response contents.
-func sendStreamRequest[T responseStream[R], R any](ctx context.Context, ac *apiClient, path string, method string, body any, output *responseStream[R]) error {
+func sendStreamRequest[T responseStream[R], R any](ctx context.Context, ac *apiClient, path string, method string, body map[string]any, output *responseStream[R]) error {
 	req, err := buildRequest(ac, path, body, method)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func sendStreamRequest[T responseStream[R], R any](ctx context.Context, ac *apiC
 }
 
 // sendRequest issues an API request and returns a map of the response contents.
-func sendRequest(ctx context.Context, ac *apiClient, path string, method string, body any) (map[string]any, error) {
+func sendRequest(ctx context.Context, ac *apiClient, path string, method string, body map[string]any) (map[string]any, error) {
 	req, err := buildRequest(ac, path, body, method)
 	if err != nil {
 		return nil, err
@@ -97,15 +97,18 @@ func (ac *apiClient) createAPIURL(suffix string) (*url.URL, error) {
 	}
 }
 
-func buildRequest(ac *apiClient, path string, body any, method string) (*http.Request, error) {
+func buildRequest(ac *apiClient, path string, body map[string]any, method string) (*http.Request, error) {
 	url, err := ac.createAPIURL(path)
 	if err != nil {
 		return nil, err
 	}
 	b := new(bytes.Buffer)
-	if err := json.NewEncoder(b).Encode(body); err != nil {
-		return nil, fmt.Errorf("buildRequest: error encoding body %#v: %w", body, err)
+	if len(body) > 0 {
+		if err := json.NewEncoder(b).Encode(body); err != nil {
+			return nil, fmt.Errorf("buildRequest: error encoding body %#v: %w", body, err)
+		}
 	}
+
 	// Create a new HTTP request
 	req, err := http.NewRequest(method, url.String(), b)
 	if err != nil {
