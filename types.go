@@ -1045,11 +1045,12 @@ type GenerateContentResponseUsageMetadata struct {
 	// Output only. Number of tokens in the cached part in the input (the cached content).
 	// If nil, then no CachedContentTokenCount is returned by the API.
 	CachedContentTokenCount *int64 `json:"cachedContentTokenCount,omitempty"`
-	// Number of tokens in the response(s). If nil, then no CandidatesTokenCount is returned
-	// by the API.
+	// Number of tokens in the response(all the generated response candidates). If nil,
+	// then no CandidatesTokenCount is returned by the API.
 	CandidatesTokenCount *int64 `json:"candidatesTokenCount,omitempty"`
-	// Number of tokens in the response(s). If nil, then no PromptTokenCount is returned
-	// by the API.
+	// Number of tokens in the prompt. When cached_content is set, this is still the total
+	// effective prompt size meaning this includes the number of tokens in the cached content.
+	// If nil, then no PromptTokenCount is returned by the API.
 	PromptTokenCount *int64 `json:"promptTokenCount,omitempty"`
 	// Total token count for prompt and response candidates.
 	TotalTokenCount int64 `json:"totalTokenCount,omitempty"`
