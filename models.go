@@ -2682,7 +2682,7 @@ func (m Models) upscaleImage(ctx context.Context, model string, image *Image, up
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, &body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
 	if err != nil {
 		return nil, err
 	}

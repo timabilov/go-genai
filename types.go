@@ -503,6 +503,142 @@ type Content struct {
 	Role string `json:"role,omitempty"`
 }
 
+// NewUserContent builds a Content with a "user" role from a list of parts.
+func NewUserContentFromParts(parts []*Part) *Content {
+	return &Content{
+		Parts: parts,
+		Role:  "user",
+	}
+}
+
+// NewUserContentFromText builds a Content with a "user" role from a single text string.
+func NewUserContentFromText(text string) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromText(text),
+		},
+		Role: "user",
+	}
+}
+
+// NewUserContentFromBytes builds a Content with a "user" role from a single byte array.
+func NewUserContentFromBytes(data []byte, mimeType string) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromBytes(data, mimeType),
+		},
+		Role: "user",
+	}
+}
+
+// NewUserContentFromURI builds a Content with a "user" role from a single file URI.
+func NewUserContentFromURI(fileURI, mimeType string) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromURI(fileURI, mimeType),
+		},
+		Role: "user",
+	}
+}
+
+// NewUserContentFromFunctionResponse builds a Content with a "user" role from a single function response.
+func NewUserContentFromFunctionResponse(name string, response map[string]any) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromFunctionResponse(name, response),
+		},
+		Role: "user",
+	}
+}
+
+// NewUserContentFromExecutableCode builds a Content with a "user" role from a single executable code.
+func NewUserContentFromExecutableCode(code string, language Language) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromExecutableCode(code, language),
+		},
+		Role: "user",
+	}
+}
+
+// NewUserContentFromCodeExecutionResult builds a Content with a "user" role from a single code execution result.
+func NewUserContentFromCodeExecutionResult(outcome Outcome, output string) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromCodeExecutionResult(outcome, output),
+		},
+		Role: "user",
+	}
+}
+
+// NewModelContent builds a Content with a "model" role from a list of parts.
+func NewModelContentFromParts(parts []*Part) *Content {
+	return &Content{
+		Parts: parts,
+		Role:  "model",
+	}
+}
+
+// NewModelContentFromText builds a Content with a "model" role from a single text string.
+func NewModelContentFromText(text string) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromText(text),
+		},
+		Role: "model",
+	}
+}
+
+// NewModelContentFromBytes builds a Content with a "model" role from a single byte array.
+func NewModelContentFromBytes(data []byte, mimeType string) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromBytes(data, mimeType),
+		},
+		Role: "model",
+	}
+}
+
+// NewModelContentFromURI builds a Content with a "model" role from a single file URI.
+func NewModelContentFromURI(fileURI, mimeType string) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromURI(fileURI, mimeType),
+		},
+		Role: "model",
+	}
+}
+
+// NewModelContentFromFunctionCall builds a Content with a "model" role from a single function call.
+func NewModelContentFromFunctionCall(name string, args map[string]any) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromFunctionCall(name, args),
+		},
+		Role: "model",
+	}
+}
+
+// NewModelContentFromExecutableCode builds a Content with a "model" role from a single executable code.
+func NewModelContentFromExecutableCode(code string, language Language) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromExecutableCode(code, language),
+		},
+		Role: "model",
+	}
+}
+
+// NewModelContentFromCodeExecutionResult builds a Content with a "model" role from a single code execution result.
+func NewModelContentFromCodeExecutionResult(outcome Outcome, output string) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromCodeExecutionResult(outcome, output),
+		},
+		Role: "model",
+	}
+}
+
 // HTTP options to be used in each of the requests.
 type HTTPOptions struct {
 	// BaseURL specifies the base URL for the API endpoint. If unset, defaults to "https://generativelanguage.googleapis.com/"
