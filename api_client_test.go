@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
+	"time"
 
+	"cloud.google.com/go/civil"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -117,17 +120,17 @@ func TestSendRequest(t *testing.T) {
 				return
 			}
 			if tt.wantErr != nil && err != nil {
-				// For error cases, check for expected error types
+				// For error cases, check for want error types
 				if tt.responseCode >= 400 && tt.responseCode < 500 {
 					_, ok := err.(ClientError)
 					if !ok {
-						t.Errorf("Expected ClientError, got %T(%s)", err, err.Error())
+						t.Errorf("want ClientError, got %T(%s)", err, err.Error())
 					}
 
 				} else if tt.responseCode >= 500 {
 					_, ok := err.(ServerError)
 					if !ok {
-						t.Errorf("Expected ServerError, got %T", err)
+						t.Errorf("want ServerError, got %T", err)
 					}
 				} else if tt.path == "" { // build request error
 					if !strings.Contains(err.Error(), tt.wantErr.Error()) {
@@ -144,6 +147,62 @@ func TestSendRequest(t *testing.T) {
 
 			if tt.wantErr != nil && !cmp.Equal(got, tt.want) {
 				t.Errorf("sendRequest() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMapToStruct(t *testing.T) {
+	testCases := []struct {
+		name      string
+		inputMap  map[string]any
+		wantValue any
+	}{
+		{
+			name: "TokensInfo",
+			inputMap: map[string]any{
+				"role":     "test-role",
+				"TokenIDs": []string{"123", "456"},
+				"Tokens":   [][]byte{[]byte("token1"), []byte("token2")}},
+			wantValue: TokensInfo{
+				Role:     "test-role",
+				TokenIDs: []int64{123, 456},
+				Tokens:   [][]byte{[]byte("token1"), []byte("token2")}},
+		},
+		{
+			name: "Citation",
+			inputMap: map[string]any{
+				"startIndex":      float64(0),
+				"endIndex":        float64(20),
+				"title":           "Citation Title",
+				"uri":             "https://example.com",
+				"publicationDate": map[string]int{"year": 2000, "month": 1, "day": 1},
+			},
+			wantValue: Citation{
+				StartIndex:      0,
+				EndIndex:        20,
+				Title:           "Citation Title",
+				URI:             "https://example.com",
+				PublicationDate: Ptr(civil.DateOf(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC))),
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			outputValue := reflect.New(reflect.TypeOf(tc.wantValue)).Interface()
+
+			err := mapToStruct(tc.inputMap, &outputValue)
+
+			if err != nil {
+				t.Fatalf("mapToStruct failed: %v", err)
+			}
+
+			want := reflect.ValueOf(tc.wantValue).Interface()
+			got := reflect.ValueOf(outputValue).Elem().Interface()
+
+			if diff := cmp.Diff(got, want); diff != "" {
+				t.Errorf("mapToStruct mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

@@ -20,6 +20,7 @@ import (
 	"cloud.google.com/go/civil"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -997,6 +998,39 @@ type Citation struct {
 	Title string `json:"title,omitempty"`
 	// Output only. URL reference of the attribution.
 	URI string `json:"uri,omitempty"`
+}
+
+// UnmarshalJSON custom unmarshalling to handle PublicationDate as a map containing year, month, and day.
+func (c *Citation) UnmarshalJSON(data []byte) error {
+	type Alias Citation
+	aux := &struct {
+		PublicationDate map[string]int `json:"publicationDate"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.PublicationDate != nil {
+		var year, month, day int
+		var ok bool
+		if year, ok = aux.PublicationDate["year"]; !ok {
+			return fmt.Errorf("key %q not found", "year")
+		}
+		if month, ok = aux.PublicationDate["month"]; !ok {
+			return fmt.Errorf("key %q not found", "month")
+		}
+		if day, ok = aux.PublicationDate["day"]; !ok {
+			return fmt.Errorf("key %q not found", "day")
+		}
+
+		c.PublicationDate = &civil.Date{Year: year, Month: time.Month(month), Day: day}
+	}
+
+	return nil
 }
 
 // Citation information when the model quotes another source.
