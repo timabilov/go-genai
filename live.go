@@ -63,10 +63,8 @@ func (r *Live) Connect(model string, config *LiveConnectConfig) (*Session, error
 		if err != nil {
 			return nil, fmt.Errorf("failed to get token: %w", err)
 		}
-		header = http.Header{
-			"Content-Type":  []string{"application/json"},
-			"Authorization": []string{fmt.Sprintf("Bearer %s", token.AccessToken)},
-		}
+		header = sdkHeader(r.apiClient)
+		header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 		u = url.URL{
 			Scheme: scheme,
 			Host:   baseURL.Host,
@@ -82,7 +80,7 @@ func (r *Live) Connect(model string, config *LiveConnectConfig) (*Session, error
 			RawQuery: fmt.Sprintf("key=%s", r.apiClient.clientConfig.APIKey),
 		}
 		// TODO(b/372730941): support custom header
-		header = http.Header{}
+		header = sdkHeader(r.apiClient)
 	}
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), header)
