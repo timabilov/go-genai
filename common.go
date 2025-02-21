@@ -19,7 +19,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"iter"
+	"net/url"
 	"reflect"
+	"sort"
+	"strconv"
 )
 
 // Ptr returns a pointer to its argument.
@@ -127,4 +131,45 @@ func deepMarshal(input any, output *map[string]any) error {
 		return fmt.Errorf("deepMarshal: unable to unmarshal input: %w", err)
 	}
 	return nil
+}
+
+// createURLQuery creates a URL query string from a map of key-value pairs.
+// The keys are sorted alphabetically before being encoded.
+// Supported value types are string, int, float64, bool, and []string.
+// An error is returned if an unsupported type is encountered.
+func createURLQuery(query map[string]any) (string, error) {
+	v := url.Values{}
+	keys := make([]string, 0, len(query))
+	for k := range query {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		value := query[key]
+		switch value := value.(type) {
+		case string:
+			v.Add(key, value)
+		case int:
+			v.Add(key, strconv.Itoa(value))
+		case float64:
+			v.Add(key, strconv.FormatFloat(value, 'f', -1, 64))
+		case bool:
+			v.Add(key, strconv.FormatBool(value))
+		case []string:
+			for _, item := range value {
+				v.Add(key, item)
+			}
+		default:
+			return "", fmt.Errorf("unsupported type: %T", value)
+		}
+	}
+	return v.Encode(), nil
+}
+
+func yieldErrorAndEndIterator[T any](err error) iter.Seq2[*T, error] {
+	return func(yield func(*T, error) bool) {
+		if !yield(nil, err) {
+			return
+		}
+	}
 }

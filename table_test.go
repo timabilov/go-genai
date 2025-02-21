@@ -47,6 +47,19 @@ func snakeToCamel(s string) string {
 	return strings.Join(parts, "")
 }
 
+func sanitizeGotSDKResponses(t *testing.T, responses []map[string]any) {
+	t.Helper()
+	for _, response := range responses {
+		if _, ok := response["NextPageToken"].(string); ok {
+			response[response["Name"].(string)] = response["Items"]
+			response["nextPageToken"] = response["NextPageToken"]
+			delete(response, "Items")
+			delete(response, "Name")
+			delete(response, "NextPageToken")
+		}
+	}
+}
+
 func extractArgs(ctx context.Context, t *testing.T, method reflect.Value, testTableFile *testTableFile, testTableItem *testTableItem) []reflect.Value {
 	t.Helper()
 	args := []reflect.Value{
@@ -204,7 +217,14 @@ func TestTable(t *testing.T) {
 									t.Fatalf("Calling method failed unexpectedly, err: %v", response[1].Interface().(error).Error())
 								}
 								// Assert the response when the call is successful.
-								got := convertSDKResponseToMatchReplayType(t, response[0].Elem().Interface())
+								var resp any
+								if response[0].Kind() == reflect.Ptr {
+									resp = response[0].Elem().Interface()
+								} else {
+									resp = response[0].Interface()
+								}
+								got := convertSDKResponseToMatchReplayType(t, resp)
+								sanitizeGotSDKResponses(t, got)
 								want := replayClient.LatestInteraction().Response.SDKResponseSegments
 								opts := cmp.Options{stringComparator}
 								if diff := cmp.Diff(got, want, opts); diff != "" {

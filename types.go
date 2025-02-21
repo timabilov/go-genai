@@ -1759,6 +1759,33 @@ type UpdateCachedContentParameters struct {
 	Config *UpdateCachedContentConfig `json:"config,omitempty"`
 }
 
+// Config for caches.list method.
+type ListCachedContentsConfig struct {
+	// PageSize specifies the maximum number of cached contents to return per API call.
+	// This setting does not affect the total number of cached contents returned by the
+	// All() function during iteration; it only controls how many items are retrieved in
+	// each individual request to the server. If zero, the server will use a default value.
+	// Setting a positive value can be useful for managing the size and frequency of API
+	// calls.
+	PageSize int64 `json:"pageSize,omitempty"`
+	// PageToken represents a token used for pagination in API responses. It's an opaque
+	// string that should be passed to subsequent requests to retrieve the next page of
+	// results. An empty PageToken typically indicates that there are no further pages available.
+	PageToken string `json:"pageToken,omitempty"`
+}
+
+// Parameters for caches.list method.
+type ListCachedContentsParameters struct {
+	// Configuration that contains optional parameters.
+	Config *ListCachedContentsConfig `json:"config,omitempty"`
+}
+
+type ListCachedContentsResponse struct {
+	NextPageToken string `json:"nextPageToken,omitempty"`
+	// List of cached contents.
+	CachedContents []*CachedContent `json:"cachedContents,omitempty"`
+}
+
 type testTableItem struct {
 	// The name of the test. This is used to derive the replay id.
 	Name string `json:"name,omitempty"`

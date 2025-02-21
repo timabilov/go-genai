@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the GenerateContent API.
+// Package main contains the sample code for the Caches API.
 package main
 
 /*
@@ -34,15 +34,25 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"time"
 
 	"google.golang.org/genai"
 )
 
 var model = flag.String("model", "gemini-1.5-pro-002", "the model name, e.g. gemini-1.5-pro-002")
 
+func print(r any) {
+	// Marshal the result to JSON.
+	response, err := json.MarshalIndent(r, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Log the output.
+	fmt.Println(string(response))
+}
+
 func createCachedContent(ctx context.Context) {
-	client, err := genai.NewClient(ctx, nil)
-  fmt.Println("client: ", client.ClientConfig())
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{Backend: genai.BackendVertexAI})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,28 +86,59 @@ func createCachedContent(ctx context.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Marshal the result to JSON and pretty-print it to a byte array.
-	response, err := json.MarshalIndent(*result, "", "  ")
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Log the output.
-	fmt.Println(string(response))
+	fmt.Println("Created cached content:")
+	print(result)
 
-	// Retrieve the cached content.
-	resp, err := client.Caches.Get(ctx, result.Name, nil)
+	// Get the cached content.
+	result, err = client.Caches.Get(ctx, result.Name, &genai.GetCachedContentConfig{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Marshal the result to JSON and pretty-print it to a byte array.
-	respJSON, err := json.MarshalIndent(resp, "", "  ")
+	fmt.Println("Retrieved cached content:")
+	print(result)
+
+	// Update the cached content.
+	result, err = client.Caches.Update(ctx, result.Name, &genai.UpdateCachedContentConfig{
+		ExpireTime: genai.Ptr(time.Now().Add(time.Hour)),
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Log the output.
-	fmt.Println(string(respJSON))
+	fmt.Println("Updated cached content:")
+	print(result)
+
+	fmt.Println("Iterating over the cached contents...")
+	fmt.Println("Option 1: using the All function.")
+	for item, err := range client.Caches.All(ctx) {
+		if err != nil {
+			log.Fatal(err)
+		}
+		print(item)
+	}
+
+	fmt.Println("Option 2: using the List function.")
+	// Example 2.1 - List the first page.
+	page, err := client.Caches.List(ctx, &genai.ListCachedContentsConfig{PageSize: 2})
+	// Example 2.2 - Continue to the next page.
+	page, err = page.Next(ctx)
+	// Example 2.3 - Resume the page iteration using the next page token.
+	page, err = client.Caches.List(ctx, &genai.ListCachedContentsConfig{PageSize: 2, PageToken: page.NextPageToken})
+	if err == genai.ErrPageDone {
+		fmt.Println("No more cached content to retrieve.")
+		return
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+	print(page.Items)
+
+	// Delete the cached content.
+	_, err = client.Caches.Delete(ctx, result.Name, &genai.DeleteCachedContentConfig{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Deleted cached content:", result.Name)
 }
-
 
 func main() {
 	ctx := context.Background()
