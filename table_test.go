@@ -180,8 +180,10 @@ func TestTable(t *testing.T) {
 
 							// Inject unknown fields to the replay file to simulate the case where the SDK adds
 							// unknown fields to the response.
-							injectUnknownFields(t, replayClient)
-
+							// For forward compatibility tests.
+							if testName == "TestTable/vertex/models/generate_content" {
+								injectUnknownFields(t, replayClient)
+							}
 							response := method.Call(args)
 							wantException := extractWantException(testTableItem, backend.Backend)
 							if wantException != "" {

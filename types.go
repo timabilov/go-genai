@@ -201,6 +201,22 @@ const (
 	BlockedReasonProhibitedContent BlockedReason = "PROHIBITED_CONTENT"
 )
 
+type DeploymentResourcesType string
+
+const (
+	// Should not be used.
+	DeploymentResourcesTypeUnspecified DeploymentResourcesType = "DEPLOYMENT_RESOURCES_TYPE_UNSPECIFIED"
+	// Resources that are dedicated to the DeployedModel, and that need a higher degree
+	// of manual configuration.
+	DeploymentResourcesTypeDedicatedResources DeploymentResourcesType = "DEDICATED_RESOURCES"
+	// Resources that to large degree are decided by Vertex AI, and require only a modest
+	// additional configuration.
+	DeploymentResourcesTypeAutomaticResources DeploymentResourcesType = "AUTOMATIC_RESOURCES"
+	// Resources that can be shared by multiple DeployedModels. A pre-configured DeploymentResourcePool
+	// is required.
+	DeploymentResourcesTypeSharedResources DeploymentResourcesType = "SHARED_RESOURCES"
+)
+
 // Config for the dynamic retrieval config mode.
 type DynamicRetrievalConfigMode string
 
@@ -1426,6 +1442,86 @@ type UpscaleImageAPIParameters struct {
 type UpscaleImageResponse struct {
 	// Generated images.
 	GeneratedImages []*GeneratedImage `json:"generatedImages,omitempty"`
+}
+
+// Optional parameters for models.get method.
+type GetModelConfig struct {
+}
+
+type GetModelParameters struct {
+	Model string `json:"model,omitempty"`
+	// Optional parameters for the request.
+	Config *GetModelConfig `json:"config,omitempty"`
+}
+
+// An endpoint where you deploy models.
+type Endpoint struct {
+	// Resource name of the endpoint.
+	Name string `json:"name,omitempty"`
+	// ID of the model that's deployed to the endpoint.
+	DeployedModelID string `json:"deployedModelId,omitempty"`
+}
+
+// A tuned machine learning model.
+type TunedModelInfo struct {
+	// ID of the base model that you want to tune.
+	BaseModel string `json:"baseModel,omitempty"`
+	// Date and time when the base model was created.
+	CreateTime *time.Time `json:"createTime,omitempty"`
+	// Date and time when the base model was last updated.
+	UpdateTime *time.Time `json:"updateTime,omitempty"`
+}
+
+// A trained machine learning model.
+type Model struct {
+	// Resource name of the model.
+	Name string `json:"name,omitempty"`
+	// Display name of the model.
+	DisplayName string `json:"displayName,omitempty"`
+	// Description of the model.
+	Description string `json:"description,omitempty"`
+	// Version ID of the model. A new version is committed when a new
+	// model version is uploaded or trained under an existing model ID. The
+	// version ID is an auto-incrementing decimal number in string
+	// representation.
+	Version string `json:"version,omitempty"`
+	// List of deployed models created from this base model. Note that a
+	// model could have been deployed to endpoints in different locations.
+	Endpoints []*Endpoint `json:"endpoints,omitempty"`
+	// Labels with user-defined metadata to organize your models.
+	Labels map[string]string `json:"labels,omitempty"`
+	// Information about the tuned model from the base model.
+	TunedModelInfo *TunedModelInfo `json:"tunedModelInfo,omitempty"`
+	// The maximum number of input tokens that the model can handle.
+	InputTokenLimit int64 `json:"inputTokenLimit,omitempty"`
+	// The maximum number of output tokens that the model can generate.
+	OutputTokenLimit int64 `json:"outputTokenLimit,omitempty"`
+	// List of actions that are supported by the model.
+	SupportedActions []string `json:"supportedActions,omitempty"`
+}
+
+type UpdateModelConfig struct {
+	DisplayName string `json:"displayName,omitempty"`
+
+	Description string `json:"description,omitempty"`
+}
+
+type UpdateModelParameters struct {
+	Model string `json:"model,omitempty"`
+
+	Config *UpdateModelConfig `json:"config,omitempty"`
+}
+
+type DeleteModelConfig struct {
+}
+
+type DeleteModelParameters struct {
+	Model string `json:"model,omitempty"`
+	// Optional parameters for the request.
+	Config *DeleteModelConfig `json:"config,omitempty"`
+}
+
+type DeleteModelResponse struct {
 }
 
 // Generation config. You can find API default values and more details at https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig
