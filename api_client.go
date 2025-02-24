@@ -35,12 +35,12 @@ type apiClient struct {
 
 // sendStreamRequest issues an server streaming API request and returns a map of the response contents.
 func sendStreamRequest[T responseStream[R], R any](ctx context.Context, ac *apiClient, path string, method string, body map[string]any, output *responseStream[R]) error {
-	req, err := buildRequest(ac, path, body, method)
+	req, err := buildRequest(ctx, ac, path, body, method)
 	if err != nil {
 		return err
 	}
 
-	resp, err := doRequest(ctx, ac, req)
+	resp, err := doRequest(ac, req)
 	if err != nil {
 		return err
 	}
@@ -51,12 +51,12 @@ func sendStreamRequest[T responseStream[R], R any](ctx context.Context, ac *apiC
 
 // sendRequest issues an API request and returns a map of the response contents.
 func sendRequest(ctx context.Context, ac *apiClient, path string, method string, body map[string]any) (map[string]any, error) {
-	req, err := buildRequest(ac, path, body, method)
+	req, err := buildRequest(ctx, ac, path, body, method)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := doRequest(ctx, ac, req)
+	resp, err := doRequest(ac, req)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (ac *apiClient) createAPIURL(suffix string) (*url.URL, error) {
 	}
 }
 
-func buildRequest(ac *apiClient, path string, body map[string]any, method string) (*http.Request, error) {
+func buildRequest(ctx context.Context, ac *apiClient, path string, body map[string]any, method string) (*http.Request, error) {
 	url, err := ac.createAPIURL(path)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func buildRequest(ac *apiClient, path string, body map[string]any, method string
 	}
 
 	// Create a new HTTP request
-	req, err := http.NewRequest(method, url.String(), b)
+	req, err := http.NewRequestWithContext(ctx, method, url.String(), b)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func sdkHeader(ac *apiClient) http.Header {
 	return header
 }
 
-func doRequest(ctx context.Context, ac *apiClient, req *http.Request) (*http.Response, error) {
+func doRequest(ac *apiClient, req *http.Request) (*http.Response, error) {
 	// Create a new HTTP client and send the request
 	client := ac.clientConfig.HTTPClient
 	resp, err := client.Do(req)
