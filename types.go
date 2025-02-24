@@ -1901,7 +1901,7 @@ type RawReferenceImage struct {
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
 	ReferenceID int64 `json:"referenceId,omitempty"`
-	// The type of the reference image.
+	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 }
 
@@ -1928,7 +1928,7 @@ type MaskReferenceImage struct {
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
 	ReferenceID int64 `json:"referenceId,omitempty"`
-	// The type of the reference image.
+	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 	// Configuration for the mask reference image.
 	Config *MaskReferenceConfig `json:"config,omitempty"`
@@ -1955,7 +1955,7 @@ type ControlReferenceImage struct {
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
 	ReferenceID int64 `json:"referenceId,omitempty"`
-	// The type of the reference image.
+	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 	// Configuration for the control reference image.
 	Config *ControlReferenceConfig `json:"config,omitempty"`
@@ -1977,7 +1977,7 @@ type StyleReferenceImage struct {
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
 	ReferenceID int64 `json:"referenceId,omitempty"`
-	// The type of the reference image.
+	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 	// Configuration for the style reference image.
 	Config *StyleReferenceConfig `json:"config,omitempty"`
@@ -2001,7 +2001,7 @@ type SubjectReferenceImage struct {
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
 	ReferenceID int64 `json:"referenceId,omitempty"`
-	// The type of the reference image.
+	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 	// Configuration for the subject reference image.
 	Config *SubjectReferenceConfig `json:"config,omitempty"`
