@@ -175,6 +175,98 @@ func TestFunctionCalls(t *testing.T) {
 	}
 }
 
+func TestExecutableCode(t *testing.T) {
+	tests := []struct {
+		name                   string
+		response               *GenerateContentResponse
+		expectedExecutableCode string
+	}{
+		{
+			name:                   "Empty Candidates",
+			response:               createGenerateContentResponse([]*Candidate{}),
+			expectedExecutableCode: "",
+		},
+		{
+			name: "Multiple Candidates",
+			response: createGenerateContentResponse([]*Candidate{
+				{Content: &Content{Parts: []*Part{{ExecutableCode: &ExecutableCode{Code: "code1", Language: LanguagePython}}}}},
+				{Content: &Content{Parts: []*Part{{ExecutableCode: &ExecutableCode{Code: "code2", Language: LanguagePython}}}}},
+			}),
+			expectedExecutableCode: "code1",
+		},
+		{
+			name: "Empty Parts",
+			response: createGenerateContentResponse([]*Candidate{
+				{Content: &Content{Parts: []*Part{}}},
+			}),
+			expectedExecutableCode: "",
+		},
+		{
+			name: "Part With ExecutableCode",
+			response: createGenerateContentResponse([]*Candidate{
+				{Content: &Content{Parts: []*Part{{ExecutableCode: &ExecutableCode{Code: "code1", Language: LanguagePython}}}}},
+			}),
+			expectedExecutableCode: "code1",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.response.ExecutableCode()
+
+			if !reflect.DeepEqual(result, tt.expectedExecutableCode) {
+				t.Fatalf("expected executable code %v, got %v", tt.expectedExecutableCode, result)
+			}
+		})
+	}
+}
+
+func TestCodeExecutionResult(t *testing.T) {
+	tests := []struct {
+		name                        string
+		response                    *GenerateContentResponse
+		expectedCodeExecutionResult string
+	}{
+		{
+			name:                        "Empty Candidates",
+			response:                    createGenerateContentResponse([]*Candidate{}),
+			expectedCodeExecutionResult: "",
+		},
+		{
+			name: "Multiple Candidates",
+			response: createGenerateContentResponse([]*Candidate{
+				{Content: &Content{Parts: []*Part{{CodeExecutionResult: &CodeExecutionResult{Outcome: OutcomeOK, Output: "output1"}}}}},
+				{Content: &Content{Parts: []*Part{{CodeExecutionResult: &CodeExecutionResult{Outcome: OutcomeOK, Output: "output2"}}}}},
+			}),
+			expectedCodeExecutionResult: "output1",
+		},
+		{
+			name: "Empty Parts",
+			response: createGenerateContentResponse([]*Candidate{
+				{Content: &Content{Parts: []*Part{}}},
+			}),
+			expectedCodeExecutionResult: "",
+		},
+		{
+			name: "Part With CodeExecutionResult",
+			response: createGenerateContentResponse([]*Candidate{
+				{Content: &Content{Parts: []*Part{{CodeExecutionResult: &CodeExecutionResult{Outcome: OutcomeOK, Output: "output1"}}}}},
+			}),
+			expectedCodeExecutionResult: "output1",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.response.CodeExecutionResult()
+
+			if !reflect.DeepEqual(result, tt.expectedCodeExecutionResult) {
+				t.Fatalf("expected code execution result %v, got %v", tt.expectedCodeExecutionResult, result)
+			}
+		})
+	}
+}
+
 func TestNewPartFromURI(t *testing.T) {
 	fileURI := "http://example.com/video.mp4"
 	mimeType := "video/mp4"
