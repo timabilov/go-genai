@@ -1298,6 +1298,11 @@ func generateImagesConfigToMldev(ac *apiClient, fromObject map[string]any, paren
 		setValueByPath(parentObject, []string{"parameters", "sampleCount"}, fromNumberOfImages)
 	}
 
+	fromAspectRatio := getValueByPath(fromObject, []string{"aspectRatio"})
+	if fromAspectRatio != nil {
+		setValueByPath(parentObject, []string{"parameters", "aspectRatio"}, fromAspectRatio)
+	}
+
 	fromGuidanceScale := getValueByPath(fromObject, []string{"guidanceScale"})
 	if fromGuidanceScale != nil {
 		setValueByPath(parentObject, []string{"parameters", "guidanceScale"}, fromGuidanceScale)
@@ -1346,11 +1351,6 @@ func generateImagesConfigToMldev(ac *apiClient, fromObject map[string]any, paren
 		return nil, fmt.Errorf("addWatermark parameter is not supported in Gemini API")
 	}
 
-	fromAspectRatio := getValueByPath(fromObject, []string{"aspectRatio"})
-	if fromAspectRatio != nil {
-		setValueByPath(parentObject, []string{"parameters", "aspectRatio"}, fromAspectRatio)
-	}
-
 	if getValueByPath(fromObject, []string{"enhancePrompt"}) != nil {
 		return nil, fmt.Errorf("enhancePrompt parameter is not supported in Gemini API")
 	}
@@ -1374,6 +1374,11 @@ func generateImagesConfigToVertex(ac *apiClient, fromObject map[string]any, pare
 	fromNumberOfImages := getValueByPath(fromObject, []string{"numberOfImages"})
 	if fromNumberOfImages != nil {
 		setValueByPath(parentObject, []string{"parameters", "sampleCount"}, fromNumberOfImages)
+	}
+
+	fromAspectRatio := getValueByPath(fromObject, []string{"aspectRatio"})
+	if fromAspectRatio != nil {
+		setValueByPath(parentObject, []string{"parameters", "aspectRatio"}, fromAspectRatio)
 	}
 
 	fromGuidanceScale := getValueByPath(fromObject, []string{"guidanceScale"})
@@ -1424,11 +1429,6 @@ func generateImagesConfigToVertex(ac *apiClient, fromObject map[string]any, pare
 	fromAddWatermark := getValueByPath(fromObject, []string{"addWatermark"})
 	if fromAddWatermark != nil {
 		setValueByPath(parentObject, []string{"parameters", "addWatermark"}, fromAddWatermark)
-	}
-
-	fromAspectRatio := getValueByPath(fromObject, []string{"aspectRatio"})
-	if fromAspectRatio != nil {
-		setValueByPath(parentObject, []string{"parameters", "aspectRatio"}, fromAspectRatio)
 	}
 
 	fromEnhancePrompt := getValueByPath(fromObject, []string{"enhancePrompt"})

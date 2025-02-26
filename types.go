@@ -1379,6 +1379,8 @@ type GenerateImagesConfig struct {
 	NegativePrompt string `json:"negativePrompt,omitempty"`
 	// Number of images to generate.
 	NumberOfImages *int64 `json:"numberOfImages,omitempty"`
+	// Aspect ratio of the generated images.
+	AspectRatio string `json:"aspectRatio,omitempty"`
 	// Controls how much the model adheres to the text prompt. Large
 	// values increase output and prompt alignment, but may compromise image
 	// quality.
@@ -1404,8 +1406,6 @@ type GenerateImagesConfig struct {
 	OutputCompressionQuality *int64 `json:"outputCompressionQuality,omitempty"`
 	// Whether to add a watermark to the generated images.
 	AddWatermark bool `json:"addWatermark,omitempty"`
-	// Aspect ratio of the generated images.
-	AspectRatio string `json:"aspectRatio,omitempty"`
 	// Whether to use the prompt rewriting logic.
 	EnhancePrompt bool `json:"enhancePrompt,omitempty"`
 }
