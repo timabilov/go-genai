@@ -272,7 +272,7 @@ func TestModelsGenerateContentStream(t *testing.T) {
 					return nil
 				}
 				var testTableFile testTableFile
-				if err := readFileForReplayTest(testFilePath, &testTableFile); err != nil {
+				if err := readFileForReplayTest(testFilePath, &testTableFile, false); err != nil {
 					t.Errorf("error loading test table file, %v", err)
 				}
 				if strings.Contains(testTableFile.TestMethod, "stream") {

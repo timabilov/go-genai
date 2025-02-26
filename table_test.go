@@ -52,7 +52,9 @@ func sanitizeGotSDKResponses(t *testing.T, responses []map[string]any) {
 	for _, response := range responses {
 		if _, ok := response["NextPageToken"].(string); ok {
 			response[response["Name"].(string)] = response["Items"]
-			response["nextPageToken"] = response["NextPageToken"]
+			if response["NextPageToken"] != "" {
+				response["nextPageToken"] = response["NextPageToken"]
+			}
 			delete(response, "Items")
 			delete(response, "Name")
 			delete(response, "NextPageToken")
@@ -159,7 +161,7 @@ func TestTable(t *testing.T) {
 				testName := strings.TrimPrefix(testTableDirectory, "/tests/")
 				t.Run(testName, func(t *testing.T) {
 					var testTableFile testTableFile
-					if err := readFileForReplayTest(testFilePath, &testTableFile); err != nil {
+					if err := readFileForReplayTest(testFilePath, &testTableFile, false); err != nil {
 						t.Errorf("error loading test table file, %v", err)
 					}
 					for _, testTableItem := range testTableFile.TestTable {

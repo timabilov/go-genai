@@ -1542,6 +1542,27 @@ type Model struct {
 	SupportedActions []string `json:"supportedActions,omitempty"`
 }
 
+type ListModelsConfig struct {
+	PageSize *int64 `json:"pageSize,omitempty"`
+
+	PageToken string `json:"pageToken,omitempty"`
+
+	Filter string `json:"filter,omitempty"`
+	// QueryBase is a boolean flag to control whether to query base models or tuned models.
+	// If nil, then SDK will use the default value Ptr(true).
+	QueryBase *bool `json:"queryBase,omitempty"`
+}
+
+type ListModelsParameters struct {
+	Config *ListModelsConfig `json:"config,omitempty"`
+}
+
+type ListModelsResponse struct {
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	Models []*Model `json:"models,omitempty"`
+}
+
 type UpdateModelConfig struct {
 	DisplayName string `json:"displayName,omitempty"`
 

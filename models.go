@@ -1737,6 +1737,100 @@ func getModelParametersToVertex(ac *apiClient, fromObject map[string]any, parent
 	return toObject, nil
 }
 
+func listModelsConfigToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromPageSize := getValueByPath(fromObject, []string{"pageSize"})
+	if fromPageSize != nil {
+		setValueByPath(parentObject, []string{"_query", "pageSize"}, fromPageSize)
+	}
+
+	fromPageToken := getValueByPath(fromObject, []string{"pageToken"})
+	if fromPageToken != nil {
+		setValueByPath(parentObject, []string{"_query", "pageToken"}, fromPageToken)
+	}
+
+	fromFilter := getValueByPath(fromObject, []string{"filter"})
+	if fromFilter != nil {
+		setValueByPath(parentObject, []string{"_query", "filter"}, fromFilter)
+	}
+
+	fromQueryBase := getValueByPath(fromObject, []string{"queryBase"})
+	if fromQueryBase != nil {
+		fromQueryBase, err = tModelsURL(ac, fromQueryBase)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(parentObject, []string{"_url", "modelsUrl"}, fromQueryBase)
+	}
+
+	return toObject, nil
+}
+
+func listModelsConfigToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromPageSize := getValueByPath(fromObject, []string{"pageSize"})
+	if fromPageSize != nil {
+		setValueByPath(parentObject, []string{"_query", "pageSize"}, fromPageSize)
+	}
+
+	fromPageToken := getValueByPath(fromObject, []string{"pageToken"})
+	if fromPageToken != nil {
+		setValueByPath(parentObject, []string{"_query", "pageToken"}, fromPageToken)
+	}
+
+	fromFilter := getValueByPath(fromObject, []string{"filter"})
+	if fromFilter != nil {
+		setValueByPath(parentObject, []string{"_query", "filter"}, fromFilter)
+	}
+
+	fromQueryBase := getValueByPath(fromObject, []string{"queryBase"})
+	if fromQueryBase != nil {
+		fromQueryBase, err = tModelsURL(ac, fromQueryBase)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(parentObject, []string{"_url", "modelsUrl"}, fromQueryBase)
+	}
+
+	return toObject, nil
+}
+
+func listModelsParametersToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromConfig := getValueByPath(fromObject, []string{"config"})
+	if fromConfig != nil {
+		fromConfig, err = listModelsConfigToMldev(ac, fromConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"config"}, fromConfig)
+	}
+
+	return toObject, nil
+}
+
+func listModelsParametersToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromConfig := getValueByPath(fromObject, []string{"config"})
+	if fromConfig != nil {
+		fromConfig, err = listModelsConfigToVertex(ac, fromConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"config"}, fromConfig)
+	}
+
+	return toObject, nil
+}
+
 func updateModelConfigToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -2756,6 +2850,58 @@ func modelFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[
 	return toObject, nil
 }
 
+func listModelsResponseFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromNextPageToken := getValueByPath(fromObject, []string{"nextPageToken"})
+	if fromNextPageToken != nil {
+		setValueByPath(toObject, []string{"nextPageToken"}, fromNextPageToken)
+	}
+
+	fromModels := getValueByPath(fromObject, []string{"_self"})
+	if fromModels != nil {
+		fromModels, err = tExtractModels(ac, fromModels)
+		if err != nil {
+			return nil, err
+		}
+
+		fromModels, err = applyConverterToSlice(ac, fromModels.([]any), modelFromMldev)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"models"}, fromModels)
+	}
+
+	return toObject, nil
+}
+
+func listModelsResponseFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromNextPageToken := getValueByPath(fromObject, []string{"nextPageToken"})
+	if fromNextPageToken != nil {
+		setValueByPath(toObject, []string{"nextPageToken"}, fromNextPageToken)
+	}
+
+	fromModels := getValueByPath(fromObject, []string{"_self"})
+	if fromModels != nil {
+		fromModels, err = tExtractModels(ac, fromModels)
+		if err != nil {
+			return nil, err
+		}
+
+		fromModels, err = applyConverterToSlice(ac, fromModels.([]any), modelFromVertex)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"models"}, fromModels)
+	}
+
+	return toObject, nil
+}
+
 func deleteModelResponseFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -3140,6 +3286,69 @@ func (m Models) Get(ctx context.Context, model string, config *GetModelConfig) (
 	return response, nil
 }
 
+func (m Models) list(ctx context.Context, config *ListModelsConfig) (*ListModelsResponse, error) {
+	parameterMap := make(map[string]any)
+
+	kwargs := map[string]any{"config": config}
+	deepMarshal(kwargs, &parameterMap)
+
+	var response = new(ListModelsResponse)
+	var responseMap map[string]any
+	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
+	var toConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
+	if m.apiClient.clientConfig.Backend == BackendVertexAI {
+		toConverter = listModelsParametersToVertex
+		fromConverter = listModelsResponseFromVertex
+	} else {
+		toConverter = listModelsParametersToMldev
+		fromConverter = listModelsResponseFromMldev
+	}
+
+	body, err := toConverter(m.apiClient, parameterMap, nil)
+	if err != nil {
+		return nil, err
+	}
+	var path string
+	var urlParams map[string]any
+	if _, ok := body["_url"]; ok {
+		urlParams = body["_url"].(map[string]any)
+		delete(body, "_url")
+	}
+	if m.apiClient.clientConfig.Backend == BackendVertexAI {
+		path, err = formatMap("{modelsUrl}", urlParams)
+	} else {
+		path, err = formatMap("{modelsUrl}", urlParams)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("invalid url params: %#v.\n%w", urlParams, err)
+	}
+	if _, ok := body["_query"]; ok {
+		query, err := createURLQuery(body["_query"].(map[string]any))
+		if err != nil {
+			return nil, err
+		}
+		path += "?" + query
+		delete(body, "_query")
+	}
+
+	if _, ok := body["config"]; ok {
+		delete(body, "config")
+	}
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodGet, body)
+	if err != nil {
+		return nil, err
+	}
+	responseMap, err = fromConverter(m.apiClient, responseMap, nil)
+	if err != nil {
+		return nil, err
+	}
+	err = mapToStruct(responseMap, response)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
 func (m Models) Update(ctx context.Context, model string, config *UpdateModelConfig) (*Model, error) {
 	parameterMap := make(map[string]any)
 
@@ -3416,6 +3625,47 @@ func (m Models) GenerateContentStream(ctx context.Context, model string, content
 		c.setDefaults()
 	}
 	return m.generateContentStream(ctx, model, contents, config)
+}
+
+func (m Models) List(ctx context.Context, config *ListModelsConfig) (Page[Model], error) {
+	listFunc := func(ctx context.Context, config map[string]any) ([]*Model, string, error) {
+		var c ListModelsConfig
+		if err := mapToStruct(config, &c); err != nil {
+			return nil, "", err
+		}
+		if c.QueryBase == nil {
+			c.QueryBase = Ptr(true)
+		}
+		if m.apiClient.clientConfig.Backend == BackendVertexAI && !*c.QueryBase {
+			if c.Filter != "" {
+				c.Filter += "&filter="
+			}
+			c.Filter += "labels.tune-type:*"
+		}
+		resp, err := m.list(ctx, &c)
+		if err != nil {
+			return nil, "", err
+		}
+		return resp.Models, resp.NextPageToken, nil
+	}
+	c := make(map[string]any)
+	deepMarshal(config, &c)
+	return newPage(ctx, "models", c, listFunc)
+}
+
+func (m Models) All(ctx context.Context) iter.Seq2[*Model, error] {
+	listFunc := func(ctx context.Context, _ map[string]any) ([]*Model, string, error) {
+		resp, err := m.list(ctx, &ListModelsConfig{QueryBase: Ptr(true)})
+		if err != nil {
+			return nil, "", err
+		}
+		return resp.Models, resp.NextPageToken, nil
+	}
+	p, err := newPage(ctx, "models", map[string]any{}, listFunc)
+	if err != nil {
+		return yieldErrorAndEndIterator[Model](err)
+	}
+	return p.all(ctx)
 }
 
 // UpscaleImage calls the upscaleImage method on the model.

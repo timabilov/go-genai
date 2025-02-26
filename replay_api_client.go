@@ -80,7 +80,7 @@ func (rac *replayAPIClient) LoadReplay(replayFilePath string) {
 		fullReplaysPath = filepath.Join(rac.ReplaysDirectory, replayFilePath)
 	}
 	var replayFile replayFile
-	if err := readFileForReplayTest(fullReplaysPath, &replayFile); err != nil {
+	if err := readFileForReplayTest(fullReplaysPath, &replayFile, true); err != nil {
 		rac.t.Errorf("error loading replay file, %v", err)
 	}
 	rac.ReplayFile = &replayFile
@@ -124,7 +124,7 @@ func (rac *replayAPIClient) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 	w.Write([]byte(strings.Join(bodySegments, "\n")))
 }
 
-func readFileForReplayTest[T any](path string, output *T) error {
+func readFileForReplayTest[T any](path string, output *T, omitempty bool) error {
 	dat, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -135,7 +135,9 @@ func readFileForReplayTest[T any](path string, output *T) error {
 		return fmt.Errorf("error unmarshalling to map: %w", err)
 	}
 
-	omitEmptyValues(m)
+	if omitempty {
+		omitEmptyValues(m)
+	}
 	convertKeysToCamelCase(m)
 
 	// Marshal the modified map back to struct
