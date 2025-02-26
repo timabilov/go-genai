@@ -1246,6 +1246,10 @@ type GenerateContentResponseUsageMetadata struct {
 type GenerateContentResponse struct {
 	// Response variations returned by the model.
 	Candidates []*Candidate `json:"candidates,omitempty"`
+	// Timestamp when the request is made to the server.
+	CreateTime *time.Time `json:"createTime,omitempty"`
+	// Identifier for each response.
+	ResponseID string `json:"responseId,omitempty"`
 	// Output only. The model version used to generate the response.
 	ModelVersion string `json:"modelVersion,omitempty"`
 	// Output only. Content filter results for a prompt sent in the request. Note: Sent
