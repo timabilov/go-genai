@@ -1960,29 +1960,12 @@ func deleteModelParametersToVertex(ac *apiClient, fromObject map[string]any, par
 func countTokensConfigToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
-	fromSystemInstruction := getValueByPath(fromObject, []string{"systemInstruction"})
-	if fromSystemInstruction != nil {
-		fromSystemInstruction, err = tContent(ac, fromSystemInstruction)
-		if err != nil {
-			return nil, err
-		}
-
-		fromSystemInstruction, err = contentToMldev(ac, fromSystemInstruction.(map[string]any), toObject)
-		if err != nil {
-			return nil, err
-		}
-
-		setValueByPath(parentObject, []string{"generateContentRequest", "systemInstruction"}, fromSystemInstruction)
+	if getValueByPath(fromObject, []string{"systemInstruction"}) != nil {
+		return nil, fmt.Errorf("systemInstruction parameter is not supported in Gemini API")
 	}
 
-	fromTools := getValueByPath(fromObject, []string{"tools"})
-	if fromTools != nil {
-		fromTools, err = applyConverterToSlice(ac, fromTools.([]any), toolToMldev)
-		if err != nil {
-			return nil, err
-		}
-
-		setValueByPath(parentObject, []string{"generateContentRequest", "tools"}, fromTools)
+	if getValueByPath(fromObject, []string{"tools"}) != nil {
+		return nil, fmt.Errorf("tools parameter is not supported in Gemini API")
 	}
 
 	if getValueByPath(fromObject, []string{"generationConfig"}) != nil {
