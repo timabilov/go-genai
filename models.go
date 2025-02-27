@@ -3213,6 +3213,14 @@ func (m Models) generateContent(ctx context.Context, model string, contents []*C
 	kwargs := map[string]any{"model": model, "contents": contents, "config": config}
 	deepMarshal(kwargs, &parameterMap)
 
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
+
 	var response = new(GenerateContentResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -3255,7 +3263,7 @@ func (m Models) generateContent(ctx context.Context, model string, contents []*C
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -3277,16 +3285,17 @@ func (m Models) generateContentStream(ctx context.Context, model string, content
 	kwargs := map[string]any{"model": model, "contents": contents, "config": config}
 	deepMarshal(kwargs, &parameterMap)
 
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
+
 	var rs responseStream[GenerateContentResponse]
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
 	var toConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
-	yieldErrorAndEndIterator := func(err error) iter.Seq2[*GenerateContentResponse, error] {
-		return func(yield func(*GenerateContentResponse, error) bool) {
-			if !yield(nil, err) {
-				return
-			}
-		}
-	}
 	if m.apiClient.clientConfig.Backend == BackendVertexAI {
 		toConverter = generateContentParametersToVertex
 		fromConverter = generateContentResponseFromVertex
@@ -3297,7 +3306,7 @@ func (m Models) generateContentStream(ctx context.Context, model string, content
 
 	body, err := toConverter(m.apiClient, parameterMap, nil)
 	if err != nil {
-		return yieldErrorAndEndIterator(err)
+		return yieldErrorAndEndIterator[GenerateContentResponse](err)
 	}
 	var path string
 	var urlParams map[string]any
@@ -3311,13 +3320,13 @@ func (m Models) generateContentStream(ctx context.Context, model string, content
 		path, err = formatMap("{model}:streamGenerateContent?alt=sse", urlParams)
 	}
 	if err != nil {
-		return yieldErrorAndEndIterator(fmt.Errorf("invalid url params: %#v.\n%w", urlParams, err))
+		return yieldErrorAndEndIterator[GenerateContentResponse](fmt.Errorf("invalid url params: %#v.\n%w", urlParams, err))
 	}
 	delete(body, "_url")
 	delete(body, "config")
-	err = sendStreamRequest(ctx, m.apiClient, path, http.MethodPost, body, &rs)
+	err = sendStreamRequest(ctx, m.apiClient, path, http.MethodPost, body, httpOptions, &rs)
 	if err != nil {
-		return yieldErrorAndEndIterator(err)
+		return yieldErrorAndEndIterator[GenerateContentResponse](err)
 	}
 	return iterateResponseStream(&rs, func(responseMap map[string]any) (*GenerateContentResponse, error) {
 		responseMap, err := fromConverter(m.apiClient, responseMap, nil)
@@ -3338,6 +3347,14 @@ func (m Models) EmbedContent(ctx context.Context, model string, contents []*Cont
 
 	kwargs := map[string]any{"model": model, "contents": contents, "config": config}
 	deepMarshal(kwargs, &parameterMap)
+
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
 
 	var response = new(EmbedContentResponse)
 	var responseMap map[string]any
@@ -3381,7 +3398,7 @@ func (m Models) EmbedContent(ctx context.Context, model string, contents []*Cont
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -3401,6 +3418,14 @@ func (m Models) GenerateImages(ctx context.Context, model string, prompt string,
 
 	kwargs := map[string]any{"model": model, "prompt": prompt, "config": config}
 	deepMarshal(kwargs, &parameterMap)
+
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
 
 	var response = new(GenerateImagesResponse)
 	var responseMap map[string]any
@@ -3444,7 +3469,7 @@ func (m Models) GenerateImages(ctx context.Context, model string, prompt string,
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -3465,6 +3490,13 @@ func (m Models) upscaleImage(ctx context.Context, model string, image *Image, up
 	kwargs := map[string]any{"model": model, "image": image, "upscaleFactor": upscaleFactor, "config": config}
 	deepMarshal(kwargs, &parameterMap)
 
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
 	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
 		return nil, fmt.Errorf("method UpscaleImage is only supported in the Vertex AI client.")
 	}
@@ -3511,7 +3543,7 @@ func (m Models) upscaleImage(ctx context.Context, model string, image *Image, up
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -3531,6 +3563,14 @@ func (m Models) Get(ctx context.Context, model string, config *GetModelConfig) (
 
 	kwargs := map[string]any{"model": model, "config": config}
 	deepMarshal(kwargs, &parameterMap)
+
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
 
 	var response = new(Model)
 	var responseMap map[string]any
@@ -3574,7 +3614,7 @@ func (m Models) Get(ctx context.Context, model string, config *GetModelConfig) (
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodGet, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodGet, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -3594,6 +3634,14 @@ func (m Models) list(ctx context.Context, config *ListModelsConfig) (*ListModels
 
 	kwargs := map[string]any{"config": config}
 	deepMarshal(kwargs, &parameterMap)
+
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
 
 	var response = new(ListModelsResponse)
 	var responseMap map[string]any
@@ -3637,7 +3685,7 @@ func (m Models) list(ctx context.Context, config *ListModelsConfig) (*ListModels
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodGet, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodGet, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -3657,6 +3705,14 @@ func (m Models) Update(ctx context.Context, model string, config *UpdateModelCon
 
 	kwargs := map[string]any{"model": model, "config": config}
 	deepMarshal(kwargs, &parameterMap)
+
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
 
 	var response = new(Model)
 	var responseMap map[string]any
@@ -3700,7 +3756,7 @@ func (m Models) Update(ctx context.Context, model string, config *UpdateModelCon
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPatch, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPatch, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -3720,6 +3776,14 @@ func (m Models) Delete(ctx context.Context, model string, config *DeleteModelCon
 
 	kwargs := map[string]any{"model": model, "config": config}
 	deepMarshal(kwargs, &parameterMap)
+
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
 
 	var response = new(DeleteModelResponse)
 	var responseMap map[string]any
@@ -3763,7 +3827,7 @@ func (m Models) Delete(ctx context.Context, model string, config *DeleteModelCon
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodDelete, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodDelete, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -3783,6 +3847,14 @@ func (m Models) CountTokens(ctx context.Context, model string, contents []*Conte
 
 	kwargs := map[string]any{"model": model, "contents": contents, "config": config}
 	deepMarshal(kwargs, &parameterMap)
+
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
 
 	var response = new(CountTokensResponse)
 	var responseMap map[string]any
@@ -3826,7 +3898,7 @@ func (m Models) CountTokens(ctx context.Context, model string, contents []*Conte
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -3847,6 +3919,13 @@ func (m Models) ComputeTokens(ctx context.Context, model string, contents []*Con
 	kwargs := map[string]any{"model": model, "contents": contents, "config": config}
 	deepMarshal(kwargs, &parameterMap)
 
+	var httpOptions *HTTPOptions
+	if config == nil {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, nil)
+	} else {
+		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
+		config.HTTPOptions = nil
+	}
 	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
 		return nil, fmt.Errorf("method ComputeTokens is only supported in the Vertex AI client.")
 	}
@@ -3893,7 +3972,7 @@ func (m Models) ComputeTokens(ctx context.Context, model string, contents []*Con
 	if _, ok := body["config"]; ok {
 		delete(body, "config")
 	}
-	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body, httpOptions)
 	if err != nil {
 		return nil, err
 	}

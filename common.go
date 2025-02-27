@@ -252,3 +252,35 @@ func yieldErrorAndEndIterator[T any](err error) iter.Seq2[*T, error] {
 		}
 	}
 }
+
+func mergeHTTPOptions(clientConfig *ClientConfig, requestHTTPOptions *HTTPOptions) *HTTPOptions {
+	var clientHTTPOptions *HTTPOptions
+	if clientConfig != nil {
+		clientHTTPOptions = &(clientConfig.HTTPOptions)
+	}
+
+	result := HTTPOptions{}
+	if clientHTTPOptions == nil && requestHTTPOptions == nil {
+		return nil
+	} else if clientHTTPOptions == nil {
+		result = HTTPOptions{
+			BaseURL:    requestHTTPOptions.BaseURL,
+			APIVersion: requestHTTPOptions.APIVersion,
+		}
+	} else {
+		result = HTTPOptions{
+			BaseURL:    clientHTTPOptions.BaseURL,
+			APIVersion: clientHTTPOptions.APIVersion,
+		}
+	}
+
+	if requestHTTPOptions != nil {
+		if requestHTTPOptions.BaseURL != "" {
+			result.BaseURL = requestHTTPOptions.BaseURL
+		}
+		if requestHTTPOptions.APIVersion != "" {
+			result.APIVersion = requestHTTPOptions.APIVersion
+		}
+	}
+	return &result
+}

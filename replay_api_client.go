@@ -16,7 +16,6 @@ package genai
 
 import (
 	"bytes"
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -65,11 +64,6 @@ func newReplayAPIClient(t *testing.T) *replayAPIClient {
 // GetBaseURL returns the URL of the mocked HTTP server.
 func (rac *replayAPIClient) GetBaseURL() string {
 	return rac.server.URL
-}
-
-// CreateClient creates a new HTTP client that uses the replay session file.
-func (rac *replayAPIClient) CreateClient(ctx context.Context) (*http.Client, error) {
-	return rac.server.Client(), nil
 }
 
 // LoadReplay populates a replay session from a file based on the provided path.
