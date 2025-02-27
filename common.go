@@ -22,6 +22,7 @@ import (
 	"iter"
 	"net/url"
 	"reflect"
+	"strings"
 	"sort"
 	"strconv"
 )
@@ -36,36 +37,114 @@ type converterFunc func(*apiClient, map[string]any, map[string]any) (map[string]
 
 type transformerFunc[T any] func(*apiClient, T) (T, error)
 
+// setValueByPath handles setting values within nested maps, including handling array-like structures.
+//
+// Examples:
+//
+//	setValueByPath(map[string]any{}, []string{"a", "b"}, v)
+//	  -> {"a": {"b": v}}
+//
+//	setValueByPath(map[string]any{}, []string{"a", "b[]", "c"}, []any{v1, v2})
+//	  -> {"a": {"b": [{"c": v1}, {"c": v2}]}}
+//
+//	setValueByPath(map[string]any{"a": {"b": [{"c": v1}, {"c": v2}]}}, []string{"a", "b[]", "d"}, v3)
+//	  -> {"a": {"b": [{"c": v1, "d": v3}, {"c": v2, "d": v3}]}}
 func setValueByPath(data map[string]any, keys []string, value any) {
 	if value == nil {
 		return
 	}
-	for i := 0; i < len(keys)-1; i++ {
-		key := keys[i]
-		if _, ok := data[key]; !ok {
-			data[key] = make(map[string]any)
+	for i, key := range keys[:len(keys)-1] {
+		if strings.HasSuffix(key, "[]") {
+			keyName := key[:len(key)-2]
+			if _, ok := data[keyName]; !ok {
+				if reflect.ValueOf(value).Kind() == reflect.Slice {
+					data[keyName] = make([]map[string]any, reflect.ValueOf(value).Len())
+				} else {
+					data[keyName] = make([]map[string]any, 1)
+				}
+				for k := range data[keyName].([]map[string]any) {
+					data[keyName].([]map[string]any)[k] = make(map[string]any)
+				}
+			}
+
+			if reflect.ValueOf(value).Kind() == reflect.Slice {
+				for j, d := range data[keyName].([]map[string]any) {
+					if j >= reflect.ValueOf(value).Len() {
+						continue
+					}
+					setValueByPath(d, keys[i+1:], reflect.ValueOf(value).Index(j).Interface())
+				}
+			} else {
+				for _, d := range data[keyName].([]map[string]any) {
+					setValueByPath(d, keys[i+1:], value)
+				}
+			}
+			return
+		} else {
+			if _, ok := data[key]; !ok {
+				data[key] = make(map[string]any)
+			}
+			if _, ok := data[key].(map[string]any); !ok {
+				data[key] = make(map[string]any)
+			}
+			data = data[key].(map[string]any)
 		}
-		if _, ok := data[key].(map[string]any); !ok {
-			data[key] = make(map[string]any)
-		}
-		data = data[key].(map[string]any)
 	}
+
 	if !reflect.ValueOf(value).IsZero() {
 		data[keys[len(keys)-1]] = value
 	}
 }
 
-func getValueByPath(data map[string]any, keys []string) any {
+// getValueByPath retrieves a value from a nested map or slice or struct based on a path of keys.
+//
+// Examples:
+//
+//	getValueByPath(map[string]any{"a": {"b": "v"}}, []string{"a", "b"})
+//	  -> "v"
+//	getValueByPath(map[string]any{"a": {"b": [{"c": "v1"}, {"c": "v2"}]}}, []string{"a", "b[]", "c"})
+//	  -> []any{"v1", "v2"}
+func getValueByPath(data any, keys []string) any {
 	if len(keys) == 1 && keys[0] == "_self" {
 		return data
 	}
+	if len(keys) == 0 {
+		return nil
+	}
 	var current any = data
-	for _, key := range keys {
-		switch v := current.(type) {
-		case map[string]any:
-			current = v[key]
-		default:
-			return nil // Key not found or invalid type
+	for i, key := range keys {
+		if strings.HasSuffix(key, "[]") {
+			keyName := key[:len(key)-2]
+			switch v := current.(type) {
+			case map[string]any:
+				if sliceData, ok := v[keyName]; ok {
+					var result []any
+					switch concreteSliceData := sliceData.(type) {
+					case []map[string]any:
+						for _, d := range concreteSliceData {
+							result = append(result, getValueByPath(d, keys[i+1:]))
+						}
+					case []any:
+						for _, d := range concreteSliceData {
+							result = append(result, getValueByPath(d, keys[i+1:]))
+						}
+					default:
+						return nil
+					}
+					return result
+				} else {
+					return nil
+				}
+			default:
+				return nil
+			}
+		} else {
+			switch v := current.(type) {
+			case map[string]any:
+				current = v[key]
+			default:
+				return nil
+			}
 		}
 	}
 	return current

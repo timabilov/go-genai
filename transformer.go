@@ -129,36 +129,27 @@ func tBytes(_ *apiClient, fromImageBytes any) (any, error) {
 	return fromImageBytes, nil
 }
 
-func tModelsURL(ac *apiClient, baseModels any) (string, error) {
+func tContentsForEmbed(ac *apiClient, contents any) (any, error) {
 	if ac.clientConfig.Backend == BackendVertexAI {
-		if baseModels.(bool) {
-			return "publishers/google/models", nil
-		} else {
-			return "models", nil
+		switch v := contents.(type) {
+		case []any:
+			texts := []string{}
+			for _, content := range v {
+				parts, ok := content.(map[string]any)["parts"].([]any)
+				if !ok || len(parts) == 0 {
+					return nil, fmt.Errorf("tContentsForEmbed: content parts is not a non-empty list")
+				}
+				text, ok := parts[0].(map[string]any)["text"].(string)
+				if !ok {
+					return nil, fmt.Errorf("tContentsForEmbed: content part text is not a string")
+				}
+				texts = append(texts, text)
+			}
+			return texts, nil
+		default:
+			return nil, fmt.Errorf("tContentsForEmbed: contents is not a list")
 		}
 	} else {
-		if baseModels.(bool) {
-			return "models", nil
-		} else {
-			return "tunedModels", nil
-		}
-	}
-}
-
-func tExtractModels(ac *apiClient, response any) (any, error) {
-	switch response.(type) {
-	case map[string]any:
-		if models, ok := response.(map[string]any)["models"]; ok {
-			return models, nil
-		} else if tunedModels, ok := response.(map[string]any)["tunedModels"]; ok {
-			return tunedModels, nil
-		} else if publisherModels, ok := response.(map[string]any)["publisherModels"]; ok {
-			return publisherModels, nil
-		} else {
-			log.Printf("Warning: Cannot find the models type(models, tunedModels, publisherModels) for response: %s", response)
-			return []any{}, nil
-		}
-	default:
-		return nil, fmt.Errorf("tExtractModels: response is not a map")
+		return contents, nil
 	}
 }

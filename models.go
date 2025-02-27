@@ -1281,6 +1281,141 @@ func generateContentParametersToVertex(ac *apiClient, fromObject map[string]any,
 	return toObject, nil
 }
 
+func embedContentConfigToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromTaskType := getValueByPath(fromObject, []string{"taskType"})
+	if fromTaskType != nil {
+		setValueByPath(parentObject, []string{"requests[]", "taskType"}, fromTaskType)
+	}
+
+	fromTitle := getValueByPath(fromObject, []string{"title"})
+	if fromTitle != nil {
+		setValueByPath(parentObject, []string{"requests[]", "title"}, fromTitle)
+	}
+
+	fromOutputDimensionality := getValueByPath(fromObject, []string{"outputDimensionality"})
+	if fromOutputDimensionality != nil {
+		setValueByPath(parentObject, []string{"requests[]", "outputDimensionality"}, fromOutputDimensionality)
+	}
+
+	if getValueByPath(fromObject, []string{"mimeType"}) != nil {
+		return nil, fmt.Errorf("mimeType parameter is not supported in Gemini API")
+	}
+
+	if getValueByPath(fromObject, []string{"autoTruncate"}) != nil {
+		return nil, fmt.Errorf("autoTruncate parameter is not supported in Gemini API")
+	}
+
+	return toObject, nil
+}
+
+func embedContentConfigToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromTaskType := getValueByPath(fromObject, []string{"taskType"})
+	if fromTaskType != nil {
+		setValueByPath(parentObject, []string{"instances[]", "taskType"}, fromTaskType)
+	}
+
+	fromTitle := getValueByPath(fromObject, []string{"title"})
+	if fromTitle != nil {
+		setValueByPath(parentObject, []string{"instances[]", "title"}, fromTitle)
+	}
+
+	fromOutputDimensionality := getValueByPath(fromObject, []string{"outputDimensionality"})
+	if fromOutputDimensionality != nil {
+		setValueByPath(parentObject, []string{"parameters", "outputDimensionality"}, fromOutputDimensionality)
+	}
+
+	fromMimeType := getValueByPath(fromObject, []string{"mimeType"})
+	if fromMimeType != nil {
+		setValueByPath(parentObject, []string{"instances[]", "mimeType"}, fromMimeType)
+	}
+
+	fromAutoTruncate := getValueByPath(fromObject, []string{"autoTruncate"})
+	if fromAutoTruncate != nil {
+		setValueByPath(parentObject, []string{"parameters", "autoTruncate"}, fromAutoTruncate)
+	}
+
+	return toObject, nil
+}
+
+func embedContentParametersToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromModel := getValueByPath(fromObject, []string{"model"})
+	if fromModel != nil {
+		fromModel, err = tModel(ac, fromModel)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"_url", "model"}, fromModel)
+	}
+
+	fromContents := getValueByPath(fromObject, []string{"contents"})
+	if fromContents != nil {
+		// fmt.Println("====> 1fromContents", fromContents)
+		fromContents, err = tContentsForEmbed(ac, fromContents)
+		if err != nil {
+			return nil, err
+		}
+		// fmt.Println("====> 2fromContents", fromContents)
+
+		setValueByPath(toObject, []string{"requests[]", "content"}, fromContents)
+	}
+
+	fromConfig := getValueByPath(fromObject, []string{"config"})
+	if fromConfig != nil {
+		fromConfig, err = embedContentConfigToMldev(ac, fromConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"config"}, fromConfig)
+	}
+
+	setValueByPath(toObject, []string{"requests[]", "model"}, fromModel)
+
+	return toObject, nil
+}
+
+func embedContentParametersToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromModel := getValueByPath(fromObject, []string{"model"})
+	if fromModel != nil {
+		fromModel, err = tModel(ac, fromModel)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"_url", "model"}, fromModel)
+	}
+
+	fromContents := getValueByPath(fromObject, []string{"contents"})
+	if fromContents != nil {
+		fromContents, err = tContentsForEmbed(ac, fromContents)
+		if err != nil {
+			return nil, err
+		}
+		setValueByPath(toObject, []string{"instances[]", "content"}, fromContents)
+	}
+
+	fromConfig := getValueByPath(fromObject, []string{"config"})
+	if fromConfig != nil {
+		fromConfig, err = embedContentConfigToVertex(ac, fromConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"config"}, fromConfig)
+	}
+
+	return toObject, nil
+}
+
 func generateImagesConfigToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -2509,6 +2644,129 @@ func generateContentResponseFromVertex(ac *apiClient, fromObject map[string]any,
 	return toObject, nil
 }
 
+func contentEmbeddingStatisticsFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	return toObject, nil
+}
+
+func contentEmbeddingStatisticsFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromTruncated := getValueByPath(fromObject, []string{"truncated"})
+	if fromTruncated != nil {
+		setValueByPath(toObject, []string{"truncated"}, fromTruncated)
+	}
+
+	fromTokenCount := getValueByPath(fromObject, []string{"tokenCount"})
+	if fromTokenCount != nil {
+		setValueByPath(toObject, []string{"tokenCount"}, fromTokenCount)
+	}
+
+	return toObject, nil
+}
+
+func contentEmbeddingFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromValues := getValueByPath(fromObject, []string{"values"})
+	if fromValues != nil {
+		setValueByPath(toObject, []string{"values"}, fromValues)
+	}
+
+	return toObject, nil
+}
+
+func contentEmbeddingFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromValues := getValueByPath(fromObject, []string{"values"})
+	if fromValues != nil {
+		setValueByPath(toObject, []string{"values"}, fromValues)
+	}
+
+	fromStatistics := getValueByPath(fromObject, []string{"statistics"})
+	if fromStatistics != nil {
+		fromStatistics, err = contentEmbeddingStatisticsFromVertex(ac, fromStatistics.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"statistics"}, fromStatistics)
+	}
+
+	return toObject, nil
+}
+
+func embedContentMetadataFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	return toObject, nil
+}
+
+func embedContentMetadataFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromBillableCharacterCount := getValueByPath(fromObject, []string{"billableCharacterCount"})
+	if fromBillableCharacterCount != nil {
+		setValueByPath(toObject, []string{"billableCharacterCount"}, fromBillableCharacterCount)
+	}
+
+	return toObject, nil
+}
+
+func embedContentResponseFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromEmbeddings := getValueByPath(fromObject, []string{"embeddings"})
+	if fromEmbeddings != nil {
+		fromEmbeddings, err = applyConverterToSlice(ac, fromEmbeddings.([]any), contentEmbeddingFromMldev)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"embeddings"}, fromEmbeddings)
+	}
+
+	fromMetadata := getValueByPath(fromObject, []string{"metadata"})
+	if fromMetadata != nil {
+		fromMetadata, err = embedContentMetadataFromMldev(ac, fromMetadata.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"metadata"}, fromMetadata)
+	}
+
+	return toObject, nil
+}
+
+func embedContentResponseFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromEmbeddings := getValueByPath(fromObject, []string{"predictions[]", "embeddings"})
+	if fromEmbeddings != nil {
+		fromEmbeddings, err = applyConverterToSlice(ac, fromEmbeddings.([]any), contentEmbeddingFromVertex)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"embeddings"}, fromEmbeddings)
+	}
+
+	fromMetadata := getValueByPath(fromObject, []string{"metadata"})
+	if fromMetadata != nil {
+		fromMetadata, err = embedContentMetadataFromVertex(ac, fromMetadata.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"metadata"}, fromMetadata)
+	}
+
+	return toObject, nil
+}
+
 func imageFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -3074,6 +3332,61 @@ func (m Models) generateContentStream(ctx context.Context, model string, content
 		}
 		return response, nil
 	})
+}
+
+func (m Models) EmbedContent(ctx context.Context, model string, contents []*Content, config *EmbedContentConfig) (*EmbedContentResponse, error) {
+	parameterMap := make(map[string]any)
+
+	kwargs := map[string]any{"model": model, "contents": contents, "config": config}
+	deepMarshal(kwargs, &parameterMap)
+
+	var response = new(EmbedContentResponse)
+	var responseMap map[string]any
+	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
+	var toConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
+	if m.apiClient.clientConfig.Backend == BackendVertexAI {
+		toConverter = embedContentParametersToVertex
+		fromConverter = embedContentResponseFromVertex
+	} else {
+		toConverter = embedContentParametersToMldev
+		fromConverter = embedContentResponseFromMldev
+	}
+
+	body, err := toConverter(m.apiClient, parameterMap, nil)
+	if err != nil {
+		return nil, err
+	}
+	var path string
+	var urlParams map[string]any
+	if _, ok := body["_url"]; ok {
+		urlParams = body["_url"].(map[string]any)
+		delete(body, "_url")
+	}
+	if m.apiClient.clientConfig.Backend == BackendVertexAI {
+		path, err = formatMap("{model}:predict", urlParams)
+	} else {
+		path, err = formatMap("{model}:batchEmbedContents", urlParams)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("invalid url params: %#v.\n%w", urlParams, err)
+	}
+
+	if _, ok := body["config"]; ok {
+		delete(body, "config")
+	}
+	responseMap, err = sendRequest(ctx, m.apiClient, path, http.MethodPost, body)
+	if err != nil {
+		return nil, err
+	}
+	responseMap, err = fromConverter(m.apiClient, responseMap, nil)
+	if err != nil {
+		return nil, err
+	}
+	err = mapToStruct(responseMap, response)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 func (m Models) GenerateImages(ctx context.Context, model string, prompt string, config *GenerateImagesConfig) (*GenerateImagesResponse, error) {

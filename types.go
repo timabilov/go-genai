@@ -1330,42 +1330,69 @@ func (r *GenerateContentResponse) FunctionCalls() []*FunctionCall {
 	return functionCalls
 }
 
-// ExecutableCode returns the executable code in the GenerateContentResponse.
-func (r *GenerateContentResponse) ExecutableCode() string {
-	if len(r.Candidates) == 0 || r.Candidates[0].Content == nil || len(r.Candidates[0].Content.Parts) == 0 {
-		return ""
-	}
-
-	if len(r.Candidates) > 1 {
-		log.Printf("Warning: there are multiple candidates in the response, returning executable code from the first one.")
-	}
-
-	for _, part := range r.Candidates[0].Content.Parts {
-		if part.ExecutableCode != nil {
-			return part.ExecutableCode.Code
-		}
-	}
-
-	return ""
+// Optional parameters for the embed_content method.
+type EmbedContentConfig struct {
+	// Type of task for which the embedding will be used.
+	TaskType string `json:"taskType,omitempty"`
+	// Title for the text. Only applicable when TaskType is
+	// `RETRIEVAL_DOCUMENT`.
+	Title string `json:"title,omitempty"`
+	// Reduced dimension for the output embedding. If set,
+	// excessive values in the output embedding are truncated from the end.
+	// Supported by newer models since 2024 only. You cannot set this value if
+	// using the earlier model (`models/embedding-001`).
+	OutputDimensionality *int64 `json:"outputDimensionality,omitempty"`
+	// Vertex API only. The MIME type of the input.
+	MIMEType string `json:"mimeType,omitempty"`
+	// Vertex API only. Whether to silently truncate inputs longer than
+	// the max sequence length. If this option is set to false, oversized inputs
+	// will lead to an INVALID_ARGUMENT error, similar to other text APIs.
+	AutoTruncate bool `json:"autoTruncate,omitempty"`
 }
 
-// CodeExecutionResult returns the code execution result in the GenerateContentResponse.
-func (r *GenerateContentResponse) CodeExecutionResult() string {
-	if len(r.Candidates) == 0 || r.Candidates[0].Content == nil || len(r.Candidates[0].Content.Parts) == 0 {
-		return ""
-	}
+// Parameters for the embed_content method.
+type EmbedContentParameters struct {
+	// ID of the model to use. For a list of models, see `Google models
+	// <https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models>`_.
+	Model string `json:"model,omitempty"`
+	// The content to embed. Only the `parts.text` fields will be counted.
+	Contents []*Content `json:"contents,omitempty"`
+	// Configuration that contains optional parameters.
+	Config *EmbedContentConfig `json:"config,omitempty"`
+}
 
-	if len(r.Candidates) > 1 {
-		log.Printf("Warning: there are multiple candidates in the response, returning code execution result from the first one.")
-	}
+// Statistics of the input text associated with the result of content embedding.
+type ContentEmbeddingStatistics struct {
+	// Vertex API only. If the input text was truncated due to having
+	// a length longer than the allowed maximum input.
+	Truncated bool `json:"truncated,omitempty"`
+	// Vertex API only. Number of tokens of the input text.
+	TokenCount *float64 `json:"tokenCount,omitempty"`
+}
 
-	for _, part := range r.Candidates[0].Content.Parts {
-		if part.CodeExecutionResult != nil {
-			return part.CodeExecutionResult.Output
-		}
-	}
+// The embedding generated from an input content.
+type ContentEmbedding struct {
+	// A list of floats representing an embedding.
+	Values []float64 `json:"values,omitempty"`
+	// Vertex API only. Statistics of the input text associated with this
+	// embedding.
+	Statistics *ContentEmbeddingStatistics `json:"statistics,omitempty"`
+}
 
-	return ""
+// Request-level metadata for the Vertex Embed Content API.
+type EmbedContentMetadata struct {
+	// Vertex API only. The total number of billable characters included
+	// in the request.
+	BillableCharacterCount *int64 `json:"billableCharacterCount,omitempty"`
+}
+
+// Response for the embed_content method.
+type EmbedContentResponse struct {
+	// The embeddings for each request, in the same order as provided in
+	// the batch request.
+	Embeddings []*ContentEmbedding `json:"embeddings,omitempty"`
+	// Vertex API only. Metadata about the request.
+	Metadata *EmbedContentMetadata `json:"metadata,omitempty"`
 }
 
 // The configuration for generating images. You can find API default values and more
