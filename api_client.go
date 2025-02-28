@@ -115,31 +115,34 @@ func buildRequest(ctx context.Context, ac *apiClient, path string, body map[stri
 		return nil, err
 	}
 	// Set headers
-	req.Header = sdkHeader(ac)
+	doMergeHeaders(httpOptions.Headers, &req.Header)
+	doMergeHeaders(sdkHeader(ac), &req.Header)
 	return req, nil
 }
 
 func sdkHeader(ac *apiClient) http.Header {
 	header := make(http.Header)
-	header.Set("Content-Type", "application/json")
+	header.Set(http.CanonicalHeaderKey("Content-Type"), "application/json")
 	if ac.clientConfig.APIKey != "" {
-		header.Set("x-goog-api-key", ac.clientConfig.APIKey)
+		header.Set(http.CanonicalHeaderKey("x-goog-api-key"), ac.clientConfig.APIKey)
 	}
 	// TODO(b/381108714): Automate revisions to the SDK library version.
 	libraryLabel := "google-genai-sdk/0.0.1"
 	languageLabel := fmt.Sprintf("gl-go/%s", runtime.Version())
 	versionHeaderValue := fmt.Sprintf("%s %s", libraryLabel, languageLabel)
 	// Set user-agent header
-	if userAgentHeader, ok := header["user-agent"]; ok {
-		header["user-agent"] = append(userAgentHeader, versionHeaderValue)
+	userAgent := http.CanonicalHeaderKey("user-agent")
+	if userAgentHeader, ok := header[userAgent]; ok {
+		header[userAgent] = append(userAgentHeader, versionHeaderValue)
 	} else {
-		header["user-agent"] = []string{versionHeaderValue}
+		header[userAgent] = []string{versionHeaderValue}
 	}
 	// Set x-goog-api-client header
-	if apiClientHeader, ok := header["x-goog-api-client"]; ok {
-		header["x-goog-api-client"] = append(apiClientHeader, versionHeaderValue)
+	xGoogleAPIClient := http.CanonicalHeaderKey("x-goog-api-client")
+	if apiClientHeader, ok := header[xGoogleAPIClient]; ok {
+		header[xGoogleAPIClient] = append(apiClientHeader, versionHeaderValue)
 	} else {
-		header["x-goog-api-client"] = []string{versionHeaderValue}
+		header[xGoogleAPIClient] = []string{versionHeaderValue}
 	}
 	return header
 }

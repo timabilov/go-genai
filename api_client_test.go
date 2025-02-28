@@ -3,15 +3,19 @@ package genai
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 
 	"cloud.google.com/go/civil"
 	"github.com/google/go-cmp/cmp"
+	"golang.org/x/oauth2/google"
 )
 
 // TODO(b/384580303): Add streaming request tests.
@@ -203,6 +207,302 @@ func TestMapToStruct(t *testing.T) {
 
 			if diff := cmp.Diff(got, want); diff != "" {
 				t.Errorf("mapToStruct mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestBuildRequest(t *testing.T) {
+	tests := []struct {
+		name          string
+		clientConfig  *ClientConfig
+		path          string
+		body          map[string]any
+		method        string
+		httpOptions   *HTTPOptions
+		want          *http.Request
+		wantErr       bool
+		expectedError string
+	}{
+		{
+			name: "MLDev API with API Key",
+			clientConfig: &ClientConfig{
+				APIKey:  "test-api-key",
+				Backend: BackendGeminiAPI,
+			},
+			path:   "models/test-model:generateContent",
+			body:   map[string]any{"key": "value"},
+			method: "POST",
+			httpOptions: &HTTPOptions{
+				BaseURL:    "https://generativelanguage.googleapis.com",
+				APIVersion: "v1beta",
+				Headers: http.Header{
+					"X-Test-Header": []string{"test-value"},
+				},
+			},
+			want: &http.Request{
+				Method: "POST",
+				URL: &url.URL{
+					Scheme: "https",
+					Host:   "generativelanguage.googleapis.com",
+					Path:   "/v1beta/models/test-model:generateContent",
+				},
+				Header: http.Header{
+					"Content-Type":      []string{"application/json"},
+					"X-Goog-Api-Key":    []string{"test-api-key"},
+					"X-Test-Header":     []string{"test-value"},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+				},
+				Body: io.NopCloser(strings.NewReader("{\"key\":\"value\"}\n")),
+			},
+			wantErr: false,
+		},
+		{
+			name: "Vertex AI API",
+			clientConfig: &ClientConfig{
+				Project:     "test-project",
+				Location:    "test-location",
+				Backend:     BackendVertexAI,
+				Credentials: &google.Credentials{},
+			},
+			path:   "models/test-model:generateContent",
+			body:   map[string]any{"key": "value"},
+			method: "POST",
+			httpOptions: &HTTPOptions{
+				BaseURL:    "https://test-location-aiplatform.googleapis.com",
+				APIVersion: "v1beta1",
+				Headers: http.Header{
+					"X-Test-Header": []string{"test-value"},
+				},
+			},
+			want: &http.Request{
+				Method: "POST",
+				URL: &url.URL{
+					Scheme: "https",
+					Host:   "test-location-aiplatform.googleapis.com",
+					Path:   "/v1beta1/projects/test-project/locations/test-location/models/test-model:generateContent",
+				},
+				Header: http.Header{
+					"Content-Type":      []string{"application/json"},
+					"X-Test-Header":     []string{"test-value"},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+				},
+				Body: io.NopCloser(strings.NewReader("{\"key\":\"value\"}\n")),
+			},
+			wantErr: false,
+		},
+		{
+			name: "Vertex AI API with full path",
+			clientConfig: &ClientConfig{
+				Project:     "test-project",
+				Location:    "test-location",
+				Backend:     BackendVertexAI,
+				Credentials: &google.Credentials{},
+			},
+			path:   "projects/test-project/locations/test-location/models/test-model:generateContent",
+			body:   map[string]any{"key": "value"},
+			method: "POST",
+			httpOptions: &HTTPOptions{
+				BaseURL:    "https://test-location-aiplatform.googleapis.com",
+				APIVersion: "v1beta1",
+				Headers: http.Header{
+					"X-Test-Header": []string{"test-value"},
+				},
+			},
+			want: &http.Request{
+				Method: "POST",
+				URL: &url.URL{
+					Scheme: "https",
+					Host:   "test-location-aiplatform.googleapis.com",
+					Path:   "/v1beta1/projects/test-project/locations/test-location/models/test-model:generateContent",
+				},
+				Header: http.Header{
+					"Content-Type":      []string{"application/json"},
+					"X-Test-Header":     []string{"test-value"},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+				},
+				Body: io.NopCloser(strings.NewReader("{\"key\":\"value\"}\n")),
+			},
+			wantErr: false,
+		},
+		{
+			name: "MLDev with empty body",
+			clientConfig: &ClientConfig{
+				APIKey:  "test-api-key",
+				Backend: BackendGeminiAPI,
+			},
+			path:   "models/test-model:generateContent",
+			body:   map[string]any{},
+			method: "POST",
+			httpOptions: &HTTPOptions{
+				BaseURL:    "https://generativelanguage.googleapis.com",
+				APIVersion: "v1beta",
+			},
+			want: &http.Request{
+				Method: "POST",
+				URL: &url.URL{
+					Scheme: "https",
+					Host:   "generativelanguage.googleapis.com",
+					Path:   "/v1beta/models/test-model:generateContent",
+				},
+				Header: http.Header{
+					"Content-Type":      []string{"application/json"},
+					"X-Goog-Api-Key":    []string{"test-api-key"},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+				},
+				Body: io.NopCloser(strings.NewReader(``)),
+			},
+			wantErr: false,
+		},
+		{
+			name: "Vertex AI with empty body",
+			clientConfig: &ClientConfig{
+				Project:     "test-project",
+				Location:    "test-location",
+				Backend:     BackendVertexAI,
+				Credentials: &google.Credentials{},
+			},
+			path:   "models/test-model:generateContent",
+			body:   map[string]any{},
+			method: "POST",
+			httpOptions: &HTTPOptions{
+				BaseURL:    "https://test-location-aiplatform.googleapis.com",
+				APIVersion: "v1beta1",
+			},
+			want: &http.Request{
+				Method: "POST",
+				URL: &url.URL{
+					Scheme: "https",
+					Host:   "test-location-aiplatform.googleapis.com",
+					Path:   "/v1beta1/projects/test-project/locations/test-location/models/test-model:generateContent",
+				},
+				Header: http.Header{
+					"Content-Type":      []string{"application/json"},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+				},
+				Body: io.NopCloser(strings.NewReader(``)),
+			},
+			wantErr: false,
+		},
+		{
+			name: "Invalid URL",
+			clientConfig: &ClientConfig{
+				APIKey:  "test-api-key",
+				Backend: BackendGeminiAPI,
+			},
+			path:   ":invalid",
+			body:   map[string]any{},
+			method: "POST",
+			httpOptions: &HTTPOptions{
+				BaseURL:    ":invalid",
+				APIVersion: "v1beta",
+			},
+			wantErr:       true,
+			expectedError: "createAPIURL: error parsing ML Dev URL",
+		},
+		{
+			name: "Invalid json",
+			clientConfig: &ClientConfig{
+				APIKey:  "test-api-key",
+				Backend: BackendGeminiAPI,
+			},
+			path:   "models/test-model:generateContent",
+			body:   map[string]any{"key": make(chan int)},
+			method: "POST",
+			httpOptions: &HTTPOptions{
+				BaseURL:    "https://generativelanguage.googleapis.com",
+				APIVersion: "v1beta",
+			},
+			wantErr:       true,
+			expectedError: "buildRequest: error encoding body",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ac := &apiClient{clientConfig: tt.clientConfig}
+
+			req, err := buildRequest(context.Background(), ac, tt.path, tt.body, tt.method, tt.httpOptions)
+
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("buildRequest() expected an error but got nil")
+				}
+				if !strings.Contains(err.Error(), tt.expectedError) {
+					t.Errorf("buildRequest() expected error to contain: %v , but got %v", tt.expectedError, err.Error())
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("buildRequest() returned an unexpected error: %v", err)
+			}
+
+			if tt.want.Method != req.Method {
+				t.Errorf("buildRequest() got Method = %v, want %v", req.Method, tt.want.Method)
+			}
+
+			if diff := cmp.Diff(tt.want.URL, req.URL); diff != "" {
+				t.Errorf("buildRequest() URL mismatch (-want +got):\n%s", diff)
+			}
+
+			if diff := cmp.Diff(tt.want.Header, req.Header); diff != "" {
+				t.Errorf("buildRequest() Header mismatch (-want +got):\n%s", diff)
+			}
+
+			gotBodyBytes, _ := io.ReadAll(req.Body)
+			wantBodyBytes, _ := io.ReadAll(tt.want.Body)
+
+			if diff := cmp.Diff(string(wantBodyBytes), string(gotBodyBytes)); diff != "" {
+				t.Errorf("buildRequest() body mismatch (-want +got):\n%s", diff)
+			}
+
+			if !reflect.DeepEqual(req.Context(), tt.want.Context()) {
+				t.Errorf("buildRequest() Context mismatch got %+v, want %+v", req.Context(), tt.want.Context())
+			}
+		})
+	}
+}
+
+func Test_sdkHeader(t *testing.T) {
+	type args struct {
+		ac *apiClient
+	}
+	tests := []struct {
+		name string
+		args args
+		want http.Header
+	}{
+		{
+			name: "with_api_key",
+			args: args{&apiClient{clientConfig: &ClientConfig{APIKey: "test_api_key"}}},
+			want: http.Header{
+				"Content-Type":      []string{"application/json"},
+				"X-Goog-Api-Key":    []string{"test_api_key"},
+				"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+				"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+			},
+		},
+		{
+			name: "without_api_key",
+			args: args{&apiClient{clientConfig: &ClientConfig{}}},
+			want: http.Header{
+				"Content-Type":      []string{"application/json"},
+				"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+				"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if diff := cmp.Diff(sdkHeader(tt.args.ac), tt.want); diff != "" {
+				t.Errorf("sdkHeader() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

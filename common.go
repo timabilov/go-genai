@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"iter"
+	"net/http"
 	"net/url"
 	"reflect"
 	"sort"
@@ -253,19 +254,19 @@ func yieldErrorAndEndIterator[T any](err error) iter.Seq2[*T, error] {
 	}
 }
 
-func mergeHTTPOptions(clientConfig *ClientConfig, requestHTTPOptions *HTTPOptions) *HTTPOptions {
+func mergeHTTPOptions(clientConfig *ClientConfig, configHTTPOptions *HTTPOptions) *HTTPOptions {
 	var clientHTTPOptions *HTTPOptions
 	if clientConfig != nil {
 		clientHTTPOptions = &(clientConfig.HTTPOptions)
 	}
 
 	result := HTTPOptions{}
-	if clientHTTPOptions == nil && requestHTTPOptions == nil {
+	if clientHTTPOptions == nil && configHTTPOptions == nil {
 		return nil
 	} else if clientHTTPOptions == nil {
 		result = HTTPOptions{
-			BaseURL:    requestHTTPOptions.BaseURL,
-			APIVersion: requestHTTPOptions.APIVersion,
+			BaseURL:    configHTTPOptions.BaseURL,
+			APIVersion: configHTTPOptions.APIVersion,
 		}
 	} else {
 		result = HTTPOptions{
@@ -274,13 +275,38 @@ func mergeHTTPOptions(clientConfig *ClientConfig, requestHTTPOptions *HTTPOption
 		}
 	}
 
-	if requestHTTPOptions != nil {
-		if requestHTTPOptions.BaseURL != "" {
-			result.BaseURL = requestHTTPOptions.BaseURL
+	if configHTTPOptions != nil {
+		if configHTTPOptions.BaseURL != "" {
+			result.BaseURL = configHTTPOptions.BaseURL
 		}
-		if requestHTTPOptions.APIVersion != "" {
-			result.APIVersion = requestHTTPOptions.APIVersion
+		if configHTTPOptions.APIVersion != "" {
+			result.APIVersion = configHTTPOptions.APIVersion
 		}
 	}
+	result.Headers = mergeHeaders(clientHTTPOptions, configHTTPOptions)
 	return &result
+}
+
+func mergeHeaders(clientHTTPOptions *HTTPOptions, configHTTPOptions *HTTPOptions) http.Header {
+	result := http.Header{}
+	if clientHTTPOptions == nil && configHTTPOptions == nil {
+		return result
+	}
+
+	if clientHTTPOptions != nil {
+		doMergeHeaders(clientHTTPOptions.Headers, &result)
+	}
+	// configHTTPOptions takes precedence over clientHTTPOptions.
+	if configHTTPOptions != nil {
+		doMergeHeaders(configHTTPOptions.Headers, &result)
+	}
+	return result
+}
+
+func doMergeHeaders(input http.Header, output *http.Header) {
+	for k, v := range input {
+		for _, vv := range v {
+			output.Add(k, vv)
+		}
+	}
 }

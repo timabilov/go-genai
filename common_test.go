@@ -15,6 +15,7 @@
 package genai
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -43,6 +44,7 @@ func TestMergeHTTPOptions(t *testing.T) {
 			want: &HTTPOptions{
 				BaseURL:    "https://example.com",
 				APIVersion: "v1",
+				Headers:    http.Header{},
 			},
 		},
 		{
@@ -57,6 +59,7 @@ func TestMergeHTTPOptions(t *testing.T) {
 			want: &HTTPOptions{
 				BaseURL:    "https://client.com",
 				APIVersion: "v2",
+				Headers:    http.Header{},
 			},
 		},
 		{
@@ -74,6 +77,7 @@ func TestMergeHTTPOptions(t *testing.T) {
 			want: &HTTPOptions{
 				BaseURL:    "https://request.com",
 				APIVersion: "v3",
+				Headers:    http.Header{},
 			},
 		},
 		{
@@ -90,6 +94,7 @@ func TestMergeHTTPOptions(t *testing.T) {
 			want: &HTTPOptions{
 				BaseURL:    "https://request.com",
 				APIVersion: "v2",
+				Headers:    http.Header{},
 			},
 		},
 		{
@@ -104,6 +109,7 @@ func TestMergeHTTPOptions(t *testing.T) {
 			want: &HTTPOptions{
 				BaseURL:    "https://client.com",
 				APIVersion: "v2",
+				Headers:    http.Header{},
 			},
 		},
 		{
@@ -116,6 +122,7 @@ func TestMergeHTTPOptions(t *testing.T) {
 			want: &HTTPOptions{
 				BaseURL:    "https://request.com",
 				APIVersion: "v3",
+				Headers:    http.Header{},
 			},
 		},
 		{
@@ -128,6 +135,36 @@ func TestMergeHTTPOptions(t *testing.T) {
 			want: &HTTPOptions{
 				BaseURL:    "https://request.com",
 				APIVersion: "v3",
+				Headers:    http.Header{},
+			},
+		},
+		{
+			name: "merge headers",
+			clientConfig: &ClientConfig{
+				HTTPOptions: HTTPOptions{
+					BaseURL:    "https://client.com",
+					APIVersion: "v2",
+					Headers: http.Header{
+						"X-Client-Header-1": []string{"value1"},
+						"X-Client-Header-2": []string{"value2"},
+					},
+				},
+			},
+			requestHTTPOptions: &HTTPOptions{
+				BaseURL: "https://request.com",
+				Headers: http.Header{
+					"X-Request-Header-1": []string{"value3"},
+					"X-Client-Header-2":  []string{"value4"},
+				},
+			},
+			want: &HTTPOptions{
+				BaseURL:    "https://request.com",
+				APIVersion: "v2",
+				Headers: http.Header{
+					"X-Client-Header-1":  []string{"value1"},
+					"X-Client-Header-2":  []string{"value2", "value4"},
+					"X-Request-Header-1": []string{"value3"},
+				},
 			},
 		},
 	}

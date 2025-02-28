@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -663,6 +664,8 @@ type HTTPOptions struct {
 	BaseURL string `json:"baseUrl,omitempty"`
 	// APIVersion specifies the version of the API to use.
 	APIVersion string `json:"apiVersion,omitempty"`
+	// Additional HTTP headers to be sent with the request.
+	Headers http.Header `json:"headers,omitempty"`
 }
 
 // Schema that defines the format of input and output data. Represents a select subset

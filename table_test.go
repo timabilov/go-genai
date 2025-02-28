@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -74,6 +75,18 @@ func extractArgs(ctx context.Context, t *testing.T, method reflect.Value, testTa
 		if ok {
 			paramType := method.Type().In(i)
 			sanitizeMapWithSourceType(t, paramType, parameterValue)
+			sanitizeMapByPath(parameterValue, "httpOptions.headers", func(data any, path string) any {
+				if _, ok := data.(map[string]any); !ok {
+					log.Printf("convertStringMapToHeaderMap: data is not map[string]any: %s %T\n", data, data)
+					return data
+				}
+				m := data.(map[string]any)
+				result := make(map[string][]string)
+				for k, v := range m {
+					result[k] = []string{v.(string)}
+				}
+				return result
+			}, false)
 			convertedJSON, err := json.Marshal(parameterValue)
 			if err != nil {
 				t.Error("ExtractArgs: error marshalling:", err)
