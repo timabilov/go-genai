@@ -245,7 +245,7 @@ func TestTable(t *testing.T) {
 								got := convertSDKResponseToMatchReplayType(t, resp)
 								sanitizeGotSDKResponses(t, got)
 								want := replayClient.LatestInteraction().Response.SDKResponseSegments
-								opts := cmp.Options{stringComparator}
+								opts := cmp.Options{stringComparator, floatComparator}
 								if diff := cmp.Diff(got, want, opts); diff != "" {
 									t.Errorf("Responses had diff (-got +want):\n%v", diff)
 								}

@@ -29,6 +29,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"math"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -297,6 +298,10 @@ var stringComparator = cmp.Comparer(func(x, y string) bool {
 		return true
 	}
 	return x == y
+})
+
+var floatComparator = cmp.Comparer(func(x, y float64) bool {
+	return math.Abs(x-y) < 1e-6
 })
 
 var timeStringComparator = func(x, y string) bool {

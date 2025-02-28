@@ -770,7 +770,7 @@ type DynamicRetrievalConfig struct {
 	Mode DynamicRetrievalConfigMode `json:"mode,omitempty"`
 	// Optional. The threshold to be used in dynamic retrieval. If not set, a system default
 	// value is used.
-	DynamicThreshold *float64 `json:"dynamicThreshold,omitempty"`
+	DynamicThreshold *float32 `json:"dynamicThreshold,omitempty"`
 }
 
 // Tool to retrieve public web data for grounding, powered by Google.
@@ -804,7 +804,7 @@ type VertexRAGStore struct {
 	// In the future we may open up multiple corpora support.
 	RAGResources []*VertexRAGStoreRAGResource `json:"ragResources,omitempty"`
 	// Optional. Number of top k results to return from the selected corpora.
-	SimilarityTopK *int64 `json:"similarityTopK,omitempty"`
+	SimilarityTopK *int32 `json:"similarityTopK,omitempty"`
 	// Optional. Only return results with vector distance smaller than the threshold.
 	VectorDistanceThreshold *float64 `json:"vectorDistanceThreshold,omitempty"`
 }
@@ -922,21 +922,21 @@ type GenerateContentConfig struct {
 	// Lower temperatures are good for prompts that require a less open-ended or
 	// creative response, while higher temperatures can lead to more diverse or
 	// creative results.
-	Temperature *float64 `json:"temperature,omitempty"`
+	Temperature *float32 `json:"temperature,omitempty"`
 	// Tokens are selected from the most to least probable until the sum
 	// of their probabilities equals this value. Use a lower value for less
 	// random responses and a higher value for more random responses.
-	TopP *float64 `json:"topP,omitempty"`
+	TopP *float32 `json:"topP,omitempty"`
 	// For each token selection step, the ``top_k`` tokens with the
 	// highest probabilities are sampled. Then tokens are further filtered based
 	// on ``top_p`` with the final token selected using temperature sampling. Use
 	// a lower number for less random responses and a higher number for more
 	// random responses.
-	TopK *float64 `json:"topK,omitempty"`
+	TopK *float32 `json:"topK,omitempty"`
 	// Number of response variations to return.
-	CandidateCount *int64 `json:"candidateCount,omitempty"`
+	CandidateCount *int32 `json:"candidateCount,omitempty"`
 	// Maximum number of tokens that can be generated in the response.
-	MaxOutputTokens *int64 `json:"maxOutputTokens,omitempty"`
+	MaxOutputTokens *int32 `json:"maxOutputTokens,omitempty"`
 	// List of strings that tells the model to stop generating text if one
 	// of the strings is encountered in the response.
 	StopSequences []string `json:"stopSequences,omitempty"`
@@ -945,19 +945,19 @@ type GenerateContentConfig struct {
 	ResponseLogprobs bool `json:"responseLogprobs,omitempty"`
 	// Number of top candidate tokens to return the log probabilities for
 	// at each generation step.
-	Logprobs *int64 `json:"logprobs,omitempty"`
+	Logprobs *int32 `json:"logprobs,omitempty"`
 	// Positive values penalize tokens that already appear in the
 	// generated text, increasing the probability of generating more diverse
 	// content.
-	PresencePenalty *float64 `json:"presencePenalty,omitempty"`
+	PresencePenalty *float32 `json:"presencePenalty,omitempty"`
 	// Positive values penalize tokens that repeatedly appear in the
 	// generated text, increasing the probability of generating more diverse
 	// content.
-	FrequencyPenalty *float64 `json:"frequencyPenalty,omitempty"`
+	FrequencyPenalty *float32 `json:"frequencyPenalty,omitempty"`
 	// When ``seed`` is fixed to a specific number, the model makes a best
 	// effort to provide the same response for repeated requests. By default, a
 	// random number is used.
-	Seed *int64 `json:"seed,omitempty"`
+	Seed *int32 `json:"seed,omitempty"`
 	// Output response media type of the generated candidate text.
 	ResponseMIMEType string `json:"responseMimeType,omitempty"`
 	// Schema that the generated candidate text must adhere to.
@@ -1005,13 +1005,13 @@ type GenerateContentParameters struct {
 // Source attributions for content.
 type Citation struct {
 	// Output only. End index into the content.
-	EndIndex int64 `json:"endIndex,omitempty"`
+	EndIndex int32 `json:"endIndex,omitempty"`
 	// Output only. License of the attribution.
 	License string `json:"license,omitempty"`
 	// Output only. Publication date of the attribution.
 	PublicationDate *civil.Date `json:"publicationDate,omitempty"`
 	// Output only. Start index into the content.
-	StartIndex int64 `json:"startIndex,omitempty"`
+	StartIndex int32 `json:"startIndex,omitempty"`
 	// Output only. Title of the attribution.
 	Title string `json:"title,omitempty"`
 	// Output only. URL reference of the attribution.
@@ -1089,12 +1089,12 @@ type GroundingChunk struct {
 type Segment struct {
 	// Output only. End index in the given Part, measured in bytes. Offset from the start
 	// of the Part, exclusive, starting at zero.
-	EndIndex int64 `json:"endIndex,omitempty"`
+	EndIndex int32 `json:"endIndex,omitempty"`
 	// Output only. The index of a Part object within its parent Content object.
-	PartIndex int64 `json:"partIndex,omitempty"`
+	PartIndex int32 `json:"partIndex,omitempty"`
 	// Output only. Start index in the given Part, measured in bytes. Offset from the start
 	// of the Part, inclusive, starting at zero.
-	StartIndex int64 `json:"startIndex,omitempty"`
+	StartIndex int32 `json:"startIndex,omitempty"`
 	// Output only. The text corresponding to the segment from the response.
 	Text string `json:"text,omitempty"`
 }
@@ -1103,11 +1103,11 @@ type Segment struct {
 type GroundingSupport struct {
 	// Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident.
 	// This list must have the same size as the grounding_chunk_indices.
-	ConfidenceScores []float64 `json:"confidenceScores,omitempty"`
+	ConfidenceScores []float32 `json:"confidenceScores,omitempty"`
 	// A list of indices (into 'grounding_chunk') specifying the citations associated with
 	// the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3],
 	// grounding_chunk[4] are the retrieved content attributed to the claim.
-	GroundingChunkIndices []int64 `json:"groundingChunkIndices,omitempty"`
+	GroundingChunkIndices []int32 `json:"groundingChunkIndices,omitempty"`
 	// Segment of the content this support belongs to.
 	Segment *Segment `json:"segment,omitempty"`
 }
@@ -1119,7 +1119,7 @@ type RetrievalMetadata struct {
 	// is the most likely. This score is only populated when Google Search grounding and
 	// dynamic retrieval is enabled. It will be compared to the threshold to determine whether
 	// to trigger Google Search. If nil, then API will determine the default value.
-	GoogleSearchDynamicRetrievalScore *float64 `json:"googleSearchDynamicRetrievalScore,omitempty"`
+	GoogleSearchDynamicRetrievalScore *float32 `json:"googleSearchDynamicRetrievalScore,omitempty"`
 }
 
 // Google search entry point.
@@ -1150,11 +1150,11 @@ type GroundingMetadata struct {
 type LogprobsResultCandidate struct {
 	// The candidate's log probability. If nil, then no LogProbability is returned by the
 	// API.
-	LogProbability *float64 `json:"logProbability,omitempty"`
+	LogProbability *float32 `json:"logProbability,omitempty"`
 	// The candidate's token string value.
 	Token string `json:"token,omitempty"`
 	// The candidate's token ID value. If nil, then no TokenID is returned by the API.
-	TokenID *int64 `json:"tokenId,omitempty"`
+	TokenID *int32 `json:"tokenId,omitempty"`
 }
 
 // Candidates with top log probabilities at each decoding step.
@@ -1182,12 +1182,12 @@ type SafetyRating struct {
 	Probability HarmProbability `json:"probability,omitempty"`
 	// Output only. Harm probability score. If nil, then no ProbabilityScore is returned
 	// by the API.
-	ProbabilityScore *float64 `json:"probabilityScore,omitempty"`
+	ProbabilityScore *float32 `json:"probabilityScore,omitempty"`
 	// Output only. Harm severity levels in the content.
 	Severity HarmSeverity `json:"severity,omitempty"`
 	// Output only. Harm severity score. If nil, then no ProbabilityScore is returned by
 	// the API.
-	SeverityScore *float64 `json:"severityScore,omitempty"`
+	SeverityScore *float32 `json:"severityScore,omitempty"`
 }
 
 // A response candidate generated from the model.
@@ -1200,7 +1200,7 @@ type Candidate struct {
 	FinishMessage string `json:"finishMessage,omitempty"`
 	// Number of tokens for this candidate. If nil, then no TokenCount is returned by the
 	// API.
-	TokenCount *int64 `json:"tokenCount,omitempty"`
+	TokenCount *int32 `json:"tokenCount,omitempty"`
 	// Output only. Average log probability score of the candidate. If nil, then no AvgLogprobs
 	// is returned by the API.
 	AvgLogprobs *float64 `json:"avgLogprobs,omitempty"`
@@ -1210,7 +1210,7 @@ type Candidate struct {
 	// Output only. Metadata specifies sources used to ground generated content.
 	GroundingMetadata *GroundingMetadata `json:"groundingMetadata,omitempty"`
 	// Output only. Index of the candidate. If nil, then no Index is returned by the API.
-	Index *int64 `json:"index,omitempty"`
+	Index *int32 `json:"index,omitempty"`
 	// Output only. Log-likelihood scores for the response tokens and top tokens
 	LogprobsResult *LogprobsResult `json:"logprobsResult,omitempty"`
 	// Output only. List of ratings for the safety of a response candidate. There is at
@@ -1232,16 +1232,16 @@ type GenerateContentResponsePromptFeedback struct {
 type GenerateContentResponseUsageMetadata struct {
 	// Output only. Number of tokens in the cached part in the input (the cached content).
 	// If nil, then no CachedContentTokenCount is returned by the API.
-	CachedContentTokenCount *int64 `json:"cachedContentTokenCount,omitempty"`
+	CachedContentTokenCount *int32 `json:"cachedContentTokenCount,omitempty"`
 	// Number of tokens in the response(all the generated response candidates). If nil,
 	// then no CandidatesTokenCount is returned by the API.
-	CandidatesTokenCount *int64 `json:"candidatesTokenCount,omitempty"`
+	CandidatesTokenCount *int32 `json:"candidatesTokenCount,omitempty"`
 	// Number of tokens in the prompt. When cached_content is set, this is still the total
 	// effective prompt size meaning this includes the number of tokens in the cached content.
 	// If nil, then no PromptTokenCount is returned by the API.
-	PromptTokenCount *int64 `json:"promptTokenCount,omitempty"`
+	PromptTokenCount *int32 `json:"promptTokenCount,omitempty"`
 	// Total token count for prompt and response candidates.
-	TotalTokenCount int64 `json:"totalTokenCount,omitempty"`
+	TotalTokenCount int32 `json:"totalTokenCount,omitempty"`
 }
 
 // Response message for PredictionService.GenerateContent.
@@ -1383,7 +1383,7 @@ type EmbedContentConfig struct {
 	// excessive values in the output embedding are truncated from the end.
 	// Supported by newer models since 2024 only. You cannot set this value if
 	// using the earlier model (`models/embedding-001`).
-	OutputDimensionality *int64 `json:"outputDimensionality,omitempty"`
+	OutputDimensionality *int32 `json:"outputDimensionality,omitempty"`
 	// Vertex API only. The MIME type of the input.
 	MIMEType string `json:"mimeType,omitempty"`
 	// Vertex API only. Whether to silently truncate inputs longer than
@@ -1409,13 +1409,13 @@ type ContentEmbeddingStatistics struct {
 	// a length longer than the allowed maximum input.
 	Truncated bool `json:"truncated,omitempty"`
 	// Vertex API only. Number of tokens of the input text.
-	TokenCount *float64 `json:"tokenCount,omitempty"`
+	TokenCount *float32 `json:"tokenCount,omitempty"`
 }
 
 // The embedding generated from an input content.
 type ContentEmbedding struct {
 	// A list of floats representing an embedding.
-	Values []float64 `json:"values,omitempty"`
+	Values []float32 `json:"values,omitempty"`
 	// Vertex API only. Statistics of the input text associated with this
 	// embedding.
 	Statistics *ContentEmbeddingStatistics `json:"statistics,omitempty"`
@@ -1425,7 +1425,7 @@ type ContentEmbedding struct {
 type EmbedContentMetadata struct {
 	// Vertex API only. The total number of billable characters included
 	// in the request.
-	BillableCharacterCount *int64 `json:"billableCharacterCount,omitempty"`
+	BillableCharacterCount *int32 `json:"billableCharacterCount,omitempty"`
 }
 
 // Response for the embed_content method.
@@ -1449,16 +1449,16 @@ type GenerateImagesConfig struct {
 	// Description of what to discourage in the generated images.
 	NegativePrompt string `json:"negativePrompt,omitempty"`
 	// Number of images to generate.
-	NumberOfImages *int64 `json:"numberOfImages,omitempty"`
+	NumberOfImages *int32 `json:"numberOfImages,omitempty"`
 	// Aspect ratio of the generated images.
 	AspectRatio string `json:"aspectRatio,omitempty"`
 	// Controls how much the model adheres to the text prompt. Large
 	// values increase output and prompt alignment, but may compromise image
 	// quality.
-	GuidanceScale *float64 `json:"guidanceScale,omitempty"`
+	GuidanceScale *float32 `json:"guidanceScale,omitempty"`
 	// Random seed for image generation. This is not available when
 	// ``add_watermark`` is set to true.
-	Seed *int64 `json:"seed,omitempty"`
+	Seed *int32 `json:"seed,omitempty"`
 	// Filter level for safety filtering.
 	SafetyFilterLevel SafetyFilterLevel `json:"safetyFilterLevel,omitempty"`
 	// Allows generation of people by the model.
@@ -1474,7 +1474,7 @@ type GenerateImagesConfig struct {
 	OutputMIMEType string `json:"outputMimeType,omitempty"`
 	// Compression quality of the generated image (for ``image/jpeg``
 	// only).
-	OutputCompressionQuality *int64 `json:"outputCompressionQuality,omitempty"`
+	OutputCompressionQuality *int32 `json:"outputCompressionQuality,omitempty"`
 	// Whether to add a watermark to the generated images.
 	AddWatermark bool `json:"addWatermark,omitempty"`
 	// Whether to use the prompt rewriting logic.
@@ -1535,9 +1535,9 @@ type upscaleImageAPIConfig struct {
 	OutputMIMEType string `json:"outputMimeType,omitempty"`
 	// The level of compression if the ``output_mime_type`` is
 	// ``image/jpeg``.
-	OutputCompressionQuality *int64 `json:"outputCompressionQuality,omitempty"`
+	OutputCompressionQuality *int32 `json:"outputCompressionQuality,omitempty"`
 
-	NumberOfImages int64 `json:"numberOfImages,omitempty"`
+	NumberOfImages int32 `json:"numberOfImages,omitempty"`
 
 	Mode string `json:"mode,omitempty"`
 }
@@ -1610,9 +1610,9 @@ type Model struct {
 	// Information about the tuned model from the base model.
 	TunedModelInfo *TunedModelInfo `json:"tunedModelInfo,omitempty"`
 	// The maximum number of input tokens that the model can handle.
-	InputTokenLimit int64 `json:"inputTokenLimit,omitempty"`
+	InputTokenLimit int32 `json:"inputTokenLimit,omitempty"`
 	// The maximum number of output tokens that the model can generate.
-	OutputTokenLimit int64 `json:"outputTokenLimit,omitempty"`
+	OutputTokenLimit int32 `json:"outputTokenLimit,omitempty"`
 	// List of actions that are supported by the model.
 	SupportedActions []string `json:"supportedActions,omitempty"`
 }
@@ -1621,7 +1621,7 @@ type ListModelsConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
 
-	PageSize *int64 `json:"pageSize,omitempty"`
+	PageSize *int32 `json:"pageSize,omitempty"`
 
 	PageToken string `json:"pageToken,omitempty"`
 
@@ -1676,15 +1676,15 @@ type GenerationConfig struct {
 	// Optional. If enabled, audio timestamp will be included in the request to the model.
 	AudioTimestamp bool `json:"audioTimestamp,omitempty"`
 	// Optional. Number of candidates to generate.
-	CandidateCount *int64 `json:"candidateCount,omitempty"`
+	CandidateCount *int32 `json:"candidateCount,omitempty"`
 	// Optional. Frequency penalties.
-	FrequencyPenalty *float64 `json:"frequencyPenalty,omitempty"`
+	FrequencyPenalty *float32 `json:"frequencyPenalty,omitempty"`
 	// Optional. Logit probabilities.
-	Logprobs *int64 `json:"logprobs,omitempty"`
+	Logprobs *int32 `json:"logprobs,omitempty"`
 	// Optional. The maximum number of output tokens to generate per message.
-	MaxOutputTokens *int64 `json:"maxOutputTokens,omitempty"`
+	MaxOutputTokens *int32 `json:"maxOutputTokens,omitempty"`
 	// Optional. Positive penalties.
-	PresencePenalty *float64 `json:"presencePenalty,omitempty"`
+	PresencePenalty *float32 `json:"presencePenalty,omitempty"`
 	// Optional. If true, export the logprobs results in response.
 	ResponseLogprobs bool `json:"responseLogprobs,omitempty"`
 	// Optional. Output response mimetype of the generated candidate text. Supported mimetype:
@@ -1701,15 +1701,15 @@ type GenerationConfig struct {
 	// Optional. Routing configuration.
 	RoutingConfig *GenerationConfigRoutingConfig `json:"routingConfig,omitempty"`
 	// Optional. Seed.
-	Seed *int64 `json:"seed,omitempty"`
+	Seed *int32 `json:"seed,omitempty"`
 	// Optional. Stop sequences.
 	StopSequences []string `json:"stopSequences,omitempty"`
 	// Optional. Controls the randomness of predictions.
-	Temperature *float64 `json:"temperature,omitempty"`
+	Temperature *float32 `json:"temperature,omitempty"`
 	// Optional. If specified, top-k sampling will be used.
-	TopK *float64 `json:"topK,omitempty"`
+	TopK *float32 `json:"topK,omitempty"`
 	// Optional. If specified, nucleus sampling will be used.
-	TopP *float64 `json:"topP,omitempty"`
+	TopP *float32 `json:"topP,omitempty"`
 }
 
 // Config for the count_tokens method.
@@ -1740,10 +1740,10 @@ type CountTokensParameters struct {
 // Response for counting tokens.
 type CountTokensResponse struct {
 	// Total number of tokens.
-	TotalTokens int64 `json:"totalTokens,omitempty"`
+	TotalTokens int32 `json:"totalTokens,omitempty"`
 	// Number of tokens in the cached part of the prompt (the cached content). If nil, then
 	// no CachedContentTokenCount is returned by the API.
-	CachedContentTokenCount *int64 `json:"cachedContentTokenCount,omitempty"`
+	CachedContentTokenCount *int32 `json:"cachedContentTokenCount,omitempty"`
 }
 
 // Optional parameters for computing tokens.
@@ -1838,16 +1838,16 @@ type CreateCachedContentParameters struct {
 type CachedContentUsageMetadata struct {
 	// Duration of audio in seconds. If nil, then no AudioDurationSeconds is returned by
 	// the API.
-	AudioDurationSeconds *int64 `json:"audioDurationSeconds,omitempty"`
+	AudioDurationSeconds *int32 `json:"audioDurationSeconds,omitempty"`
 	// Number of images. If nil, then no ImageCount is returned by the API.
-	ImageCount *int64 `json:"imageCount,omitempty"`
+	ImageCount *int32 `json:"imageCount,omitempty"`
 	// Number of text characters. If nil, then no TextCount is returned by the API.
-	TextCount *int64 `json:"textCount,omitempty"`
+	TextCount *int32 `json:"textCount,omitempty"`
 	// Total number of tokens that the cached content consumes.
-	TotalTokenCount int64 `json:"totalTokenCount,omitempty"`
+	TotalTokenCount int32 `json:"totalTokenCount,omitempty"`
 	// Duration of video in seconds. If nil, then no VideoDurationSeconds is returned by
 	// the API.
-	VideoDurationSeconds *int64 `json:"videoDurationSeconds,omitempty"`
+	VideoDurationSeconds *int32 `json:"videoDurationSeconds,omitempty"`
 }
 
 // A resource used in LLM queries for users to explicitly specify what to cache.
@@ -1927,7 +1927,7 @@ type ListCachedContentsConfig struct {
 	// each individual request to the server. If zero, the server will use a default value.
 	// Setting a positive value can be useful for managing the size and frequency of API
 	// calls.
-	PageSize int64 `json:"pageSize,omitempty"`
+	PageSize int32 `json:"pageSize,omitempty"`
 	// PageToken represents a token used for pagination in API responses. It's an opaque
 	// string that should be passed to subsequent requests to retrieve the next page of
 	// results. An empty PageToken typically indicates that there are no further pages available.
@@ -1990,7 +1990,7 @@ type replayRequest struct {
 
 // Represents a single response in a replay.
 type replayResponse struct {
-	StatusCode int64 `json:"statusCode,omitempty"`
+	StatusCode int32 `json:"statusCode,omitempty"`
 
 	Headers map[string]string `json:"headers,omitempty"`
 
@@ -2047,7 +2047,7 @@ type UpscaleImageConfig struct {
 	OutputMIMEType string `json:"outputMimeType,omitempty"`
 	// The level of compression if the output_mime_type is image/jpeg. If nil, then API
 	// will determine the default value.
-	OutputCompressionQuality *int64 `json:"outputCompressionQuality,omitempty"`
+	OutputCompressionQuality *int32 `json:"outputCompressionQuality,omitempty"`
 }
 
 // User-facing config UpscaleImageParameters.
@@ -2070,7 +2070,7 @@ type RawReferenceImage struct {
 	// The reference image for the editing operation.
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
-	ReferenceID int64 `json:"referenceId,omitempty"`
+	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 }
@@ -2082,10 +2082,10 @@ type MaskReferenceConfig struct {
 	MaskMode MaskReferenceMode `json:"maskMode,omitempty"`
 	// A list of up to 5 class IDs to use for semantic segmentation.
 	// Automatically creates an image mask based on specific objects.
-	SegmentationClasses []int64 `json:"segmentationClasses,omitempty"`
+	SegmentationClasses []int32 `json:"segmentationClasses,omitempty"`
 	// Dilation percentage of the mask provided. Float between 0 and 1. If nil, then API
 	// will determine the default value.
-	MaskDilation *float64 `json:"maskDilation,omitempty"`
+	MaskDilation *float32 `json:"maskDilation,omitempty"`
 }
 
 // A mask image is an image whose non-zero values indicate where to edit the base image.
@@ -2097,7 +2097,7 @@ type MaskReferenceImage struct {
 	// The reference image for the editing operation.
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
-	ReferenceID int64 `json:"referenceId,omitempty"`
+	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 	// Configuration for the mask reference image.
@@ -2124,7 +2124,7 @@ type ControlReferenceImage struct {
 	// The reference image for the editing operation.
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
-	ReferenceID int64 `json:"referenceId,omitempty"`
+	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 	// Configuration for the control reference image.
@@ -2146,7 +2146,7 @@ type StyleReferenceImage struct {
 	// The reference image for the editing operation.
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
-	ReferenceID int64 `json:"referenceId,omitempty"`
+	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 	// Configuration for the style reference image.
@@ -2170,7 +2170,7 @@ type SubjectReferenceImage struct {
 	// The reference image for the editing operation.
 	ReferenceImage *Image `json:"referenceImage,omitempty"`
 	// The ID of the reference image.
-	ReferenceID int64 `json:"referenceId,omitempty"`
+	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. Only set by the SDK.
 	ReferenceType string `json:"referenceType,omitempty"`
 	// Configuration for the subject reference image.

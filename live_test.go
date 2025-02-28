@@ -79,7 +79,7 @@ func TestLiveConnect(t *testing.T) {
 			desc:   "successful connection with config mldev",
 			client: mldevClient,
 			config: &LiveConnectConfig{
-				GenerationConfig:  &GenerationConfig{Temperature: Ptr(0.5)},
+				GenerationConfig:  &GenerationConfig{Temperature: Ptr[float32](0.5)},
 				SystemInstruction: &Content{Parts: []*Part{{Text: "test instruction"}}},
 				Tools:             []*Tool{{GoogleSearch: &GoogleSearch{}}},
 			},
@@ -94,7 +94,7 @@ func TestLiveConnect(t *testing.T) {
 			desc:   "successful connection with config vertex",
 			client: vertexClient,
 			config: &LiveConnectConfig{
-				GenerationConfig:  &GenerationConfig{Temperature: Ptr(0.5)},
+				GenerationConfig:  &GenerationConfig{Temperature: Ptr[float32](0.5)},
 				SystemInstruction: &Content{Parts: []*Part{{Text: "test instruction"}}},
 				Tools:             []*Tool{{GoogleSearch: &GoogleSearch{}}},
 			},
