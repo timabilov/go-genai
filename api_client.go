@@ -122,9 +122,9 @@ func buildRequest(ctx context.Context, ac *apiClient, path string, body map[stri
 
 func sdkHeader(ac *apiClient) http.Header {
 	header := make(http.Header)
-	header.Set(http.CanonicalHeaderKey("Content-Type"), "application/json")
+	header.Set("Content-Type", "application/json")
 	if ac.clientConfig.APIKey != "" {
-		header.Set(http.CanonicalHeaderKey("x-goog-api-key"), ac.clientConfig.APIKey)
+		header.Set("x-goog-api-key", ac.clientConfig.APIKey)
 	}
 	// TODO(b/381108714): Automate revisions to the SDK library version.
 	libraryLabel := "google-genai-sdk/0.0.1"
@@ -206,7 +206,7 @@ func iterateResponseStream[R any](rs *responseStream[R], responseConverter func(
 				// Step 2: The toStruct function calls fromConverter(handle Vertex and MLDev schema
 				// difference and get a unified response). Then toStruct function converts the unified
 				// response from map[string]any to struct type.
-				var resp = new(R)
+				// var resp = new(R)
 				resp, err := responseConverter(respRaw)
 				if err != nil {
 					if !yield(nil, err) {

@@ -171,13 +171,13 @@ func tModelsURL(ac *apiClient, baseModels any) (string, error) {
 }
 
 func tExtractModels(ac *apiClient, response any) (any, error) {
-	switch response.(type) {
+	switch response := response.(type) {
 	case map[string]any:
-		if models, ok := response.(map[string]any)["models"]; ok {
+		if models, ok := response["models"]; ok {
 			return models, nil
-		} else if tunedModels, ok := response.(map[string]any)["tunedModels"]; ok {
+		} else if tunedModels, ok := response["tunedModels"]; ok {
 			return tunedModels, nil
-		} else if publisherModels, ok := response.(map[string]any)["publisherModels"]; ok {
+		} else if publisherModels, ok := response["publisherModels"]; ok {
 			return publisherModels, nil
 		} else {
 			log.Printf("Warning: Cannot find the models type(models, tunedModels, publisherModels) for response: %s", response)

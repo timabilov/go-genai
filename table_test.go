@@ -280,19 +280,18 @@ func injectUnknownFields(t *testing.T, replayClient *replayAPIClient) {
 	var inject func(in any) int
 	inject = func(in any) int {
 		counter := 0
-		switch in.(type) {
+		switch in := in.(type) {
 		case map[string]any:
-			m := in.(map[string]any)
-			for _, v := range m {
+			for _, v := range in {
 				inject(v)
 			}
-			m["unknownFieldString"] = "unknownValue"
-			m["unknownFieldNumber"] = 0
-			m["unknownFieldMap"] = map[string]any{"unknownFieldString": "unknownValue"}
-			m["unknownFieldArray"] = []any{map[string]any{"unknownFieldString": "unknownValue"}}
+			in["unknownFieldString"] = "unknownValue"
+			in["unknownFieldNumber"] = 0
+			in["unknownFieldMap"] = map[string]any{"unknownFieldString": "unknownValue"}
+			in["unknownFieldArray"] = []any{map[string]any{"unknownFieldString": "unknownValue"}}
 			counter++
 		case []any:
-			for _, v := range in.([]any) {
+			for _, v := range in {
 				inject(v)
 			}
 		}

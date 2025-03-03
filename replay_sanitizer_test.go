@@ -33,7 +33,7 @@ type outerStruct struct {
 	StructField       nestedStruct    `json:"structField,omitempty"`
 	SliceField        []nestedStruct  `json:"sliceField,omitempty"`
 	SlicePointerField []*nestedStruct `json:"slicePointerField,omitempty"`
-	// Resursive types.
+	// Recursive types.
 	PointerOuterField *outerStruct `json:"pointerOuterField,omitempty"`
 }
 

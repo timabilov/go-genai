@@ -116,7 +116,10 @@ func (rac *replayAPIClient) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
-	w.Write([]byte(strings.Join(bodySegments, "\n")))
+	_, err := w.Write([]byte(strings.Join(bodySegments, "\n")))
+	if err != nil {
+		rac.t.Errorf("error writing response, err: %+v", err)
+	}
 }
 
 func readFileForReplayTest[T any](path string, output *T, omitempty bool) error {
@@ -136,7 +139,10 @@ func readFileForReplayTest[T any](path string, output *T, omitempty bool) error 
 	convertKeysToCamelCase(m)
 
 	// Marshal the modified map back to struct
-	mapToStruct(m, output)
+	err = mapToStruct(m, output)
+	if err != nil {
+		return fmt.Errorf("error converting map to struct: %w", err)
+	}
 
 	return nil
 }
@@ -216,13 +222,6 @@ func (rac *replayAPIClient) assertRequest(sdkRequest *http.Request, replayReques
 	if diff := cmp.Diff(got, want, opts); diff != "" {
 		rac.t.Errorf("Requests had diffs (-got +want):\n%v", diff)
 	}
-}
-
-func initialSanitize(m any) {
-	// TODO(b/380886719): Modify the replay parser to ignore empty values for `map[string]any` types.
-	omitEmptyValues(m)
-	// 2. Modify the map so the keys are all in camel case.
-	convertKeysToCamelCase(m)
 }
 
 // omitEmptyValues recursively traverses the given value and if it is a `map[string]any` or

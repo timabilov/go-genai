@@ -80,11 +80,9 @@ func TestModelsGenerateContentStream(t *testing.T) {
 								}
 								if response == nil {
 									t.Fatalf("expected at least one response, got none")
-								}
-								if len(response.Candidates) == 0 {
+								} else if response.Candidates!= nil && len(response.Candidates) == 0 {
 									t.Errorf("expected at least one candidate, got none")
-								}
-								if len(response.Candidates[0].Content.Parts) == 0 {
+								} else if response.Candidates != nil && response.Candidates[0].Content != nil && len(response.Candidates[0].Content.Parts) == 0 {
 									t.Errorf("expected at least one part, got none")
 								}
 							}

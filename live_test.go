@@ -129,7 +129,10 @@ func TestLiveConnect(t *testing.T) {
 					t.Fatalf("Marshal: %v", err)
 				}
 
-				conn.WriteMessage(mt, responseBytes)
+				err = conn.WriteMessage(mt, responseBytes)
+				if err != nil {
+					t.Fatalf("WriteMessage: %v", err)
+				}
 			}))
 			defer ts.Close()
 

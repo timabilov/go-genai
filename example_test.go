@@ -34,13 +34,6 @@ const location = "some-gcp-location"
 // Your Google API key
 const apiKey = "your-api-key"
 
-// A model name like "gemini-1.0-pro"
-// For custom models from different publishers, prepent the full publisher
-// prefix for the model, e.g.:
-//
-//	modelName = publishers/some-publisher/models/some-model-name
-const modelName = "some-model"
-
 // This example shows how to create a new client for Vertex AI.
 func ExampleNewClient_vertexai() {
 	ctx := context.Background()
@@ -178,6 +171,9 @@ func ExampleModels_GenerateContent_inlineImage_vertexai() {
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	parts := []*genai.Part{
 		{Text: "What's this image about?"},
@@ -212,6 +208,9 @@ func ExampleModels_GenerateContent_inlineImage_geminiapi() {
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	parts := []*genai.Part{
 		{Text: "What's this image about?"},
@@ -247,6 +246,9 @@ func ExampleModels_GenerateContent_inlinePDF_vertexai() {
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	parts := []*genai.Part{
 		{Text: "What's this pdf about?"},
@@ -281,6 +283,9 @@ func ExampleModels_GenerateContent_inlinePDF_geminiapi() {
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	parts := []*genai.Part{
 		{Text: "What's this pdf about?"},
@@ -316,6 +321,9 @@ func ExampleModels_GenerateContent_inlineAudio_vertexai() {
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	parts := []*genai.Part{
 		{Text: "What's this music about?"},
@@ -349,6 +357,9 @@ func ExampleModels_GenerateContent_inlineAudio_geminiapi() {
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	parts := []*genai.Part{
 		{Text: "What's this music about?"},
@@ -384,6 +395,9 @@ func ExampleModels_GenerateContent_inlineVideo_vertexai() {
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	parts := []*genai.Part{
 		{Text: "What's this video about?"},
@@ -417,6 +431,9 @@ func ExampleModels_GenerateContent_inlineVideo_geminiapi() {
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	parts := []*genai.Part{
 		{Text: "What's this video about?"},

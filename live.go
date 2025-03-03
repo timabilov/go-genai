@@ -97,7 +97,10 @@ func (r *Live) Connect(model string, config *LiveConnectConfig) (*Session, error
 	}
 	kwargs := map[string]any{"model": modelFullName, "config": config}
 	parameterMap := make(map[string]any)
-	deepMarshal(kwargs, &parameterMap)
+	err = deepMarshal(kwargs, &parameterMap)
+	if err != nil {
+		return nil, err
+	}
 
 	var toConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
 	if r.apiClient.clientConfig.Backend == BackendVertexAI {
@@ -115,7 +118,10 @@ func (r *Live) Connect(model string, config *LiveConnectConfig) (*Session, error
 	if err != nil {
 		return nil, fmt.Errorf("marshal LiveClientSetup failed: %w", err)
 	}
-	s.conn.WriteMessage(websocket.TextMessage, clientBytes)
+	err = s.conn.WriteMessage(websocket.TextMessage, clientBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to write LiveClientSetup: %w", err)
+	}
 	_, err = s.Receive()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to the server: %w", err)
@@ -133,7 +139,10 @@ func (s *Session) Send(input *LiveClientMessage) error {
 
 	kwargs := map[string]any{"input": input}
 	parameterMap := make(map[string]any)
-	deepMarshal(kwargs, &parameterMap)
+	err := deepMarshal(kwargs, &parameterMap)
+	if err != nil {
+		return err
+	}
 
 	var toConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
 	if s.apiClient.clientConfig.Backend == BackendVertexAI {
