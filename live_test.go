@@ -19,13 +19,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/gorilla/websocket"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 type mockTokenSource struct {
@@ -47,13 +47,11 @@ func TestLiveConnect(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Needed for account default credential.
-	// Usually this file is in ~/.config/gcloud/application_default_credentials.json
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "testdata/credentials.json")
 	vertexClient, err := NewClient(ctx, &ClientConfig{
-		Backend:  BackendVertexAI,
-		Project:  "test-project",
-		Location: "test-location",
+		Backend:     BackendVertexAI,
+		Project:     "test-project",
+		Location:    "test-location",
+		Credentials: &google.Credentials{},
 	})
 	if err != nil {
 		t.Fatal(err)

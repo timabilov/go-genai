@@ -2277,7 +2277,7 @@ type RawReferenceImage struct {
 	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. This field always set to REFERENCE_TYPE_RAW by SDK
 	// internally.
-	referenceType string `json:"referenceType,omitempty"`
+	referenceType string
 }
 
 func (r *RawReferenceImage) referenceImageAPI() *referenceImageAPI {
@@ -2300,7 +2300,7 @@ type MaskReferenceImage struct {
 	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. This field always set to REFERENCE_TYPE_MASK by
 	// SDK internally.
-	referenceType string `json:"referenceType,omitempty"`
+	referenceType string
 	// Configuration for the mask reference image.
 	Config *MaskReferenceConfig `json:"config,omitempty"`
 }
@@ -2327,7 +2327,7 @@ type ControlReferenceImage struct {
 	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. This field always set to REFERENCE_TYPE_CONTROL
 	// by SDK internally.
-	referenceType string `json:"referenceType,omitempty"`
+	referenceType string
 	// Configuration for the control reference image.
 	Config *ControlReferenceConfig `json:"config,omitempty"`
 }
@@ -2353,7 +2353,7 @@ type StyleReferenceImage struct {
 	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. This field always set to REFERENCE_TYPE_STYLE by
 	// SDK internally.
-	referenceType string `json:"referenceType,omitempty"`
+	referenceType string
 	// Configuration for the style reference image.
 	Config *StyleReferenceConfig `json:"config,omitempty"`
 }
@@ -2379,7 +2379,7 @@ type SubjectReferenceImage struct {
 	ReferenceID int32 `json:"referenceId,omitempty"`
 	// The type of the reference image. This field always set to REFERENCE_TYPE_SUBJECT
 	// by SDK internally.
-	referenceType string `json:"referenceType,omitempty"`
+	referenceType string
 	// Configuration for the subject reference image.
 	Config *SubjectReferenceConfig `json:"config,omitempty"`
 }

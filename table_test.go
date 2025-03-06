@@ -27,6 +27,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"golang.org/x/oauth2/google"
 )
 
 func snakeToPascal(s string) string {
@@ -107,7 +108,7 @@ func extractArgs(ctx context.Context, t *testing.T, method reflect.Value, testTa
 				}
 			}
 
-			paramTypeName := fmt.Sprintf("%s", paramType)
+			paramTypeName := paramType.String()
 			if paramTypeName == "[]genai.ReferenceImage" {
 				sanitizeMapWithSourceType(t, reflect.TypeOf(([]*referenceImageAPI)(nil)), parameterValue)
 			} else {
@@ -256,6 +257,7 @@ func TestTable(t *testing.T) {
 								if backend.Backend == BackendVertexAI {
 									config.Project = "fake-project"
 									config.Location = "fake-location"
+									config.Credentials = &google.Credentials{}
 								} else {
 									config.APIKey = "fake-api-key"
 								}
