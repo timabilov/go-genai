@@ -1011,17 +1011,6 @@ type GenerateContentConfig struct {
 	ThinkingConfig *ThinkingConfig `json:"thinkingConfig,omitempty"`
 }
 
-// Config for models.generate_content parameters.
-type GenerateContentParameters struct {
-	// ID of the model to use. For a list of models, see `Google models
-	// <https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models>`_.
-	Model string `json:"model,omitempty"`
-	// Content of the request.
-	Contents []*Content `json:"contents,omitempty"`
-	// Configuration that contains optional model parameters.
-	Config *GenerateContentConfig `json:"config,omitempty"`
-}
-
 // Source attributions for content.
 type Citation struct {
 	// Output only. End index into the content.
@@ -1417,17 +1406,6 @@ type EmbedContentConfig struct {
 	AutoTruncate bool `json:"autoTruncate,omitempty"`
 }
 
-// Parameters for the embed_content method.
-type EmbedContentParameters struct {
-	// ID of the model to use. For a list of models, see `Google models
-	// <https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models>`_.
-	Model string `json:"model,omitempty"`
-	// The content to embed. Only the `parts.text` fields will be counted.
-	Contents []*Content `json:"contents,omitempty"`
-	// Configuration that contains optional parameters.
-	Config *EmbedContentConfig `json:"config,omitempty"`
-}
-
 // Statistics of the input text associated with the result of content embedding.
 type ContentEmbeddingStatistics struct {
 	// Vertex API only. If the input text was truncated due to having
@@ -1504,17 +1482,6 @@ type GenerateImagesConfig struct {
 	AddWatermark bool `json:"addWatermark,omitempty"`
 	// Whether to use the prompt rewriting logic.
 	EnhancePrompt bool `json:"enhancePrompt,omitempty"`
-}
-
-// The parameters for generating images.
-type GenerateImagesParameters struct {
-	// ID of the model to use. For a list of models, see `Google models
-	// <https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models>`_.
-	Model string `json:"model,omitempty"`
-	// Text prompt that typically describes the images to output.
-	Prompt string `json:"prompt,omitempty"`
-	// Configuration for generating images.
-	Config *GenerateImagesConfig `json:"config,omitempty"`
 }
 
 // An image.
@@ -1708,18 +1675,6 @@ type EditImageConfig struct {
 	EditMode EditMode `json:"editMode,omitempty"`
 }
 
-// Parameters for the request to edit an image.
-type EditImageParameters struct {
-	// The model to use.
-	Model string `json:"model,omitempty"`
-	// A text description of the edit to apply to the image.
-	Prompt string `json:"prompt,omitempty"`
-	// The reference images for Imagen 3 editing.
-	ReferenceImages []*referenceImageAPI `json:"referenceImages,omitempty"`
-	// Configuration for editing.
-	Config *EditImageConfig `json:"config,omitempty"`
-}
-
 // Response for the request to edit an image.
 type EditImageResponse struct {
 	// Generated images.
@@ -1746,18 +1701,6 @@ type upscaleImageAPIConfig struct {
 	Mode string `json:"mode,omitempty"`
 }
 
-// API parameters for UpscaleImage.
-type UpscaleImageAPIParameters struct {
-	// The model to use.
-	Model string `json:"model,omitempty"`
-	// The input image to upscale.
-	Image *Image `json:"image,omitempty"`
-	// The factor to upscale the image (x2 or x4).
-	UpscaleFactor string `json:"upscaleFactor,omitempty"`
-	// Configuration for upscaling.
-	Config *upscaleImageAPIConfig `json:"config,omitempty"`
-}
-
 type UpscaleImageResponse struct {
 	// Generated images.
 	GeneratedImages []*GeneratedImage `json:"generatedImages,omitempty"`
@@ -1767,12 +1710,6 @@ type UpscaleImageResponse struct {
 type GetModelConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
-}
-
-type GetModelParameters struct {
-	Model string `json:"model,omitempty"`
-	// Optional parameters for the request.
-	Config *GetModelConfig `json:"config,omitempty"`
 }
 
 // An endpoint where you deploy models.
@@ -1835,10 +1772,6 @@ type ListModelsConfig struct {
 	QueryBase *bool `json:"queryBase,omitempty"`
 }
 
-type ListModelsParameters struct {
-	Config *ListModelsConfig `json:"config,omitempty"`
-}
-
 type ListModelsResponse struct {
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
@@ -1854,21 +1787,9 @@ type UpdateModelConfig struct {
 	Description string `json:"description,omitempty"`
 }
 
-type UpdateModelParameters struct {
-	Model string `json:"model,omitempty"`
-
-	Config *UpdateModelConfig `json:"config,omitempty"`
-}
-
 type DeleteModelConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
-}
-
-type DeleteModelParameters struct {
-	Model string `json:"model,omitempty"`
-	// Optional parameters for the request.
-	Config *DeleteModelConfig `json:"config,omitempty"`
 }
 
 type DeleteModelResponse struct {
@@ -1930,17 +1851,6 @@ type CountTokensConfig struct {
 	GenerationConfig *GenerationConfig `json:"generationConfig,omitempty"`
 }
 
-// Parameters for counting tokens.
-type CountTokensParameters struct {
-	// ID of the model to use. For a list of models, see `Google models
-	// <https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models>`_.
-	Model string `json:"model,omitempty"`
-	// Input content.
-	Contents []*Content `json:"contents,omitempty"`
-	// Configuration for counting tokens.
-	Config *CountTokensConfig `json:"config,omitempty"`
-}
-
 // Response for counting tokens.
 type CountTokensResponse struct {
 	// Total number of tokens.
@@ -1954,17 +1864,6 @@ type CountTokensResponse struct {
 type ComputeTokensConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
-}
-
-// Parameters for computing tokens.
-type ComputeTokensParameters struct {
-	// ID of the model to use. For a list of models, see `Google models
-	// <https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models>`_.
-	Model string `json:"model,omitempty"`
-	// Input content.
-	Contents []*Content `json:"contents,omitempty"`
-	// Optional parameters for the request.
-	Config *ComputeTokensConfig `json:"config,omitempty"`
 }
 
 // Tokens info with a list of tokens and the corresponding list of token ids.
@@ -2030,14 +1929,6 @@ type CreateCachedContentConfig struct {
 	ToolConfig *ToolConfig `json:"toolConfig,omitempty"`
 }
 
-// Parameters for caches.create method.
-type CreateCachedContentParameters struct {
-	// ID of the model to use. Example: gemini-1.5-flash
-	Model string `json:"model,omitempty"`
-	// Configuration that contains optional parameters.
-	Config *CreateCachedContentConfig `json:"config,omitempty"`
-}
-
 // Metadata on the usage of the cached content.
 type CachedContentUsageMetadata struct {
 	// Duration of audio in seconds. If nil, then no AudioDurationSeconds is returned by
@@ -2078,26 +1969,10 @@ type GetCachedContentConfig struct {
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
 }
 
-// Parameters for caches.get method.
-type GetCachedContentParameters struct {
-	// The server-generated resource name of the cached content.
-	Name string `json:"name,omitempty"`
-	// Optional parameters for the request.
-	Config *GetCachedContentConfig `json:"config,omitempty"`
-}
-
 // Optional parameters for caches.delete method.
 type DeleteCachedContentConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
-}
-
-// Parameters for caches.delete method.
-type DeleteCachedContentParameters struct {
-	// The server-generated resource name of the cached content.
-	Name string `json:"name,omitempty"`
-	// Optional parameters for the request.
-	Config *DeleteCachedContentConfig `json:"config,omitempty"`
 }
 
 // Empty response for caches.delete method.
@@ -2112,13 +1987,6 @@ type UpdateCachedContentConfig struct {
 	TTL string `json:"ttl,omitempty"`
 	// Timestamp of when this resource is considered expired.
 	ExpireTime *time.Time `json:"expireTime,omitempty"`
-}
-
-type UpdateCachedContentParameters struct {
-	// The server-generated resource name of the cached content.
-	Name string `json:"name,omitempty"`
-	// Configuration that contains optional parameters.
-	Config *UpdateCachedContentConfig `json:"config,omitempty"`
 }
 
 // Config for caches.list method.
@@ -2136,12 +2004,6 @@ type ListCachedContentsConfig struct {
 	// string that should be passed to subsequent requests to retrieve the next page of
 	// results. An empty PageToken typically indicates that there are no further pages available.
 	PageToken string `json:"pageToken,omitempty"`
-}
-
-// Parameters for caches.list method.
-type ListCachedContentsParameters struct {
-	// Configuration that contains optional parameters.
-	Config *ListCachedContentsConfig `json:"config,omitempty"`
 }
 
 type ListCachedContentsResponse struct {
