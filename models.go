@@ -3980,7 +3980,7 @@ func (m Models) editImage(ctx context.Context, model string, prompt string, refe
 		config.HTTPOptions = nil
 	}
 	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
-		return nil, fmt.Errorf("method EditImage is only supported in the Vertex AI client.")
+		return nil, fmt.Errorf("method EditImage is only supported in the Vertex AI client. You can choose to use Vertex AI by setting ClientConfig.Backend to BackendVertexAI.")
 	}
 
 	var response = new(EditImageResponse)
@@ -4054,7 +4054,7 @@ func (m Models) upscaleImage(ctx context.Context, model string, image *Image, up
 		config.HTTPOptions = nil
 	}
 	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
-		return nil, fmt.Errorf("method UpscaleImage is only supported in the Vertex AI client.")
+		return nil, fmt.Errorf("method UpscaleImage is only supported in the Vertex AI client. You can choose to use Vertex AI by setting ClientConfig.Backend to BackendVertexAI.")
 	}
 
 	var response = new(UpscaleImageResponse)
@@ -4483,7 +4483,7 @@ func (m Models) ComputeTokens(ctx context.Context, model string, contents []*Con
 		config.HTTPOptions = nil
 	}
 	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
-		return nil, fmt.Errorf("method ComputeTokens is only supported in the Vertex AI client.")
+		return nil, fmt.Errorf("method ComputeTokens is only supported in the Vertex AI client. You can choose to use Vertex AI by setting ClientConfig.Backend to BackendVertexAI.")
 	}
 
 	var response = new(ComputeTokensResponse)

@@ -1452,7 +1452,7 @@ type GenerateImagesConfig struct {
 	// Description of what to discourage in the generated images.
 	NegativePrompt string `json:"negativePrompt,omitempty"`
 	// Number of images to generate.
-	NumberOfImages *int32 `json:"numberOfImages,omitempty"`
+	NumberOfImages int32 `json:"numberOfImages,omitempty"`
 	// Aspect ratio of the generated images.
 	AspectRatio string `json:"aspectRatio,omitempty"`
 	// Controls how much the model adheres to the text prompt. Large
@@ -1649,10 +1649,10 @@ type EditImageConfig struct {
 	// Aspect ratio of the generated images.
 	AspectRatio string `json:"aspectRatio,omitempty"`
 	// Controls how much the model adheres to the text prompt. Large values increase output
-	// and prompt alignment, but may compromise image quality. If empty, then API will determine
+	// and prompt alignment, but may compromise image quality. If nil, then API will determine
 	// the default value.
 	GuidanceScale *float32 `json:"guidanceScale,omitempty"`
-	// Seed for the random number generator. If empty, then API will determine the default
+	// Seed for the random number generator. If nil, then API will determine the default
 	// value.
 	Seed *int32 `json:"seed,omitempty"`
 	// Filter level for safety filtering.
@@ -1669,7 +1669,7 @@ type EditImageConfig struct {
 	// MIME type of the generated image.
 	OutputMIMEType string `json:"outputMimeType,omitempty"`
 	// Compression quality of the generated image (for `image/jpeg` MIME type only). If
-	// empty, then API will determine the default value.
+	// nil, then API will determine the default value.
 	OutputCompressionQuality *int32 `json:"outputCompressionQuality,omitempty"`
 	// Describes the editing mode for the request.
 	EditMode EditMode `json:"editMode,omitempty"`

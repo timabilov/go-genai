@@ -67,8 +67,6 @@ func imagen(ctx context.Context) {
 		ctx, "imagen-3.0-generate-002",
 		/*prompt=*/ "An umbrella in the foreground, and a rainy night sky in the background",
 		&genai.GenerateImagesConfig{
-			// TODO: Change this to value type.
-			NumberOfImages:   genai.Ptr[int64](1),
 			IncludeRAIReason: true,
 			OutputMIMEType:   "image/jpeg",
 		},
@@ -101,7 +99,7 @@ func imagen(ctx context.Context) {
 		ReferenceID: 2,
 		Config: &genai.MaskReferenceConfig{
 			MaskMode:     "MASK_MODE_BACKGROUND",
-			MaskDilation: genai.Ptr(0.0),
+			MaskDilation: genai.Ptr[float32](0.0),
 		},
 	}
 	response3, err := client.Models.EditImage(

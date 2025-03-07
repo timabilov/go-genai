@@ -52,7 +52,7 @@ func generateImage(ctx context.Context) {
 	}
 	// Pass in basic config
 	var config *genai.GenerateImagesConfig = &genai.GenerateImagesConfig{
-		NumberOfImages:   genai.Ptr[int64](1),
+		NumberOfImages:   1,
 		OutputMIMEType:   "image/jpeg",
 		IncludeRAIReason: true,
 	}
