@@ -3980,7 +3980,7 @@ func (m Models) editImage(ctx context.Context, model string, prompt string, refe
 		config.HTTPOptions = nil
 	}
 	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
-		return nil, fmt.Errorf("method editImage is only supported in the Vertex AI client.")
+		return nil, fmt.Errorf("method EditImage is only supported in the Vertex AI client.")
 	}
 
 	var response = new(EditImageResponse)
@@ -4548,9 +4548,6 @@ func (m Models) GenerateContent(ctx context.Context, model string, contents []*C
 	if config != nil {
 		config.setDefaults()
 	}
-	for _, c := range contents {
-		c.setDefaults()
-	}
 	return m.generateContent(ctx, model, contents, config)
 }
 
@@ -4558,9 +4555,6 @@ func (m Models) GenerateContent(ctx context.Context, model string, contents []*C
 func (m Models) GenerateContentStream(ctx context.Context, model string, contents []*Content, config *GenerateContentConfig) iter.Seq2[*GenerateContentResponse, error] {
 	if config != nil {
 		config.setDefaults()
-	}
-	for _, c := range contents {
-		c.setDefaults()
 	}
 	return m.generateContentStream(ctx, model, contents, config)
 }
