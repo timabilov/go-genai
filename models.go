@@ -1425,9 +1425,8 @@ func generateImagesConfigToMldev(ac *apiClient, fromObject map[string]any, paren
 		return nil, fmt.Errorf("outputGcsUri parameter is not supported in Gemini API")
 	}
 
-	fromNegativePrompt := getValueByPath(fromObject, []string{"negativePrompt"})
-	if fromNegativePrompt != nil {
-		setValueByPath(parentObject, []string{"parameters", "negativePrompt"}, fromNegativePrompt)
+	if getValueByPath(fromObject, []string{"negativePrompt"}) != nil {
+		return nil, fmt.Errorf("negativePrompt parameter is not supported in Gemini API")
 	}
 
 	fromNumberOfImages := getValueByPath(fromObject, []string{"numberOfImages"})
@@ -1910,9 +1909,8 @@ func editImageConfigToMldev(ac *apiClient, fromObject map[string]any, parentObje
 		return nil, fmt.Errorf("outputGcsUri parameter is not supported in Gemini API")
 	}
 
-	fromNegativePrompt := getValueByPath(fromObject, []string{"negativePrompt"})
-	if fromNegativePrompt != nil {
-		setValueByPath(parentObject, []string{"parameters", "negativePrompt"}, fromNegativePrompt)
+	if getValueByPath(fromObject, []string{"negativePrompt"}) != nil {
+		return nil, fmt.Errorf("negativePrompt parameter is not supported in Gemini API")
 	}
 
 	fromNumberOfImages := getValueByPath(fromObject, []string{"numberOfImages"})
