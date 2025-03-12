@@ -175,16 +175,8 @@ func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[st
 		return nil, fmt.Errorf("pattern parameter is not supported in Gemini API")
 	}
 
-	if getValueByPath(fromObject, []string{"minimum"}) != nil {
-		return nil, fmt.Errorf("minimum parameter is not supported in Gemini API")
-	}
-
 	if getValueByPath(fromObject, []string{"default"}) != nil {
 		return nil, fmt.Errorf("default parameter is not supported in Gemini API")
-	}
-
-	if getValueByPath(fromObject, []string{"anyOf"}) != nil {
-		return nil, fmt.Errorf("anyOf parameter is not supported in Gemini API")
 	}
 
 	if getValueByPath(fromObject, []string{"maxLength"}) != nil {
@@ -203,12 +195,13 @@ func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[st
 		return nil, fmt.Errorf("minProperties parameter is not supported in Gemini API")
 	}
 
-	if getValueByPath(fromObject, []string{"maximum"}) != nil {
-		return nil, fmt.Errorf("maximum parameter is not supported in Gemini API")
-	}
-
 	if getValueByPath(fromObject, []string{"maxProperties"}) != nil {
 		return nil, fmt.Errorf("maxProperties parameter is not supported in Gemini API")
+	}
+
+	fromAnyOf := getValueByPath(fromObject, []string{"anyOf"})
+	if fromAnyOf != nil {
+		setValueByPath(toObject, []string{"anyOf"}, fromAnyOf)
 	}
 
 	fromDescription := getValueByPath(fromObject, []string{"description"})
@@ -236,9 +229,19 @@ func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[st
 		setValueByPath(toObject, []string{"maxItems"}, fromMaxItems)
 	}
 
+	fromMaximum := getValueByPath(fromObject, []string{"maximum"})
+	if fromMaximum != nil {
+		setValueByPath(toObject, []string{"maximum"}, fromMaximum)
+	}
+
 	fromMinItems := getValueByPath(fromObject, []string{"minItems"})
 	if fromMinItems != nil {
 		setValueByPath(toObject, []string{"minItems"}, fromMinItems)
+	}
+
+	fromMinimum := getValueByPath(fromObject, []string{"minimum"})
+	if fromMinimum != nil {
+		setValueByPath(toObject, []string{"minimum"}, fromMinimum)
 	}
 
 	fromNullable := getValueByPath(fromObject, []string{"nullable"})
@@ -282,19 +285,9 @@ func schemaToVertex(ac *apiClient, fromObject map[string]any, parentObject map[s
 		setValueByPath(toObject, []string{"pattern"}, fromPattern)
 	}
 
-	fromMinimum := getValueByPath(fromObject, []string{"minimum"})
-	if fromMinimum != nil {
-		setValueByPath(toObject, []string{"minimum"}, fromMinimum)
-	}
-
 	fromDefault := getValueByPath(fromObject, []string{"default"})
 	if fromDefault != nil {
 		setValueByPath(toObject, []string{"default"}, fromDefault)
-	}
-
-	fromAnyOf := getValueByPath(fromObject, []string{"anyOf"})
-	if fromAnyOf != nil {
-		setValueByPath(toObject, []string{"anyOf"}, fromAnyOf)
 	}
 
 	fromMaxLength := getValueByPath(fromObject, []string{"maxLength"})
@@ -317,14 +310,14 @@ func schemaToVertex(ac *apiClient, fromObject map[string]any, parentObject map[s
 		setValueByPath(toObject, []string{"minProperties"}, fromMinProperties)
 	}
 
-	fromMaximum := getValueByPath(fromObject, []string{"maximum"})
-	if fromMaximum != nil {
-		setValueByPath(toObject, []string{"maximum"}, fromMaximum)
-	}
-
 	fromMaxProperties := getValueByPath(fromObject, []string{"maxProperties"})
 	if fromMaxProperties != nil {
 		setValueByPath(toObject, []string{"maxProperties"}, fromMaxProperties)
+	}
+
+	fromAnyOf := getValueByPath(fromObject, []string{"anyOf"})
+	if fromAnyOf != nil {
+		setValueByPath(toObject, []string{"anyOf"}, fromAnyOf)
 	}
 
 	fromDescription := getValueByPath(fromObject, []string{"description"})
@@ -352,9 +345,19 @@ func schemaToVertex(ac *apiClient, fromObject map[string]any, parentObject map[s
 		setValueByPath(toObject, []string{"maxItems"}, fromMaxItems)
 	}
 
+	fromMaximum := getValueByPath(fromObject, []string{"maximum"})
+	if fromMaximum != nil {
+		setValueByPath(toObject, []string{"maximum"}, fromMaximum)
+	}
+
 	fromMinItems := getValueByPath(fromObject, []string{"minItems"})
 	if fromMinItems != nil {
 		setValueByPath(toObject, []string{"minItems"}, fromMinItems)
+	}
+
+	fromMinimum := getValueByPath(fromObject, []string{"minimum"})
+	if fromMinimum != nil {
+		setValueByPath(toObject, []string{"minimum"}, fromMinimum)
 	}
 
 	fromNullable := getValueByPath(fromObject, []string{"nullable"})

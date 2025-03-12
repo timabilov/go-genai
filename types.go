@@ -695,14 +695,8 @@ type Schema struct {
 	Example any `json:"example,omitempty"`
 	// Optional. Pattern of the Type.STRING to restrict a string to a regular expression.
 	Pattern string `json:"pattern,omitempty"`
-	// Optional. SCHEMA FIELDS FOR TYPE INTEGER and NUMBER Minimum value of the Type.INTEGER
-	// and Type.NUMBER
-	Minimum *float64 `json:"minimum,omitempty"`
 	// Optional. Default value of the data.
 	Default any `json:"default,omitempty"`
-	// Optional. The value should be validated against any (one or more) of the subschemas
-	// in the list.
-	AnyOf []*Schema `json:"anyOf,omitempty"`
 	// Optional. Maximum length of the Type.STRING
 	MaxLength *int64 `json:"maxLength,omitempty"`
 	// Optional. The title of the Schema.
@@ -711,10 +705,11 @@ type Schema struct {
 	MinLength *int64 `json:"minLength,omitempty"`
 	// Optional. Minimum number of the properties for Type.OBJECT.
 	MinProperties *int64 `json:"minProperties,omitempty"`
-	// Optional. Maximum value of the Type.INTEGER and Type.NUMBER
-	Maximum *float64 `json:"maximum,omitempty"`
 	// Optional. Maximum number of the properties for Type.OBJECT.
 	MaxProperties *int64 `json:"maxProperties,omitempty"`
+	// Optional. The value should be validated against any (one or more) of the subschemas
+	// in the list.
+	AnyOf []*Schema `json:"anyOf,omitempty"`
 	// Optional. The description of the data.
 	Description string `json:"description,omitempty"`
 	// Optional. Possible values of the element of primitive type with enum format. Examples:
@@ -729,8 +724,13 @@ type Schema struct {
 	Items *Schema `json:"items,omitempty"`
 	// Optional. Maximum number of the elements for Type.ARRAY.
 	MaxItems *int64 `json:"maxItems,omitempty"`
+	// Optional. Maximum value of the Type.INTEGER and Type.NUMBER
+	Maximum *float64 `json:"maximum,omitempty"`
 	// Optional. Minimum number of the elements for Type.ARRAY.
 	MinItems *int64 `json:"minItems,omitempty"`
+	// Optional. SCHEMA FIELDS FOR TYPE INTEGER and NUMBER Minimum value of the Type.INTEGER
+	// and Type.NUMBER
+	Minimum *float64 `json:"minimum,omitempty"`
 	// Optional. Indicates if the value may be null.
 	Nullable bool `json:"nullable,omitempty"`
 	// Optional. SCHEMA FIELDS FOR TYPE OBJECT Properties of Type.OBJECT.
