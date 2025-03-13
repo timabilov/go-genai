@@ -64,8 +64,9 @@ func imagen(ctx context.Context) {
 		ctx, "imagen-3.0-generate-002",
 		/*prompt=*/ "An umbrella in the foreground, and a rainy night sky in the background",
 		&genai.GenerateImagesConfig{
-			IncludeRAIReason: true,
-			OutputMIMEType:   "image/jpeg",
+			IncludeRAIReason:        true,
+			IncludeSafetyAttributes: true,
+			OutputMIMEType:          "image/jpeg",
 		},
 	)
 	if err != nil {

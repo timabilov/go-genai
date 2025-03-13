@@ -1493,6 +1493,14 @@ type Image struct {
 	MIMEType string `json:"mimeType,omitempty"`
 }
 
+// Safety attributes of a GeneratedImage or the user-provided prompt.
+type SafetyAttributes struct {
+	// List of RAI categories.
+	Categories []string `json:"categories,omitempty"`
+	// List of scores of each categories.
+	Scores []float32 `json:"scores,omitempty"`
+}
+
 // An output image.
 type GeneratedImage struct {
 	// The output image data.
@@ -1500,6 +1508,9 @@ type GeneratedImage struct {
 	// Responsible AI filter reason if the image is filtered out of the
 	// response.
 	RAIFilteredReason string `json:"raiFilteredReason,omitempty"`
+	// Safety attributes of the image. Lists of RAI categories and their
+	// scores of each content.
+	SafetyAttributes *SafetyAttributes `json:"safetyAttributes,omitempty"`
 	// The rewritten prompt used for the image generation if the prompt
 	// enhancer is enabled.
 	EnhancedPrompt string `json:"enhancedPrompt,omitempty"`

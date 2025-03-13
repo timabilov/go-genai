@@ -3264,6 +3264,38 @@ func imageFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[
 	return toObject, nil
 }
 
+func safetyAttributesFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromCategories := getValueByPath(fromObject, []string{"safetyAttributes", "categories"})
+	if fromCategories != nil {
+		setValueByPath(toObject, []string{"categories"}, fromCategories)
+	}
+
+	fromScores := getValueByPath(fromObject, []string{"safetyAttributes", "scores"})
+	if fromScores != nil {
+		setValueByPath(toObject, []string{"scores"}, fromScores)
+	}
+
+	return toObject, nil
+}
+
+func safetyAttributesFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromCategories := getValueByPath(fromObject, []string{"safetyAttributes", "categories"})
+	if fromCategories != nil {
+		setValueByPath(toObject, []string{"categories"}, fromCategories)
+	}
+
+	fromScores := getValueByPath(fromObject, []string{"safetyAttributes", "scores"})
+	if fromScores != nil {
+		setValueByPath(toObject, []string{"scores"}, fromScores)
+	}
+
+	return toObject, nil
+}
+
 func generatedImageFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -3280,6 +3312,16 @@ func generatedImageFromMldev(ac *apiClient, fromObject map[string]any, parentObj
 	fromRaiFilteredReason := getValueByPath(fromObject, []string{"raiFilteredReason"})
 	if fromRaiFilteredReason != nil {
 		setValueByPath(toObject, []string{"raiFilteredReason"}, fromRaiFilteredReason)
+	}
+
+	fromSafetyAttributes := getValueByPath(fromObject, []string{"_self"})
+	if fromSafetyAttributes != nil {
+		fromSafetyAttributes, err = safetyAttributesFromMldev(ac, fromSafetyAttributes.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"safetyAttributes"}, fromSafetyAttributes)
 	}
 
 	return toObject, nil
@@ -3301,6 +3343,16 @@ func generatedImageFromVertex(ac *apiClient, fromObject map[string]any, parentOb
 	fromRaiFilteredReason := getValueByPath(fromObject, []string{"raiFilteredReason"})
 	if fromRaiFilteredReason != nil {
 		setValueByPath(toObject, []string{"raiFilteredReason"}, fromRaiFilteredReason)
+	}
+
+	fromSafetyAttributes := getValueByPath(fromObject, []string{"_self"})
+	if fromSafetyAttributes != nil {
+		fromSafetyAttributes, err = safetyAttributesFromVertex(ac, fromSafetyAttributes.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"safetyAttributes"}, fromSafetyAttributes)
 	}
 
 	fromEnhancedPrompt := getValueByPath(fromObject, []string{"prompt"})
