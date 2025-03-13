@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,21 +16,20 @@
 package main
 
 /*
-# For Vertex AI API
+# For VertexAI Backend
 export GOOGLE_GENAI_USE_VERTEXAI=true
 export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
 export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
 
-# For Gemini AI API
+# For GeminiAPI Backend
 export GOOGLE_GENAI_USE_VERTEXAI=false
 export GOOGLE_API_KEY={YOUR_API_KEY}
 
-go run samples/generate_images.go --model=imagen-3.0-generate-001
+go run samples/embed_content.go --model=text-embedding-004
 */
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -38,40 +37,28 @@ import (
 	"google.golang.org/genai"
 )
 
-var model = flag.String("model", "imagen-3.0-generate-001", "the model name, e.g. imagen-3.0-generate-001")
+var model = flag.String("model", "text-embedding-004", "the model name, e.g. text-embedding-004")
 
-func generateImage(ctx context.Context) {
+func embedContent(ctx context.Context) {
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	if client.ClientConfig().Backend == genai.BackendVertexAI {
-		fmt.Println("Calling VertexAI GenerateImages API...")
+		fmt.Println("Calling VertexAI Backend...")
 	} else {
-		fmt.Println("Calling GeminiAI GenerateImages API...")
+		fmt.Println("Calling GeminiAPI Backend...")
 	}
-	// Pass in basic config
-	var config *genai.GenerateImagesConfig = &genai.GenerateImagesConfig{
-		NumberOfImages:   1,
-		OutputMIMEType:   "image/jpeg",
-		IncludeRAIReason: true,
-	}
-	// Call the GenerateImages method.
-	result, err := client.Models.GenerateImages(ctx, *model, "Create a blue circle", config)
+	// Call the GenerateContent method.
+	result, err := client.Models.EmbedContent(ctx, *model, genai.Text("What is your name?"), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Marshal the result to JSON and pretty-print it to a byte array.
-	response, err := json.MarshalIndent(*result, "", "  ")
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Log the output.
-	fmt.Println(string(response))
+	fmt.Printf("%#v\n", result.Embeddings[0])
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	generateImage(ctx)
+	embedContent(ctx)
 }

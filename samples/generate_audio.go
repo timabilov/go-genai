@@ -16,16 +16,16 @@
 package main
 
 /*
-# For Vertex AI API
+# For VertexAI Backend
 export GOOGLE_GENAI_USE_VERTEXAI=true
 export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
 export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
 
-# For Gemini AI API
+# For GeminiAPI Backend
 export GOOGLE_GENAI_USE_VERTEXAI=false
 export GOOGLE_API_KEY={YOUR_API_KEY}
 
-go run samples/generate_audio.go --model=gemini-2.0-flash-exp
+go run samples/generate_audio.go --model=gemini-2.0-flash
 */
 
 import (
@@ -46,9 +46,9 @@ func generateAudio(ctx context.Context) {
 		log.Fatal(err)
 	}
 	if client.ClientConfig().Backend == genai.BackendVertexAI {
-		fmt.Println("Calling VertexAI.GenerateContent API...")
+		fmt.Println("Calling VertexAI Backend...")
 	} else {
-		fmt.Println("Calling GeminiAI.GenerateContent API...")
+		fmt.Println("Calling GeminiAPI Backend...")
 	}
 	config := &genai.GenerateContentConfig{}
 	config.ResponseModalities = []string{"AUDIO"}

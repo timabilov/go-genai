@@ -93,19 +93,10 @@ func TestText(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := tt.response.Text()
+			result := tt.response.Text()
 
-			if tt.expectedError != nil {
-				if err == nil || err.Error() != tt.expectedError.Error() {
-					t.Fatalf("expected error %v, got %v", tt.expectedError, err)
-				}
-			} else {
-				if err != nil {
-					t.Fatalf("expected no error, got %v", err)
-				}
-				if result != tt.expectedText {
-					t.Fatalf("expected text %v, got %v", tt.expectedText, result)
-				}
+			if result != tt.expectedText {
+				t.Fatalf("expected text %v, got %v", tt.expectedText, result)
 			}
 		})
 	}

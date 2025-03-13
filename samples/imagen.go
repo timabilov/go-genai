@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the GenerateContent API.
+// Package main contains the sample code for the Imagen.
 package main
 
 /*
-# For Vertex AI API
+# For VertexAI Backend
 export GOOGLE_GENAI_USE_VERTEXAI=true
 export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
 export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
 
-# For Gemini AI API
+# For GeminiAPI Backend
 export GOOGLE_GENAI_USE_VERTEXAI=false
 export GOOGLE_API_KEY={YOUR_API_KEY}
 
-go run samples/generate_text.go --model=gemini-1.5-pro-002
+go run samples/imagen.go
 */
 
 import (
@@ -37,8 +37,6 @@ import (
 
 	"google.golang.org/genai"
 )
-
-var model = flag.String("model", "gemini-1.5-pro-002", "the model name, e.g. gemini-1.5-pro-002")
 
 func print(r any) {
 	// Marshal the result to JSON.
@@ -61,7 +59,6 @@ func imagen(ctx context.Context) {
 		fmt.Println("Calling GeminiAPI Backend...")
 	}
 
-	//
 	fmt.Println("Generate image example.")
 	response1, err := client.Models.GenerateImages(
 		ctx, "imagen-3.0-generate-002",

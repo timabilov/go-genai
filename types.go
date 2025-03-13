@@ -1269,9 +1269,9 @@ type GenerateContentResponse struct {
 }
 
 // Text concatenates all the text parts in the GenerateContentResponse.
-func (r *GenerateContentResponse) Text() (string, error) {
+func (r *GenerateContentResponse) Text() string {
 	if len(r.Candidates) == 0 || r.Candidates[0].Content == nil || len(r.Candidates[0].Content.Parts) == 0 {
-		return "", nil
+		return ""
 	}
 
 	if len(r.Candidates) > 1 {
@@ -1313,10 +1313,10 @@ func (r *GenerateContentResponse) Text() (string, error) {
 	}
 
 	if len(texts) == 0 {
-		return "", nil
+		return ""
 	}
 
-	return strings.Join(texts, ""), nil
+	return strings.Join(texts, "")
 }
 
 // FunctionCalls returns the list of function calls in the GenerateContentResponse.

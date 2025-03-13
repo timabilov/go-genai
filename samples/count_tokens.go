@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
 export GOOGLE_GENAI_USE_VERTEXAI=false
 export GOOGLE_API_KEY={YOUR_API_KEY}
 
-go run samples/generate_text.go --model=gemini-2.0-flash
+go run samples/count_tokens.go --model=gemini-2.0-flash
 */
 
 import (
@@ -39,8 +39,8 @@ import (
 
 var model = flag.String("model", "gemini-2.0-flash", "the model name, e.g. gemini-2.0-flash")
 
-func generateText(ctx context.Context) {
-	client, err := genai.NewClient(ctx, nil)
+func tokens(ctx context.Context) {
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{Backend: genai.BackendVertexAI})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,17 +49,27 @@ func generateText(ctx context.Context) {
 	} else {
 		fmt.Println("Calling GeminiAPI Backend...")
 	}
-	var config *genai.GenerateContentConfig = &genai.GenerateContentConfig{Temperature: genai.Ptr[float32](0.5)}
-	// Call the GenerateContent method.
-	result, err := client.Models.GenerateContent(ctx, *model, genai.Text("What is your name?"), config)
+	// Call the CountTokens method.
+	fmt.Println("Count tokens example.")
+	countTokensResult, err := client.Models.CountTokens(ctx, *model, genai.Text("What is your name?"), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(result.Text())
+	fmt.Println(countTokensResult.TotalTokens)
+
+	// Call the ComputeTokens method.
+	fmt.Println("Compute tokens example. Only supported in BackendVertexAI.")
+	computeTokensResult, err := client.Models.ComputeTokens(ctx, *model, genai.Text("What is your name?"), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, tokenInfo := range computeTokensResult.TokensInfo {
+		fmt.Printf("%#v\n", tokenInfo)
+	}
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	generateText(ctx)
+	tokens(ctx)
 }

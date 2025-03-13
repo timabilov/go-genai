@@ -16,16 +16,14 @@
 package main
 
 /*
-# For Vertex AI API
+# For VertexAI Backend
 export GOOGLE_GENAI_USE_VERTEXAI=true
 export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
 export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
 
-# For Gemini AI API
-export GOOGLE_GENAI_USE_VERTEXAI=false
-export GOOGLE_API_KEY={YOUR_API_KEY}
+# This example is for BackendVertexAI.
 
-go run samples/generate_text.go --model=gemini-1.5-pro-002
+go run samples/cached_content.go --model=gemini-1.5-pro-002
 */
 
 import (
@@ -51,7 +49,7 @@ func print(r any) {
 	fmt.Println(string(response))
 }
 
-func createCachedContent(ctx context.Context) {
+func cachedContent(ctx context.Context) {
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{Backend: genai.BackendVertexAI})
 	if err != nil {
 		log.Fatal(err)
@@ -143,5 +141,5 @@ func createCachedContent(ctx context.Context) {
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	createCachedContent(ctx)
+	cachedContent(ctx)
 }
