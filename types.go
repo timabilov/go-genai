@@ -1681,6 +1681,9 @@ type EditImageConfig struct {
 	OutputCompressionQuality *int32 `json:"outputCompressionQuality,omitempty"`
 	// Describes the editing mode for the request.
 	EditMode EditMode `json:"editMode,omitempty"`
+	// The number of sampling steps. A higher value has better image
+	// quality, while a lower value has better latency.
+	BaseSteps *int32 `json:"baseSteps,omitempty"`
 }
 
 // Response for the request to edit an image.

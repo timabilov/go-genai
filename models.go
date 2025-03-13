@@ -1975,6 +1975,10 @@ func editImageConfigToMldev(ac *apiClient, fromObject map[string]any, parentObje
 		setValueByPath(parentObject, []string{"parameters", "editMode"}, fromEditMode)
 	}
 
+	if getValueByPath(fromObject, []string{"baseSteps"}) != nil {
+		return nil, fmt.Errorf("baseSteps parameter is not supported in Gemini API")
+	}
+
 	return toObject, nil
 }
 
@@ -2049,6 +2053,11 @@ func editImageConfigToVertex(ac *apiClient, fromObject map[string]any, parentObj
 	fromEditMode := getValueByPath(fromObject, []string{"editMode"})
 	if fromEditMode != nil {
 		setValueByPath(parentObject, []string{"parameters", "editMode"}, fromEditMode)
+	}
+
+	fromBaseSteps := getValueByPath(fromObject, []string{"baseSteps"})
+	if fromBaseSteps != nil {
+		setValueByPath(parentObject, []string{"parameters", "editConfig", "baseSteps"}, fromBaseSteps)
 	}
 
 	return toObject, nil
