@@ -744,6 +744,110 @@ type Schema struct {
 	Type Type `json:"type,omitempty"`
 }
 
+func (s *Schema) UnmarshalJSON(data []byte) error {
+	type Alias Schema
+	aux := &struct {
+		MaxLength     string `json:"maxLength,omitempty"`
+		MinLength     string `json:"minLength,omitempty"`
+		MinProperties string `json:"minProperties,omitempty"`
+		MaxProperties string `json:"maxProperties,omitempty"`
+		MaxItems      string `json:"maxItems,omitempty"`
+		MinItems      string `json:"minItems,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(s),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.MaxLength != "" {
+		maxLength, err := strconv.ParseInt(aux.MaxLength, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing MaxLength: %w", err)
+		}
+		s.MaxLength = &maxLength
+	}
+
+	if aux.MinLength != "" {
+		minLength, err := strconv.ParseInt(aux.MinLength, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing MinLength: %w", err)
+		}
+		s.MinLength = &minLength
+	}
+
+	if aux.MinProperties != "" {
+		minProperties, err := strconv.ParseInt(aux.MinProperties, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing MinProperties: %w", err)
+		}
+		s.MinProperties = &minProperties
+	}
+
+	if aux.MaxProperties != "" {
+		maxProperties, err := strconv.ParseInt(aux.MaxProperties, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing MaxProperties: %w", err)
+		}
+		s.MaxProperties = &maxProperties
+	}
+
+	if aux.MaxItems != "" {
+		maxItems, err := strconv.ParseInt(aux.MaxItems, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing MaxItems: %w", err)
+		}
+		s.MaxItems = &maxItems
+	}
+
+	if aux.MinItems != "" {
+		minItems, err := strconv.ParseInt(aux.MinItems, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing MinItems: %w", err)
+		}
+		s.MinItems = &minItems
+	}
+
+	return nil
+}
+
+func (s *Schema) MarshalJSON() ([]byte, error) {
+	type Alias Schema
+	aux := struct {
+		MaxLength     string `json:"maxLength,omitempty"`
+		MinLength     string `json:"minLength,omitempty"`
+		MinProperties string `json:"minProperties,omitempty"`
+		MaxProperties string `json:"maxProperties,omitempty"`
+		MaxItems      string `json:"maxItems,omitempty"`
+		MinItems      string `json:"minItems,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(s),
+	}
+
+	if s.MaxLength != nil {
+		aux.MaxLength = strconv.FormatInt(*s.MaxLength, 10)
+	}
+	if s.MinLength != nil {
+		aux.MinLength = strconv.FormatInt(*s.MinLength, 10)
+	}
+	if s.MinProperties != nil {
+		aux.MinProperties = strconv.FormatInt(*s.MinProperties, 10)
+	}
+	if s.MaxProperties != nil {
+		aux.MaxProperties = strconv.FormatInt(*s.MaxProperties, 10)
+	}
+	if s.MaxItems != nil {
+		aux.MaxItems = strconv.FormatInt(*s.MaxItems, 10)
+	}
+	if s.MinItems != nil {
+		aux.MinItems = strconv.FormatInt(*s.MinItems, 10)
+	}
+	return json.Marshal(aux)
+}
+
 // Safety settings.
 type SafetySetting struct {
 	// Determines if the harm block method uses probability or probability
@@ -1888,28 +1992,48 @@ type TokensInfo struct {
 }
 
 func (ti *TokensInfo) UnmarshalJSON(data []byte) error {
+	type Alias TokensInfo
 	aux := struct {
-		Role     string   `json:"role,omitempty"`
 		TokenIDs []string `json:"tokenIds,omitempty"`
-		Tokens   [][]byte `json:"tokens,omitempty"`
-	}{}
+		*Alias
+	}{
+		Alias: (*Alias)(ti),
+	}
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
 	}
 
 	// Convert the string value to int64
-	tokenIDs := []int64{}
-	for _, tokenID := range aux.TokenIDs {
-		tokenIDInt, err := strconv.ParseInt(tokenID, 10, 64)
-		if err != nil {
-			return err
+	if aux.TokenIDs != nil {
+		tokenIDs := []int64{}
+		for _, tokenID := range aux.TokenIDs {
+			tokenIDInt, err := strconv.ParseInt(tokenID, 10, 64)
+			if err != nil {
+				return err
+			}
+			tokenIDs = append(tokenIDs, tokenIDInt)
 		}
-		tokenIDs = append(tokenIDs, tokenIDInt)
+		ti.TokenIDs = tokenIDs
 	}
-	ti.TokenIDs = tokenIDs
-	ti.Role = aux.Role
-	ti.Tokens = aux.Tokens
 	return nil
+}
+
+func (ti *TokensInfo) MarshalJSON() ([]byte, error) {
+	type Alias TokensInfo
+	aux := struct {
+		TokenIDs []string `json:"tokenIds,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(ti),
+	}
+
+	if ti.TokenIDs != nil {
+		for _, tokenID := range ti.TokenIDs {
+			aux.TokenIDs = append(aux.TokenIDs, strconv.FormatInt(tokenID, 10))
+		}
+	}
+
+	return json.Marshal(aux)
 }
 
 // Response for computing tokens.

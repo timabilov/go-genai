@@ -306,6 +306,9 @@ func TestTable(t *testing.T) {
 								}
 								got := convertSDKResponseToMatchReplayType(t, resp)
 								sanitizeGotSDKResponses(t, got)
+								for _, v := range got {
+									sanitizeMapWithSourceType(t, reflect.TypeOf(resp), v)
+								}
 								want := replayClient.LatestInteraction().Response.SDKResponseSegments
 								opts := cmp.Options{stringComparator, floatComparator}
 								if diff := cmp.Diff(got, want, opts); diff != "" {
