@@ -358,9 +358,65 @@ const (
 // Metadata describes the input video content.
 type VideoMetadata struct {
 	// Optional. The end offset of the video.
-	EndOffset string `json:"endOffset,omitempty"`
+	EndOffset time.Duration `json:"endOffset,omitempty"`
 	// Optional. The start offset of the video.
-	StartOffset string `json:"startOffset,omitempty"`
+	StartOffset time.Duration `json:"startOffset,omitempty"`
+}
+
+func (c *VideoMetadata) UnmarshalJSON(data []byte) error {
+	type Alias VideoMetadata
+	aux := &struct {
+		EndOffset   string `json:"endOffset,omitempty"`
+		StartOffset string `json:"startOffset,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.EndOffset != "" {
+		d, err := time.ParseDuration(aux.EndOffset)
+		if err != nil {
+			return err
+		}
+		c.EndOffset = d
+	}
+
+	if aux.StartOffset != "" {
+		d, err := time.ParseDuration(aux.StartOffset)
+		if err != nil {
+			return err
+		}
+		c.StartOffset = d
+	}
+
+	return nil
+}
+
+func (c *VideoMetadata) MarshalJSON() ([]byte, error) {
+	type Alias VideoMetadata
+	aux := &struct {
+		EndOffset   string `json:"endOffset,omitempty"`
+		StartOffset string `json:"startOffset,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if c.StartOffset != 0 {
+		aux.StartOffset = fmt.Sprintf("%.0fs", c.StartOffset.Seconds())
+	}
+	if c.EndOffset != 0 {
+		aux.EndOffset = fmt.Sprintf("%.0fs", c.EndOffset.Seconds())
+		if aux.StartOffset == "" {
+			aux.StartOffset = "0s"
+		}
+	}
+
+	return json.Marshal(aux)
 }
 
 // Result of executing the [ExecutableCode]. Always follows a `part` containing the
@@ -496,16 +552,6 @@ func NewPartFromFunctionResponse(name string, response map[string]any) *Part {
 		FunctionResponse: &FunctionResponse{
 			Name:     name,
 			Response: response,
-		},
-	}
-}
-
-// NewPartFromVideoMetadata builds a Part from a given end offset and start offset.
-func NewPartFromVideoMetadata(endOffset, startOffset string) *Part {
-	return &Part{
-		VideoMetadata: &VideoMetadata{
-			EndOffset:   endOffset,
-			StartOffset: startOffset,
 		},
 	}
 }

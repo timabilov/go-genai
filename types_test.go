@@ -333,22 +333,6 @@ func TestNewPartFromFunctionResponse(t *testing.T) {
 	}
 }
 
-func TestNewPartFromVideoMetadata(t *testing.T) {
-	endOffset := "00:01:00"
-	startOffset := "00:00:00"
-	expected := &Part{
-		VideoMetadata: &VideoMetadata{
-			EndOffset:   endOffset,
-			StartOffset: startOffset,
-		},
-	}
-
-	result := NewPartFromVideoMetadata(endOffset, startOffset)
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
-	}
-}
-
 func TestNewPartFromExecutableCode(t *testing.T) {
 	code := "print('Hello, world!')"
 	language := LanguagePython

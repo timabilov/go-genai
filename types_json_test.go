@@ -218,6 +218,63 @@ func TestUnmarshalJSON(t *testing.T) {
 			wantErr: true,
 			target:  "CreateCachedContentConfig",
 		},
+		// VideoMetadata tests
+		{
+			name:    "VideoMetadata empty",
+			jsonStr: `{}`,
+			want:    &VideoMetadata{},
+			wantErr: false,
+			target:  "VideoMetadata",
+		},
+		{
+			name:    "VideoMetadata with start and end offset",
+			jsonStr: `{"startOffset": "10s", "endOffset": "20s"}`,
+			want: &VideoMetadata{
+				StartOffset: 10 * time.Second,
+				EndOffset:   20 * time.Second,
+			},
+			wantErr: false,
+			target:  "VideoMetadata",
+		},
+		{
+			name:    "VideoMetadata with only start offset",
+			jsonStr: `{"startOffset": "5s"}`,
+			want: &VideoMetadata{
+				StartOffset: 5 * time.Second,
+			},
+			wantErr: false,
+			target:  "VideoMetadata",
+		},
+		{
+			name:    "VideoMetadata with only end offset",
+			jsonStr: `{"endOffset": "15s"}`,
+			want: &VideoMetadata{
+				EndOffset: 15 * time.Second,
+			},
+			wantErr: false,
+			target:  "VideoMetadata",
+		},
+		{
+			name:    "VideoMetadata invalid start offset",
+			jsonStr: `{"startOffset": "abc"}`,
+			want:    nil,
+			wantErr: true,
+			target:  "VideoMetadata",
+		},
+		{
+			name:    "VideoMetadata invalid end offset",
+			jsonStr: `{"endOffset": "xyz"}`,
+			want:    nil,
+			wantErr: true,
+			target:  "VideoMetadata",
+		},
+		{
+			name:    "VideoMetadata invalid json",
+			jsonStr: `{"endOffset": "15s`,
+			want:    nil,
+			wantErr: true,
+			target:  "VideoMetadata",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -226,20 +283,24 @@ func TestUnmarshalJSON(t *testing.T) {
 			switch tt.target {
 			case "Schema":
 				s := &Schema{}
-				err = s.UnmarshalJSON([]byte(tt.jsonStr))
+				err = json.Unmarshal([]byte(tt.jsonStr), s)
 				got = s
 			case "Citation":
 				c := &Citation{}
-				err = c.UnmarshalJSON([]byte(tt.jsonStr))
+				err = json.Unmarshal([]byte(tt.jsonStr), c)
 				got = c
 			case "TokensInfo":
 				ti := &TokensInfo{}
-				err = ti.UnmarshalJSON([]byte(tt.jsonStr))
+				err = json.Unmarshal([]byte(tt.jsonStr), ti)
 				got = ti
 			case "CreateCachedContentConfig":
 				c := &CreateCachedContentConfig{}
 				err = json.Unmarshal([]byte(tt.jsonStr), c)
 				got = c
+			case "VideoMetadata":
+				v := &VideoMetadata{}
+				err = json.Unmarshal([]byte(tt.jsonStr), v)
+				got = v
 			default:
 				t.Fatalf("unknown target: %s", tt.target)
 			}
@@ -409,6 +470,40 @@ func TestMarshalJSON(t *testing.T) {
 			wantErr: false,
 			target:  "UpdateCachedContentConfig",
 		},
+		// VideoMetadata tests
+		{
+			name:    "VideoMetadata empty",
+			input:   &VideoMetadata{},
+			want:    `{}`,
+			wantErr: false,
+			target:  "VideoMetadata",
+		},
+		{
+			name: "VideoMetadata with start and end offset",
+			input: &VideoMetadata{
+				StartOffset: 10 * time.Second,
+				EndOffset:   20 * time.Hour,
+			},
+			want:    `{"endOffset":"72000s","startOffset":"10s"}`,
+			wantErr: false,
+			target:  "VideoMetadata",
+		},
+		{
+			name: "VideoMetadata with only start offset",
+			input: &VideoMetadata{
+				StartOffset: 5 * time.Second,
+			},
+			want:    `{"startOffset":"5s"}`,
+			wantErr: false,
+			target:  "VideoMetadata",
+		},
+		{
+			name:    "VideoMetadata with only end offset",
+			input:   &VideoMetadata{EndOffset: 15 * time.Second},
+			want:    `{"endOffset":"15s","startOffset":"0s"}`,
+			wantErr: false,
+			target:  "VideoMetadata",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -431,6 +526,8 @@ func TestMarshalJSON(t *testing.T) {
 				got, err = json.Marshal(tt.input.(*CachedContent))
 			case "UpdateCachedContentConfig":
 				got, err = json.Marshal(tt.input.(*UpdateCachedContentConfig))
+			case "VideoMetadata":
+				got, err = json.Marshal(tt.input.(*VideoMetadata))
 			default:
 				t.Fatalf("unknown target: %s", tt.target)
 			}
