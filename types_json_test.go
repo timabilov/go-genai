@@ -275,6 +275,14 @@ func TestUnmarshalJSON(t *testing.T) {
 			wantErr: true,
 			target:  "VideoMetadata",
 		},
+		// Candidate tests
+		{
+			name:    "Candidate with unrecognized enums",
+			jsonStr: `{"finishReason": "UNKNOWN_VALUE"}`,
+			want:    &Candidate{FinishReason: "UNKNOWN_VALUE"},
+			wantErr: false,
+			target:  "Candidate",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -301,6 +309,10 @@ func TestUnmarshalJSON(t *testing.T) {
 				v := &VideoMetadata{}
 				err = json.Unmarshal([]byte(tt.jsonStr), v)
 				got = v
+			case "Candidate":
+				c := &Candidate{}
+				err = json.Unmarshal([]byte(tt.jsonStr), c)
+				got = c
 			default:
 				t.Fatalf("unknown target: %s", tt.target)
 			}
