@@ -3,6 +3,7 @@ package genai
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"cloud.google.com/go/civil"
 	"github.com/google/go-cmp/cmp"
@@ -118,7 +119,7 @@ func TestUnmarshalJSON(t *testing.T) {
 			want: &Citation{
 				EndIndex:        10,
 				License:         "MIT",
-				PublicationDate: &civil.Date{Year: 2023, Month: 10, Day: 26},
+				PublicationDate: civil.Date{Year: 2023, Month: 10, Day: 26},
 				StartIndex:      5,
 				Title:           "Test Title",
 				URI:             "https://example.com",
@@ -137,7 +138,7 @@ func TestUnmarshalJSON(t *testing.T) {
 			name:    "Citation only year",
 			jsonStr: `{"publicationDate": {"year": 2023}}`,
 			want: &Citation{
-				PublicationDate: &civil.Date{Year: 2023},
+				PublicationDate: civil.Date{Year: 2023},
 			},
 			wantErr: false,
 			target:  "Citation",
@@ -146,7 +147,7 @@ func TestUnmarshalJSON(t *testing.T) {
 			name:    "Citation only year and month",
 			jsonStr: `{"publicationDate": {"year": 2023, "month": 10}}`,
 			want: &Citation{
-				PublicationDate: &civil.Date{Year: 2023, Month: 10},
+				PublicationDate: civil.Date{Year: 2023, Month: 10},
 			},
 			wantErr: false,
 			target:  "Citation",
@@ -192,6 +193,31 @@ func TestUnmarshalJSON(t *testing.T) {
 			wantErr: true,
 			target:  "TokensInfo",
 		},
+
+		// CreateCachedContentConfig tests
+		{
+			name:    "CreateCachedContentConfig empty",
+			jsonStr: `{}`,
+			want:    &CreateCachedContentConfig{},
+			wantErr: false,
+			target:  "CreateCachedContentConfig",
+		},
+		{
+			name:    "CreateCachedContentConfig with expireTime",
+			jsonStr: `{"expireTime": "2024-12-31T23:59:59Z"}`,
+			want: &CreateCachedContentConfig{
+				ExpireTime: time.Date(2024, 12, 31, 23, 59, 59, 0, time.UTC),
+			},
+			wantErr: false,
+			target:  "CreateCachedContentConfig",
+		},
+		{
+			name:    "CreateCachedContentConfig invalid json",
+			jsonStr: `{"expireTime": "2024-12-31T23:59:59Z`,
+			want:    nil,
+			wantErr: true,
+			target:  "CreateCachedContentConfig",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -210,6 +236,10 @@ func TestUnmarshalJSON(t *testing.T) {
 				ti := &TokensInfo{}
 				err = ti.UnmarshalJSON([]byte(tt.jsonStr))
 				got = ti
+			case "CreateCachedContentConfig":
+				c := &CreateCachedContentConfig{}
+				err = json.Unmarshal([]byte(tt.jsonStr), c)
+				got = c
 			default:
 				t.Fatalf("unknown target: %s", tt.target)
 			}
@@ -273,12 +303,12 @@ func TestMarshalJSON(t *testing.T) {
 			input: &Citation{
 				EndIndex:        10,
 				License:         "MIT",
-				PublicationDate: &civil.Date{Year: 2023, Month: 10, Day: 26},
+				PublicationDate: civil.Date{Year: 2023, Month: 10, Day: 26},
 				StartIndex:      5,
 				Title:           "Test Title",
 				URI:             "https://example.com",
 			},
-			want:    `{"endIndex":10,"license":"MIT","publicationDate":"2023-10-26","startIndex":5,"title":"Test Title","uri":"https://example.com"}`,
+			want:    `{"publicationDate":"2023-10-26","endIndex":10,"license":"MIT","startIndex":5,"title":"Test Title","uri":"https://example.com"}`,
 			wantErr: false,
 			target:  "Citation",
 		},
@@ -302,6 +332,83 @@ func TestMarshalJSON(t *testing.T) {
 			wantErr: false,
 			target:  "TokensInfo",
 		},
+		// CreateCachedContentConfig tests
+		{
+			name:    "CreateCachedContentConfig empty",
+			input:   &CreateCachedContentConfig{},
+			want:    `{}`,
+			wantErr: false,
+			target:  "CreateCachedContentConfig",
+		},
+		{
+			name: "CreateCachedContentConfig with expireTime",
+			input: &CreateCachedContentConfig{
+				ExpireTime: time.Date(2024, 12, 31, 23, 59, 59, 0, time.UTC),
+			},
+			want:    `{"expireTime":"2024-12-31T23:59:59Z"}`,
+			wantErr: false,
+			target:  "CreateCachedContentConfig",
+		},
+		// GenerateContentResponse tests
+		{
+			name:    "GenerateContentResponse empty",
+			input:   &GenerateContentResponse{},
+			want:    `{}`,
+			wantErr: false,
+			target:  "GenerateContentResponse",
+		},
+		{
+			name: "GenerateContentResponse with createTime",
+			input: &GenerateContentResponse{
+				CreateTime: time.Date(2024, 12, 31, 23, 59, 59, 0, time.UTC),
+			},
+			want:    `{"createTime":"2024-12-31T23:59:59Z"}`,
+			wantErr: false,
+			target:  "GenerateContentResponse",
+		},
+		// TunedModelInfo tests
+		{
+			name:    "TunedModelInfo empty",
+			input:   &TunedModelInfo{},
+			want:    `{}`,
+			wantErr: false,
+			target:  "TunedModelInfo",
+		},
+		{
+			name: "TunedModelInfo with createTime and updateTime",
+			input: &TunedModelInfo{
+				CreateTime: time.Date(2024, 12, 31, 23, 59, 59, 0, time.UTC),
+				UpdateTime: time.Date(2024, 12, 30, 23, 59, 59, 0, time.UTC),
+			},
+			want:    `{"createTime":"2024-12-31T23:59:59Z","updateTime":"2024-12-30T23:59:59Z"}`,
+			wantErr: false,
+			target:  "TunedModelInfo",
+		},
+		// CachedContent tests
+		{
+			name:    "CachedContent empty",
+			input:   &CachedContent{},
+			want:    `{}`,
+			wantErr: false,
+			target:  "CachedContent",
+		},
+		// UpdateCachedContentConfig tests
+		{
+			name:    "UpdateCachedContentConfig empty",
+			input:   &UpdateCachedContentConfig{},
+			want:    `{}`,
+			wantErr: false,
+			target:  "UpdateCachedContentConfig",
+		},
+		{
+			name: "UpdateCachedContentConfig with expireTime",
+			input: &UpdateCachedContentConfig{
+				ExpireTime: time.Date(2024, 12, 31, 23, 59, 59, 0, time.UTC),
+			},
+			want:    `{"expireTime":"2024-12-31T23:59:59Z"}`,
+			wantErr: false,
+			target:  "UpdateCachedContentConfig",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -314,6 +421,16 @@ func TestMarshalJSON(t *testing.T) {
 				got, err = json.Marshal(tt.input.(*Citation))
 			case "TokensInfo":
 				got, err = json.Marshal(tt.input.(*TokensInfo))
+			case "CreateCachedContentConfig":
+				got, err = json.Marshal(tt.input.(*CreateCachedContentConfig))
+			case "GenerateContentResponse":
+				got, err = json.Marshal(tt.input.(*GenerateContentResponse))
+			case "TunedModelInfo":
+				got, err = json.Marshal(tt.input.(*TunedModelInfo))
+			case "CachedContent":
+				got, err = json.Marshal(tt.input.(*CachedContent))
+			case "UpdateCachedContentConfig":
+				got, err = json.Marshal(tt.input.(*UpdateCachedContentConfig))
 			default:
 				t.Fatalf("unknown target: %s", tt.target)
 			}

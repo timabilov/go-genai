@@ -494,7 +494,7 @@ func TestMapToStruct(t *testing.T) {
 				EndIndex:        20,
 				Title:           "Citation Title",
 				URI:             "https://example.com",
-				PublicationDate: &civil.Date{Year: 2000, Month: 1, Day: 1},
+				PublicationDate: civil.Date{Year: 2000, Month: 1, Day: 1},
 			},
 		},
 		{
@@ -511,7 +511,7 @@ func TestMapToStruct(t *testing.T) {
 				EndIndex:        20,
 				Title:           "Citation Title",
 				URI:             "https://example.com",
-				PublicationDate: &civil.Date{Year: 2000},
+				PublicationDate: civil.Date{Year: 2000},
 			},
 		},
 	}

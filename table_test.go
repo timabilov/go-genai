@@ -79,14 +79,17 @@ func sanitizeGotSDKResponses(t *testing.T, responses []map[string]any) {
 	t.Helper()
 	for _, response := range responses {
 		if _, ok := response["NextPageToken"].(string); ok {
-			response[response["Name"].(string)] = response["Items"]
 			if response["NextPageToken"] != "" {
 				response["nextPageToken"] = response["NextPageToken"]
 			}
-			delete(response, "Items")
-			delete(response, "Name")
 			delete(response, "NextPageToken")
 		}
+		if _, ok := response["Name"].(string); ok {
+			response[response["Name"].(string)] = response["Items"]
+			delete(response, "Items")
+			delete(response, "Name")
+		}
+
 	}
 }
 
@@ -312,7 +315,7 @@ func TestTable(t *testing.T) {
 								want := replayClient.LatestInteraction().Response.SDKResponseSegments
 								opts := cmp.Options{stringComparator, floatComparator}
 								if diff := cmp.Diff(got, want, opts); diff != "" {
-									t.Errorf("Responses had diff (-got +want):\n%v", diff)
+									t.Errorf("Responses had diff (-got +want):\n%v\n %v\n\n %v", diff, got, want)
 								}
 							}
 						})
@@ -337,6 +340,7 @@ func convertSDKResponseToMatchReplayType(t *testing.T, response any) []map[strin
 	if err = json.Unmarshal(responseJSON, &responseMap); err != nil {
 		t.Fatal("Error unmarshalling want:", err)
 	}
+	omitEmptyValues(responseMap)
 	return responseMap
 }
 

@@ -1122,7 +1122,7 @@ type Citation struct {
 	// Output only. License of the attribution.
 	License string `json:"license,omitempty"`
 	// Output only. Publication date of the attribution.
-	PublicationDate *civil.Date `json:"publicationDate,omitempty"`
+	PublicationDate civil.Date `json:"publicationDate,omitempty"`
 	// Output only. Start index into the content.
 	StartIndex int32 `json:"startIndex,omitempty"`
 	// Output only. Title of the attribution.
@@ -1149,7 +1149,7 @@ func (c *Citation) UnmarshalJSON(data []byte) error {
 		if _, ok := aux.PublicationDate["year"]; !ok {
 			return fmt.Errorf("key %q not found", "year")
 		}
-		c.PublicationDate = &civil.Date{Year: aux.PublicationDate["year"]}
+		c.PublicationDate = civil.Date{Year: aux.PublicationDate["year"]}
 		if month, ok := aux.PublicationDate["month"]; ok {
 			c.PublicationDate.Month = time.Month(month)
 		}
@@ -1159,6 +1159,22 @@ func (c *Citation) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+func (c *Citation) MarshalJSON() ([]byte, error) {
+	type Alias Citation
+	aux := &struct {
+		PublicationDate *civil.Date `json:"publicationDate,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if !c.PublicationDate.IsZero() {
+		aux.PublicationDate = &c.PublicationDate
+	}
+
+	return json.Marshal(aux)
 }
 
 // Citation information when the model quotes another source.
@@ -1359,7 +1375,7 @@ type GenerateContentResponse struct {
 	// Response variations returned by the model.
 	Candidates []*Candidate `json:"candidates,omitempty"`
 	// Timestamp when the request is made to the server.
-	CreateTime *time.Time `json:"createTime,omitempty"`
+	CreateTime time.Time `json:"createTime,omitempty"`
 	// Identifier for each response.
 	ResponseID string `json:"responseId,omitempty"`
 	// Output only. The model version used to generate the response.
@@ -1483,6 +1499,22 @@ func (r *GenerateContentResponse) CodeExecutionResult() string {
 	}
 
 	return ""
+}
+
+func (c *GenerateContentResponse) MarshalJSON() ([]byte, error) {
+	type Alias GenerateContentResponse
+	aux := &struct {
+		CreateTime *time.Time `json:"createTime,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if !c.CreateTime.IsZero() {
+		aux.CreateTime = &c.CreateTime
+	}
+
+	return json.Marshal(aux)
 }
 
 // Optional parameters for the embed_content method.
@@ -1840,9 +1872,29 @@ type TunedModelInfo struct {
 	// ID of the base model that you want to tune.
 	BaseModel string `json:"baseModel,omitempty"`
 	// Date and time when the base model was created.
-	CreateTime *time.Time `json:"createTime,omitempty"`
+	CreateTime time.Time `json:"createTime,omitempty"`
 	// Date and time when the base model was last updated.
-	UpdateTime *time.Time `json:"updateTime,omitempty"`
+	UpdateTime time.Time `json:"updateTime,omitempty"`
+}
+
+func (c *TunedModelInfo) MarshalJSON() ([]byte, error) {
+	type Alias TunedModelInfo
+	aux := &struct {
+		CreateTime *time.Time `json:"createTime,omitempty"`
+		UpdateTime *time.Time `json:"updateTime,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if !c.CreateTime.IsZero() {
+		aux.CreateTime = &c.CreateTime
+	}
+	if !c.UpdateTime.IsZero() {
+		aux.UpdateTime = &c.UpdateTime
+	}
+
+	return json.Marshal(aux)
 }
 
 // A trained machine learning model.
@@ -2051,7 +2103,7 @@ type CreateCachedContentConfig struct {
 	// The TTL for this resource. The expiration time is computed: now + TTL.
 	TTL string `json:"ttl,omitempty"`
 	// Timestamp of when this resource is considered expired.
-	ExpireTime *time.Time `json:"expireTime,omitempty"`
+	ExpireTime time.Time `json:"expireTime,omitempty"`
 	// The user-generated meaningful display name of the cached content.
 	DisplayName string `json:"displayName,omitempty"`
 	// The content to cache.
@@ -2062,6 +2114,22 @@ type CreateCachedContentConfig struct {
 	Tools []*Tool `json:"tools,omitempty"`
 	// Configuration for the tools to use. This config is shared for all tools.
 	ToolConfig *ToolConfig `json:"toolConfig,omitempty"`
+}
+
+func (c *CreateCachedContentConfig) MarshalJSON() ([]byte, error) {
+	type Alias CreateCachedContentConfig
+	aux := &struct {
+		ExpireTime *time.Time `json:"expireTime,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if !c.ExpireTime.IsZero() {
+		aux.ExpireTime = &c.ExpireTime
+	}
+
+	return json.Marshal(aux)
 }
 
 // Metadata on the usage of the cached content.
@@ -2089,13 +2157,37 @@ type CachedContent struct {
 	// The name of the publisher model to use for cached content.
 	Model string `json:"model,omitempty"`
 	// Creation time of the cache entry.
-	CreateTime *time.Time `json:"createTime,omitempty"`
+	CreateTime time.Time `json:"createTime,omitempty"`
 	// When the cache entry was last updated in UTC time.
-	UpdateTime *time.Time `json:"updateTime,omitempty"`
+	UpdateTime time.Time `json:"updateTime,omitempty"`
 	// Expiration time of the cached content.
-	ExpireTime *time.Time `json:"expireTime,omitempty"`
+	ExpireTime time.Time `json:"expireTime,omitempty"`
 	// Metadata on the usage of the cached content.
 	UsageMetadata *CachedContentUsageMetadata `json:"usageMetadata,omitempty"`
+}
+
+func (c *CachedContent) MarshalJSON() ([]byte, error) {
+	type Alias CachedContent
+	aux := &struct {
+		ExpireTime *time.Time `json:"expireTime,omitempty"`
+		CreateTime *time.Time `json:"createTime,omitempty"`
+		UpdateTime *time.Time `json:"updateTime,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if !c.ExpireTime.IsZero() {
+		aux.ExpireTime = &c.ExpireTime
+	}
+	if !c.CreateTime.IsZero() {
+		aux.CreateTime = &c.CreateTime
+	}
+	if !c.UpdateTime.IsZero() {
+		aux.UpdateTime = &c.UpdateTime
+	}
+
+	return json.Marshal(aux)
 }
 
 // Optional parameters for caches.get method.
@@ -2121,7 +2213,23 @@ type UpdateCachedContentConfig struct {
 	// The TTL for this resource. The expiration time is computed: now + TTL.
 	TTL string `json:"ttl,omitempty"`
 	// Timestamp of when this resource is considered expired.
-	ExpireTime *time.Time `json:"expireTime,omitempty"`
+	ExpireTime time.Time `json:"expireTime,omitempty"`
+}
+
+func (c *UpdateCachedContentConfig) MarshalJSON() ([]byte, error) {
+	type Alias UpdateCachedContentConfig
+	aux := &struct {
+		ExpireTime *time.Time `json:"expireTime,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if !c.ExpireTime.IsZero() {
+		aux.ExpireTime = &c.ExpireTime
+	}
+
+	return json.Marshal(aux)
 }
 
 // Config for caches.list method.
