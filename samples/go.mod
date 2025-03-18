@@ -2,7 +2,7 @@ module google.golang.org/genai/samples
 
 go 1.23.0
 
-replace google.golang.org/genai => ../../genai
+replace google.golang.org/genai => ../
 
 require (
 	github.com/gorilla/websocket v1.5.3
