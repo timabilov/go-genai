@@ -3764,7 +3764,6 @@ func (m Models) generateContent(ctx context.Context, model string, contents []*C
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-
 	var response = new(GenerateContentResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -3836,7 +3835,6 @@ func (m Models) generateContentStream(ctx context.Context, model string, content
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-
 	var rs responseStream[GenerateContentResponse]
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
 	var toConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -3899,7 +3897,6 @@ func (m Models) EmbedContent(ctx context.Context, model string, contents []*Cont
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-
 	var response = new(EmbedContentResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -3970,7 +3967,6 @@ func (m Models) GenerateImages(ctx context.Context, model string, prompt string,
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-
 	var response = new(GenerateImagesResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -4041,10 +4037,6 @@ func (m Models) editImage(ctx context.Context, model string, prompt string, refe
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
-		return nil, fmt.Errorf("method EditImage is only supported in the Vertex AI client. You can choose to use Vertex AI by setting ClientConfig.Backend to BackendVertexAI.")
-	}
-
 	var response = new(EditImageResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -4053,8 +4045,9 @@ func (m Models) editImage(ctx context.Context, model string, prompt string, refe
 		toConverter = editImageParametersToVertex
 		fromConverter = editImageResponseFromVertex
 	} else {
-		toConverter = editImageParametersToMldev
-		fromConverter = editImageResponseFromMldev
+
+		return nil, fmt.Errorf("method EditImage is only supported in the Vertex AI client. You can choose to use Vertex AI by setting ClientConfig.Backend to BackendVertexAI.")
+
 	}
 
 	body, err := toConverter(m.apiClient, parameterMap, nil)
@@ -4115,10 +4108,6 @@ func (m Models) upscaleImage(ctx context.Context, model string, image *Image, up
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
-		return nil, fmt.Errorf("method UpscaleImage is only supported in the Vertex AI client. You can choose to use Vertex AI by setting ClientConfig.Backend to BackendVertexAI.")
-	}
-
 	var response = new(UpscaleImageResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -4127,8 +4116,9 @@ func (m Models) upscaleImage(ctx context.Context, model string, image *Image, up
 		toConverter = upscaleImageAPIParametersToVertex
 		fromConverter = upscaleImageResponseFromVertex
 	} else {
-		toConverter = upscaleImageAPIParametersToMldev
-		fromConverter = upscaleImageResponseFromMldev
+
+		return nil, fmt.Errorf("method UpscaleImage is only supported in the Vertex AI client. You can choose to use Vertex AI by setting ClientConfig.Backend to BackendVertexAI.")
+
 	}
 
 	body, err := toConverter(m.apiClient, parameterMap, nil)
@@ -4189,7 +4179,6 @@ func (m Models) Get(ctx context.Context, model string, config *GetModelConfig) (
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-
 	var response = new(Model)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -4260,7 +4249,6 @@ func (m Models) list(ctx context.Context, config *ListModelsConfig) (*ListModels
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-
 	var response = new(ListModelsResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -4331,7 +4319,6 @@ func (m Models) Update(ctx context.Context, model string, config *UpdateModelCon
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-
 	var response = new(Model)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -4402,7 +4389,6 @@ func (m Models) Delete(ctx context.Context, model string, config *DeleteModelCon
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-
 	var response = new(DeleteModelResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -4473,7 +4459,6 @@ func (m Models) CountTokens(ctx context.Context, model string, contents []*Conte
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-
 	var response = new(CountTokensResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -4544,10 +4529,6 @@ func (m Models) ComputeTokens(ctx context.Context, model string, contents []*Con
 		httpOptions = mergeHTTPOptions(m.apiClient.clientConfig, config.HTTPOptions)
 		config.HTTPOptions = nil
 	}
-	if m.apiClient.clientConfig.Backend == BackendGeminiAPI {
-		return nil, fmt.Errorf("method ComputeTokens is only supported in the Vertex AI client. You can choose to use Vertex AI by setting ClientConfig.Backend to BackendVertexAI.")
-	}
-
 	var response = new(ComputeTokensResponse)
 	var responseMap map[string]any
 	var fromConverter func(*apiClient, map[string]any, map[string]any) (map[string]any, error)
@@ -4556,8 +4537,9 @@ func (m Models) ComputeTokens(ctx context.Context, model string, contents []*Con
 		toConverter = computeTokensParametersToVertex
 		fromConverter = computeTokensResponseFromVertex
 	} else {
-		toConverter = computeTokensParametersToMldev
-		fromConverter = computeTokensResponseFromMldev
+
+		return nil, fmt.Errorf("method ComputeTokens is only supported in the Vertex AI client. You can choose to use Vertex AI by setting ClientConfig.Backend to BackendVertexAI.")
+
 	}
 
 	body, err := toConverter(m.apiClient, parameterMap, nil)
