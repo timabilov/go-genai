@@ -57,23 +57,6 @@ func getOperationParametersToVertex(ac *apiClient, fromObject map[string]any, pa
 	return toObject, nil
 }
 
-func fetchPredictOperationParametersToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
-	toObject = make(map[string]any)
-	if getValueByPath(fromObject, []string{"operationName"}) != nil {
-		return nil, fmt.Errorf("operationName parameter is not supported in Gemini API")
-	}
-
-	if getValueByPath(fromObject, []string{"resourceName"}) != nil {
-		return nil, fmt.Errorf("resourceName parameter is not supported in Gemini API")
-	}
-
-	if getValueByPath(fromObject, []string{"config"}) != nil {
-		return nil, fmt.Errorf("config parameter is not supported in Gemini API")
-	}
-
-	return toObject, nil
-}
-
 func fetchPredictOperationParametersToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
