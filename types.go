@@ -951,10 +951,13 @@ type GoogleSearchRetrieval struct {
 	DynamicRetrievalConfig *DynamicRetrievalConfig `json:"dynamicRetrievalConfig,omitempty"`
 }
 
-// Retrieve from Vertex AI Search datastore for grounding. See https://cloud.google.com/products/agent-builder
+// Retrieve from Vertex AI Search datastore or engine for grounding. datastore and engine
+// are mutually exclusive. See https://cloud.google.com/products/agent-builder
 type VertexAISearch struct {
-	// Required. Fully-qualified Vertex AI Search data store resource ID. Format: `projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}`
+	// Optional. Fully-qualified Vertex AI Search data store resource ID. Format: `projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}`
 	Datastore string `json:"datastore,omitempty"`
+	// Optional. Fully-qualified Vertex AI Search engine resource ID. Format: `projects/{project}/locations/{location}/collections/{collection}/engines/{engine}`
+	Engine string `json:"engine,omitempty"`
 }
 
 // The definition of the RAG resource.
