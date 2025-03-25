@@ -2261,9 +2261,11 @@ type GenerateVideosOperation struct {
 type CreateCachedContentConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
-	// The TTL for this resource. The expiration time is computed: now + TTL.
+	// The TTL for this resource. The expiration time is computed: now + TTL. It is a duration
+	// string, with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 	TTL string `json:"ttl,omitempty"`
-	// Timestamp of when this resource is considered expired.
+	// Timestamp of when this resource is considered expired. Uses RFC 3339 format, Example:
+	// 2014-10-02T15:01:23Z.
 	ExpireTime time.Time `json:"expireTime,omitempty"`
 	// The user-generated meaningful display name of the cached content.
 	DisplayName string `json:"displayName,omitempty"`
@@ -2371,9 +2373,11 @@ type DeleteCachedContentResponse struct {
 type UpdateCachedContentConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
-	// The TTL for this resource. The expiration time is computed: now + TTL.
+	// The TTL for this resource. The expiration time is computed: now + TTL. It is a duration
+	// string, with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 	TTL string `json:"ttl,omitempty"`
-	// Timestamp of when this resource is considered expired.
+	// Timestamp of when this resource is considered expired. Uses RFC 3339 format, Example:
+	// 2014-10-02T15:01:23Z.
 	ExpireTime time.Time `json:"expireTime,omitempty"`
 }
 
