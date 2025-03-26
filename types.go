@@ -357,6 +357,24 @@ const (
 	EditModeProductImage      EditMode = "EDIT_MODE_PRODUCT_IMAGE"
 )
 
+// Server content modalities.
+type MediaModality string
+
+const (
+	// The modality is unspecified.
+	MediaModalityUnspecified MediaModality = "MODALITY_UNSPECIFIED"
+	// Plain text.
+	MediaModalityText MediaModality = "TEXT"
+	// Images.
+	MediaModalityImage MediaModality = "IMAGE"
+	// Video.
+	MediaModalityVideo MediaModality = "VIDEO"
+	// Audio.
+	MediaModalityAudio MediaModality = "AUDIO"
+	// Document, e.g. PDF.
+	MediaModalityDocument MediaModality = "DOCUMENT"
+)
+
 // Metadata describes the input video content.
 type VideoMetadata struct {
 	// Optional. The end offset of the video.
@@ -1408,7 +1426,7 @@ type GenerateContentResponsePromptFeedback struct {
 // Represents token counting info for a single modality.
 type ModalityTokenCount struct {
 	// The modality associated with this token count.
-	Modality Modality `json:"modality,omitempty"`
+	Modality MediaModality `json:"modality,omitempty"`
 	// Number of tokens.
 	TokenCount *int32 `json:"tokenCount,omitempty"`
 }
