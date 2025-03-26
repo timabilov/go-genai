@@ -866,7 +866,7 @@ func listModelsConfigToMldev(ac *apiClient, fromObject map[string]any, parentObj
 			return nil, err
 		}
 
-		setValueByPath(parentObject, []string{"_url", "modelsUrl"}, fromQueryBase)
+		setValueByPath(parentObject, []string{"_url", "models_url"}, fromQueryBase)
 	}
 
 	return toObject, nil
@@ -1779,7 +1779,7 @@ func embedContentConfigToVertex(ac *apiClient, fromObject map[string]any, parent
 
 	fromTaskType := getValueByPath(fromObject, []string{"taskType"})
 	if fromTaskType != nil {
-		setValueByPath(parentObject, []string{"instances[]", "taskType"}, fromTaskType)
+		setValueByPath(parentObject, []string{"instances[]", "task_type"}, fromTaskType)
 	}
 
 	fromTitle := getValueByPath(fromObject, []string{"title"})
@@ -2349,7 +2349,7 @@ func listModelsConfigToVertex(ac *apiClient, fromObject map[string]any, parentOb
 			return nil, err
 		}
 
-		setValueByPath(parentObject, []string{"_url", "modelsUrl"}, fromQueryBase)
+		setValueByPath(parentObject, []string{"_url", "models_url"}, fromQueryBase)
 	}
 
 	return toObject, nil
@@ -3395,7 +3395,7 @@ func contentEmbeddingStatisticsFromVertex(ac *apiClient, fromObject map[string]a
 		setValueByPath(toObject, []string{"truncated"}, fromTruncated)
 	}
 
-	fromTokenCount := getValueByPath(fromObject, []string{"tokenCount"})
+	fromTokenCount := getValueByPath(fromObject, []string{"token_count"})
 	if fromTokenCount != nil {
 		setValueByPath(toObject, []string{"tokenCount"}, fromTokenCount)
 	}
@@ -4378,9 +4378,9 @@ func (m Models) list(ctx context.Context, config *ListModelsConfig) (*ListModels
 		delete(body, "_url")
 	}
 	if m.apiClient.clientConfig.Backend == BackendVertexAI {
-		path, err = formatMap("{modelsUrl}", urlParams)
+		path, err = formatMap("{models_url}", urlParams)
 	} else {
-		path, err = formatMap("{modelsUrl}", urlParams)
+		path, err = formatMap("{models_url}", urlParams)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("invalid url params: %#v.\n%w", urlParams, err)
