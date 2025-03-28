@@ -256,7 +256,7 @@ func newAPIError(resp *http.Response) error {
 	return APIError{Code: resp.StatusCode, Status: resp.Status}
 }
 
-// Error returns a string representation of the ServerError.
+// Error returns a string representation of the APIError.
 func (e APIError) Error() string {
 	return fmt.Sprintf(
 		"Error %d, Message: %s, Status: %s, Details: %v",

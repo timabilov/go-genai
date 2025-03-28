@@ -3853,6 +3853,9 @@ func generateVideosOperationFromVertex(ac *apiClient, fromObject map[string]any,
 	return toObject, nil
 }
 
+// Models provides methods for interacting with the available language models.
+// You don't need to initiate this struct. Create a client instance via NewClient, and
+// then access Models through client.Models field.
 type Models struct {
 	apiClient *apiClient
 }
@@ -3927,7 +3930,6 @@ func (m Models) generateContent(ctx context.Context, model string, contents []*C
 	return response, nil
 }
 
-// generateContentStream ...
 func (m Models) generateContentStream(ctx context.Context, model string, contents []*Content, config *GenerateContentConfig) iter.Seq2[*GenerateContentResponse, error] {
 	parameterMap := make(map[string]any)
 
@@ -3990,6 +3992,7 @@ func (m Models) generateContentStream(ctx context.Context, model string, content
 	})
 }
 
+// EmbedContent generates embeddings for the provided contents using the specified model.
 func (m Models) EmbedContent(ctx context.Context, model string, contents []*Content, config *EmbedContentConfig) (*EmbedContentResponse, error) {
 	parameterMap := make(map[string]any)
 
@@ -4272,6 +4275,7 @@ func (m Models) upscaleImage(ctx context.Context, model string, image *Image, up
 	return response, nil
 }
 
+// Get retrieves a specific model resource by its name.
 func (m Models) Get(ctx context.Context, model string, config *GetModelConfig) (*Model, error) {
 	parameterMap := make(map[string]any)
 
@@ -4412,6 +4416,7 @@ func (m Models) list(ctx context.Context, config *ListModelsConfig) (*ListModels
 	return response, nil
 }
 
+// Update updates a specific model resource.
 func (m Models) Update(ctx context.Context, model string, config *UpdateModelConfig) (*Model, error) {
 	parameterMap := make(map[string]any)
 
@@ -4482,6 +4487,7 @@ func (m Models) Update(ctx context.Context, model string, config *UpdateModelCon
 	return response, nil
 }
 
+// Delete deletes a specific model resource by its name.
 func (m Models) Delete(ctx context.Context, model string, config *DeleteModelConfig) (*DeleteModelResponse, error) {
 	parameterMap := make(map[string]any)
 
@@ -4552,6 +4558,7 @@ func (m Models) Delete(ctx context.Context, model string, config *DeleteModelCon
 	return response, nil
 }
 
+// CountTokens counts the number of tokens in the provided contents.
 func (m Models) CountTokens(ctx context.Context, model string, contents []*Content, config *CountTokensConfig) (*CountTokensResponse, error) {
 	parameterMap := make(map[string]any)
 
@@ -4622,6 +4629,7 @@ func (m Models) CountTokens(ctx context.Context, model string, contents []*Conte
 	return response, nil
 }
 
+// ComputeTokens computes the number of tokens for the provided contents.
 func (m Models) ComputeTokens(ctx context.Context, model string, contents []*Content, config *ComputeTokensConfig) (*ComputeTokensResponse, error) {
 	parameterMap := make(map[string]any)
 
@@ -4697,6 +4705,7 @@ var (
 	experimentalWarningModelsGenerateVideos sync.Once
 )
 
+// GenerateVideos creates a long-running video generation operation.
 func (m Models) GenerateVideos(ctx context.Context, model string, prompt string, image *Image, config *GenerateVideosConfig) (*GenerateVideosOperation, error) {
 	experimentalWarningModelsGenerateVideos.Do(func() {
 		log.Println("Warning: The method Models.GenerateVideos is experimental and may change in future versions.")
@@ -4771,7 +4780,7 @@ func (m Models) GenerateVideos(ctx context.Context, model string, prompt string,
 	return response, nil
 }
 
-// GenerateContent calls the GenerateContent method on the model.
+// GenerateContent generates content based on the provided model, contents, and configuration.
 func (m Models) GenerateContent(ctx context.Context, model string, contents []*Content, config *GenerateContentConfig) (*GenerateContentResponse, error) {
 	if config != nil {
 		config.setDefaults()
@@ -4779,7 +4788,7 @@ func (m Models) GenerateContent(ctx context.Context, model string, contents []*C
 	return m.generateContent(ctx, model, contents, config)
 }
 
-// GenerateContentStream calls the GenerateContentStream method on the model.
+// GenerateContentStream generates a stream of content based on the provided model, contents, and configuration.
 func (m Models) GenerateContentStream(ctx context.Context, model string, contents []*Content, config *GenerateContentConfig) iter.Seq2[*GenerateContentResponse, error] {
 	if config != nil {
 		config.setDefaults()
@@ -4787,6 +4796,7 @@ func (m Models) GenerateContentStream(ctx context.Context, model string, content
 	return m.generateContentStream(ctx, model, contents, config)
 }
 
+// List retrieves a paginated list of models resources.
 func (m Models) List(ctx context.Context, config *ListModelsConfig) (Page[Model], error) {
 	listFunc := func(ctx context.Context, config map[string]any) ([]*Model, string, error) {
 		var c ListModelsConfig
@@ -4813,6 +4823,12 @@ func (m Models) List(ctx context.Context, config *ListModelsConfig) (Page[Model]
 	return newPage(ctx, "models", c, listFunc)
 }
 
+// All retrieves all models resources.
+//
+// This method handles pagination internally, making multiple API calls as needed
+// to fetch all entries. It returns an iterator that yields each cached
+// content entry one by one. You do not need to manage pagination
+// tokens or make multiple calls to retrieve all data.
 func (m Models) All(ctx context.Context) iter.Seq2[*Model, error] {
 	listFunc := func(ctx context.Context, _ map[string]any) ([]*Model, string, error) {
 		resp, err := m.list(ctx, &ListModelsConfig{QueryBase: Ptr(true)})
@@ -4828,7 +4844,7 @@ func (m Models) All(ctx context.Context) iter.Seq2[*Model, error] {
 	return p.all(ctx)
 }
 
-// GenerateImages calls the generateImages method on the model.
+// GenerateImages generates images based on the provided model, prompt, and configuration.
 func (m Models) GenerateImages(ctx context.Context, model string, prompt string, config *GenerateImagesConfig) (*GenerateImagesResponse, error) {
 	apiResponse, err := m.generateImages(ctx, model, prompt, config)
 	if err != nil {
@@ -4851,7 +4867,7 @@ func (m Models) GenerateImages(ctx context.Context, model string, prompt string,
 	}, nil
 }
 
-// UpscaleImage calls the upscaleImage method on the model.
+// UpscaleImage upscales an image using the specified model, image, upscale factor, and configuration.
 func (m Models) UpscaleImage(ctx context.Context, model string, image *Image, upscaleFactor string, config *UpscaleImageConfig) (*UpscaleImageResponse, error) {
 	// Convert to API config.
 	apiConfig := &upscaleImageAPIConfig{Mode: "upscale", NumberOfImages: 1}
@@ -4865,7 +4881,7 @@ func (m Models) UpscaleImage(ctx context.Context, model string, image *Image, up
 	return m.upscaleImage(ctx, model, image, upscaleFactor, apiConfig)
 }
 
-// EditImage calls the EditImage method on the model.
+// EditImage edits an image based on the provided model, prompt, reference images, and configuration.
 func (m Models) EditImage(ctx context.Context, model, prompt string, referenceImages []ReferenceImage, config *EditImageConfig) (*EditImageResponse, error) {
 	refImages := make([]*referenceImageAPI, len(referenceImages))
 	for i, img := range referenceImages {

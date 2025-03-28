@@ -78,6 +78,9 @@ func fetchPredictOperationParametersToVertex(ac *apiClient, fromObject map[strin
 	return toObject, nil
 }
 
+// Operations provides methods for managing the long-running operations.
+// You don't need to initiate this struct. Create a client instance via NewClient, and
+// then access Operations through client.Operations field.
 type Operations struct {
 	apiClient *apiClient
 }
@@ -225,6 +228,12 @@ func (m Operations) fetchPredictVideosOperation(ctx context.Context, operationNa
 
 var experimentalWarningOperationsGetVideosOperation sync.Once
 
+// GetVideosOperation retrieves the status and result of a long-running video generation operation.
+//
+// If the operation is still in progress, the returned GenerateVideosOperation
+// will have Done set to false. If the operation has completed successfully,
+// Done will be true, and the Result field will contain the result. If the
+// operation failed, Done will be true, and the Error field will be populated.
 func (m Operations) GetVideosOperation(ctx context.Context, operation *GenerateVideosOperation, config *GetOperationConfig) (*GenerateVideosOperation, error) {
 	experimentalWarningOperationsGetVideosOperation.Do(func() {
 		log.Println("Warning: The method Operations.GetVideosOperation is experimental and may change in future versions.")

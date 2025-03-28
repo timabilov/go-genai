@@ -585,10 +585,14 @@ func listCachedContentsResponseFromVertex(ac *apiClient, fromObject map[string]a
 	return toObject, nil
 }
 
+// Caches provides methods for managing the context caching.
+// You don't need to initiate this struct. Create a client instance via NewClient, and
+// then access Caches through client.Caches field.
 type Caches struct {
 	apiClient *apiClient
 }
 
+// Create creates a new cached content resource.
 func (m Caches) Create(ctx context.Context, model string, config *CreateCachedContentConfig) (*CachedContent, error) {
 	parameterMap := make(map[string]any)
 
@@ -659,6 +663,7 @@ func (m Caches) Create(ctx context.Context, model string, config *CreateCachedCo
 	return response, nil
 }
 
+// Get gets a cached content resource.
 func (m Caches) Get(ctx context.Context, name string, config *GetCachedContentConfig) (*CachedContent, error) {
 	parameterMap := make(map[string]any)
 
@@ -729,6 +734,7 @@ func (m Caches) Get(ctx context.Context, name string, config *GetCachedContentCo
 	return response, nil
 }
 
+// Delete deletes a cached content resource.
 func (m Caches) Delete(ctx context.Context, name string, config *DeleteCachedContentConfig) (*DeleteCachedContentResponse, error) {
 	parameterMap := make(map[string]any)
 
@@ -799,6 +805,7 @@ func (m Caches) Delete(ctx context.Context, name string, config *DeleteCachedCon
 	return response, nil
 }
 
+// Update updates a cached content resource.
 func (m Caches) Update(ctx context.Context, name string, config *UpdateCachedContentConfig) (*CachedContent, error) {
 	parameterMap := make(map[string]any)
 
@@ -939,6 +946,7 @@ func (m Caches) list(ctx context.Context, config *ListCachedContentsConfig) (*Li
 	return response, nil
 }
 
+// List retrieves a paginated list of cached content resources.
 func (m Caches) List(ctx context.Context, config *ListCachedContentsConfig) (Page[CachedContent], error) {
 	listFunc := func(ctx context.Context, config map[string]any) ([]*CachedContent, string, error) {
 		var c ListCachedContentsConfig
@@ -956,6 +964,12 @@ func (m Caches) List(ctx context.Context, config *ListCachedContentsConfig) (Pag
 	return newPage(ctx, "cachedContents", c, listFunc)
 }
 
+// All retrieves all cached content resources.
+//
+// This method handles pagination internally, making multiple API calls as needed
+// to fetch all entries. It returns an iterator that yields each cached
+// content entry one by one. You do not need to manage pagination
+// tokens or make multiple calls to retrieve all data.
 func (m Caches) All(ctx context.Context) iter.Seq2[*CachedContent, error] {
 	listFunc := func(ctx context.Context, _ map[string]any) ([]*CachedContent, string, error) {
 		resp, err := m.list(ctx, &ListCachedContentsConfig{})
