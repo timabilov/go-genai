@@ -78,9 +78,10 @@ func mapToStruct[R any](input map[string]any, output *R) error {
 	return nil
 }
 
-func (ac *apiClient) createAPIURL(suffix string, httpOptions *HTTPOptions) (*url.URL, error) {
+func (ac *apiClient) createAPIURL(suffix, method string, httpOptions *HTTPOptions) (*url.URL, error) {
 	if ac.clientConfig.Backend == BackendVertexAI {
-		if !strings.HasPrefix(suffix, "projects/") {
+		queryVertexBaseModel := ac.clientConfig.Backend == BackendVertexAI && method == http.MethodGet && strings.HasPrefix(suffix, "publishers/google/models")
+		if !strings.HasPrefix(suffix, "projects/") && !queryVertexBaseModel {
 			suffix = fmt.Sprintf("projects/%s/locations/%s/%s", ac.clientConfig.Project, ac.clientConfig.Location, suffix)
 		}
 		u, err := url.Parse(fmt.Sprintf("%s/%s/%s", httpOptions.BaseURL, httpOptions.APIVersion, suffix))
@@ -98,7 +99,7 @@ func (ac *apiClient) createAPIURL(suffix string, httpOptions *HTTPOptions) (*url
 }
 
 func buildRequest(ctx context.Context, ac *apiClient, path string, body map[string]any, method string, httpOptions *HTTPOptions) (*http.Request, error) {
-	url, err := ac.createAPIURL(path, httpOptions)
+	url, err := ac.createAPIURL(path, method, httpOptions)
 	if err != nil {
 		return nil, err
 	}

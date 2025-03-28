@@ -25,7 +25,7 @@ export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
 export GOOGLE_GENAI_USE_VERTEXAI=false
 export GOOGLE_API_KEY={YOUR_API_KEY}
 
-go run samples/list_models.go
+go run samples/get_models.go
 */
 
 import (
@@ -37,28 +37,27 @@ import (
 	"google.golang.org/genai"
 )
 
-func models(ctx context.Context) {
+func getModels(ctx context.Context) {
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+	config := genai.GetModelConfig{}
 	if client.ClientConfig().Backend == genai.BackendVertexAI {
 		fmt.Println("Calling VertexAI Backend...")
 	} else {
 		fmt.Println("Calling GeminiAPI Backend...")
 	}
-	// List all models.
-	fmt.Println("List models example.")
-	for item, err := range client.Models.All(ctx) {
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%#v\n", item)
+	fmt.Println("Get model example.")
+	model, err := client.Models.Get(ctx, "gemini-1.5-pro", &config)
+	if err != nil {
+		log.Fatal(err)
 	}
+	fmt.Printf("%#v\n", model)
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	models(ctx)
+	getModels(ctx)
 }
