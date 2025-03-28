@@ -2279,11 +2279,9 @@ type GenerateVideosOperation struct {
 type CreateCachedContentConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
-	// The TTL for this resource. The expiration time is computed: now + TTL. It is a duration
-	// string, with up to nine fractional digits, terminated by 's'. Example: "3.5s".
-	TTL string `json:"ttl,omitempty"`
-	// Timestamp of when this resource is considered expired. Uses RFC 3339 format, Example:
-	// 2014-10-02T15:01:23Z.
+	// The TTL for this resource. The expiration time is computed: now + TTL.
+	TTL time.Duration `json:"ttl,omitempty"`
+	// Timestamp of when this resource is considered expired.
 	ExpireTime time.Time `json:"expireTime,omitempty"`
 	// The user-generated meaningful display name of the cached content.
 	DisplayName string `json:"displayName,omitempty"`
@@ -2301,6 +2299,7 @@ func (c *CreateCachedContentConfig) MarshalJSON() ([]byte, error) {
 	type Alias CreateCachedContentConfig
 	aux := &struct {
 		ExpireTime *time.Time `json:"expireTime,omitempty"`
+		TTL        string     `json:"ttl,omitempty"`
 		*Alias
 	}{
 		Alias: (*Alias)(c),
@@ -2309,8 +2308,35 @@ func (c *CreateCachedContentConfig) MarshalJSON() ([]byte, error) {
 	if !c.ExpireTime.IsZero() {
 		aux.ExpireTime = &c.ExpireTime
 	}
+	if c.TTL != 0 {
+		aux.TTL = fmt.Sprintf("%.0fs", c.TTL.Seconds())
+	}
 
 	return json.Marshal(aux)
+}
+
+func (c *CreateCachedContentConfig) UnmarshalJSON(data []byte) error {
+	type Alias CreateCachedContentConfig
+	aux := &struct {
+		TTL string `json:"ttl,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.TTL != "" {
+		d, err := time.ParseDuration(aux.TTL)
+		if err != nil {
+			return err
+		}
+		c.TTL = d
+	}
+
+	return nil
 }
 
 // Metadata on the usage of the cached content.
@@ -2391,11 +2417,9 @@ type DeleteCachedContentResponse struct {
 type UpdateCachedContentConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
-	// The TTL for this resource. The expiration time is computed: now + TTL. It is a duration
-	// string, with up to nine fractional digits, terminated by 's'. Example: "3.5s".
-	TTL string `json:"ttl,omitempty"`
-	// Timestamp of when this resource is considered expired. Uses RFC 3339 format, Example:
-	// 2014-10-02T15:01:23Z.
+	// The TTL for this resource. The expiration time is computed: now + TTL.
+	TTL time.Duration `json:"ttl,omitempty"`
+	// Timestamp of when this resource is considered expired.
 	ExpireTime time.Time `json:"expireTime,omitempty"`
 }
 
@@ -2403,6 +2427,7 @@ func (c *UpdateCachedContentConfig) MarshalJSON() ([]byte, error) {
 	type Alias UpdateCachedContentConfig
 	aux := &struct {
 		ExpireTime *time.Time `json:"expireTime,omitempty"`
+		TTL        string     `json:"ttl,omitempty"`
 		*Alias
 	}{
 		Alias: (*Alias)(c),
@@ -2411,8 +2436,35 @@ func (c *UpdateCachedContentConfig) MarshalJSON() ([]byte, error) {
 	if !c.ExpireTime.IsZero() {
 		aux.ExpireTime = &c.ExpireTime
 	}
+	if c.TTL != 0 {
+		aux.TTL = fmt.Sprintf("%.0fs", c.TTL.Seconds())
+	}
 
 	return json.Marshal(aux)
+}
+
+func (c *UpdateCachedContentConfig) UnmarshalJSON(data []byte) error {
+	type Alias UpdateCachedContentConfig
+	aux := &struct {
+		TTL string `json:"ttl,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.TTL != "" {
+		d, err := time.ParseDuration(aux.TTL)
+		if err != nil {
+			return err
+		}
+		c.TTL = d
+	}
+
+	return nil
 }
 
 // Config for caches.list method.
