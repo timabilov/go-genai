@@ -375,7 +375,7 @@ func TestNewUserContentFromParts(t *testing.T) {
 		Role:  "user",
 	}
 
-	result := NewUserContentFromParts(parts)
+	result := NewContentFromParts(parts, "user")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -390,7 +390,7 @@ func TestNewUserContentFromText(t *testing.T) {
 		Role: "user",
 	}
 
-	result := NewUserContentFromText(text)
+	result := NewContentFromText(text, "user")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -406,7 +406,7 @@ func TestNewUserContentFromBytes(t *testing.T) {
 		Role: "user",
 	}
 
-	result := NewUserContentFromBytes(data, mimeType)
+	result := NewContentFromBytes(data, mimeType, "user")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -422,7 +422,7 @@ func TestNewUserContentFromURI(t *testing.T) {
 		Role: "user",
 	}
 
-	result := NewUserContentFromURI(fileURI, mimeType)
+	result := NewContentFromURI(fileURI, mimeType, "user")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -438,7 +438,7 @@ func TestNewUserContentFromFunctionResponse(t *testing.T) {
 		Role: "user",
 	}
 
-	result := NewUserContentFromFunctionResponse(funcName, response)
+	result := NewContentFromFunctionResponse(funcName, response, "user")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -454,7 +454,7 @@ func TestNewUserContentFromExecutableCode(t *testing.T) {
 		Role: "user",
 	}
 
-	result := NewUserContentFromExecutableCode(code, language)
+	result := NewContentFromExecutableCode(code, language, "user")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -470,7 +470,7 @@ func TestNewUserContentFromCodeExecutionResult(t *testing.T) {
 		Role: "user",
 	}
 
-	result := NewUserContentFromCodeExecutionResult(outcome, output)
+	result := NewContentFromCodeExecutionResult(outcome, output, "user")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -486,7 +486,7 @@ func TestNewModelContentFromParts(t *testing.T) {
 		Role:  "model",
 	}
 
-	result := NewModelContentFromParts(parts)
+	result := NewContentFromParts(parts, "model")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -501,7 +501,7 @@ func TestNewModelContentFromText(t *testing.T) {
 		Role: "model",
 	}
 
-	result := NewModelContentFromText(text)
+	result := NewContentFromText(text, "model")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -517,7 +517,7 @@ func TestNewModelContentFromBytes(t *testing.T) {
 		Role: "model",
 	}
 
-	result := NewModelContentFromBytes(data, mimeType)
+	result := NewContentFromBytes(data, mimeType, "model")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -533,7 +533,7 @@ func TestNewModelContentFromURI(t *testing.T) {
 		Role: "model",
 	}
 
-	result := NewModelContentFromURI(fileURI, mimeType)
+	result := NewContentFromURI(fileURI, mimeType, "model")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -549,7 +549,7 @@ func TestNewModelContentFromFunctionCall(t *testing.T) {
 		Role: "model",
 	}
 
-	result := NewModelContentFromFunctionCall(funcName, args)
+	result := NewContentFromFunctionCall(funcName, args, "model")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -565,7 +565,7 @@ func TestNewModelContentFromExecutableCode(t *testing.T) {
 		Role: "model",
 	}
 
-	result := NewModelContentFromExecutableCode(code, language)
+	result := NewContentFromExecutableCode(code, language, "model")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
@@ -581,7 +581,7 @@ func TestNewModelContentFromCodeExecutionResult(t *testing.T) {
 		Role: "model",
 	}
 
-	result := NewModelContentFromCodeExecutionResult(outcome, output)
+	result := NewContentFromCodeExecutionResult(outcome, output, "model")
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}

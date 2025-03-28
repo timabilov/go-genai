@@ -607,139 +607,81 @@ type Content struct {
 	Role string `json:"role,omitempty"`
 }
 
-// NewUserContent builds a Content with a "user" role from a list of parts.
-func NewUserContentFromParts(parts []*Part) *Content {
+// NewContentFromParts builds a Content from a list of parts.
+func NewContentFromParts(parts []*Part, role string) *Content {
 	return &Content{
 		Parts: parts,
-		Role:  "user",
+		Role:  role,
 	}
 }
 
-// NewUserContentFromText builds a Content with a "user" role from a single text string.
-func NewUserContentFromText(text string) *Content {
+// NewContentFromText builds a Content from a text string.
+func NewContentFromText(text string, role string) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromText(text),
 		},
-		Role: "user",
+		Role: role,
 	}
 }
 
-// NewUserContentFromBytes builds a Content with a "user" role from a single byte array.
-func NewUserContentFromBytes(data []byte, mimeType string) *Content {
+// NewContentFromBytes builds a Content from a byte array and mime type.
+func NewContentFromBytes(data []byte, mimeType string, role string) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromBytes(data, mimeType),
 		},
-		Role: "user",
+		Role: role,
 	}
 }
 
-// NewUserContentFromURI builds a Content with a "user" role from a single file URI.
-func NewUserContentFromURI(fileURI, mimeType string) *Content {
+// NewContentFromURI builds a Content from a file URI and mime type.
+func NewContentFromURI(fileURI, mimeType string, role string) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromURI(fileURI, mimeType),
 		},
-		Role: "user",
+		Role: role,
 	}
 }
 
-// NewUserContentFromFunctionResponse builds a Content with a "user" role from a single function response.
-func NewUserContentFromFunctionResponse(name string, response map[string]any) *Content {
-	return &Content{
-		Parts: []*Part{
-			NewPartFromFunctionResponse(name, response),
-		},
-		Role: "user",
-	}
-}
-
-// NewUserContentFromExecutableCode builds a Content with a "user" role from a single executable code.
-func NewUserContentFromExecutableCode(code string, language Language) *Content {
-	return &Content{
-		Parts: []*Part{
-			NewPartFromExecutableCode(code, language),
-		},
-		Role: "user",
-	}
-}
-
-// NewUserContentFromCodeExecutionResult builds a Content with a "user" role from a single code execution result.
-func NewUserContentFromCodeExecutionResult(outcome Outcome, output string) *Content {
-	return &Content{
-		Parts: []*Part{
-			NewPartFromCodeExecutionResult(outcome, output),
-		},
-		Role: "user",
-	}
-}
-
-// NewModelContent builds a Content with a "model" role from a list of parts.
-func NewModelContentFromParts(parts []*Part) *Content {
-	return &Content{
-		Parts: parts,
-		Role:  "model",
-	}
-}
-
-// NewModelContentFromText builds a Content with a "model" role from a single text string.
-func NewModelContentFromText(text string) *Content {
-	return &Content{
-		Parts: []*Part{
-			NewPartFromText(text),
-		},
-		Role: "model",
-	}
-}
-
-// NewModelContentFromBytes builds a Content with a "model" role from a single byte array.
-func NewModelContentFromBytes(data []byte, mimeType string) *Content {
-	return &Content{
-		Parts: []*Part{
-			NewPartFromBytes(data, mimeType),
-		},
-		Role: "model",
-	}
-}
-
-// NewModelContentFromURI builds a Content with a "model" role from a single file URI.
-func NewModelContentFromURI(fileURI, mimeType string) *Content {
-	return &Content{
-		Parts: []*Part{
-			NewPartFromURI(fileURI, mimeType),
-		},
-		Role: "model",
-	}
-}
-
-// NewModelContentFromFunctionCall builds a Content with a "model" role from a single function call.
-func NewModelContentFromFunctionCall(name string, args map[string]any) *Content {
+// NewContentFromFunctionCall builds a Content from a single function call.
+func NewContentFromFunctionCall(name string, args map[string]any, role string) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromFunctionCall(name, args),
 		},
-		Role: "model",
+		Role: role,
 	}
 }
 
-// NewModelContentFromExecutableCode builds a Content with a "model" role from a single executable code.
-func NewModelContentFromExecutableCode(code string, language Language) *Content {
+// NewContentFromFunctionResponse builds a Content from a function response.
+func NewContentFromFunctionResponse(name string, response map[string]any, role string) *Content {
+	return &Content{
+		Parts: []*Part{
+			NewPartFromFunctionResponse(name, response),
+		},
+		Role: role,
+	}
+}
+
+// NewContentFromExecutableCode builds a Content from a executable code and language.
+func NewContentFromExecutableCode(code string, language Language, role string) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromExecutableCode(code, language),
 		},
-		Role: "model",
+		Role: role,
 	}
 }
 
-// NewModelContentFromCodeExecutionResult builds a Content with a "model" role from a single code execution result.
-func NewModelContentFromCodeExecutionResult(outcome Outcome, output string) *Content {
+// NewContentFromCodeExecutionResult builds a Content from a given outcome and output.
+func NewContentFromCodeExecutionResult(outcome Outcome, output string, role string) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromCodeExecutionResult(outcome, output),
 		},
-		Role: "model",
+		Role: role,
 	}
 }
 
