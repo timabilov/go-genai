@@ -26,8 +26,8 @@ import (
 	"strings"
 	"testing"
 
+	"cloud.google.com/go/auth"
 	"github.com/google/go-cmp/cmp"
-	"golang.org/x/oauth2/google"
 )
 
 func snakeToPascal(s string) string {
@@ -260,7 +260,7 @@ func TestTable(t *testing.T) {
 								if backend.Backend == BackendVertexAI {
 									config.Project = "fake-project"
 									config.Location = "fake-location"
-									config.Credentials = &google.Credentials{}
+									config.Credentials = &auth.Credentials{}
 								} else {
 									config.APIKey = "fake-api-key"
 								}

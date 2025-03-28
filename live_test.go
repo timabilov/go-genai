@@ -22,17 +22,16 @@ import (
 	"strings"
 	"testing"
 
+	"cloud.google.com/go/auth"
 	"github.com/google/go-cmp/cmp"
 	"github.com/gorilla/websocket"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
-type mockTokenSource struct {
-	MockToken *oauth2.Token
+type mockCredentials struct {
+	MockToken *auth.Token
 }
 
-func (mts mockTokenSource) Token() (*oauth2.Token, error) {
+func (mts mockCredentials) Token(context context.Context) (*auth.Token, error) {
 	return mts.MockToken, nil
 }
 
@@ -47,19 +46,24 @@ func TestLiveConnect(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	mockToken := &auth.Token{
+		Value: "fake_access_token",
+	}
+	mockCred := mockCredentials{
+		MockToken: mockToken,
+	}
+
 	vertexClient, err := NewClient(ctx, &ClientConfig{
-		Backend:     BackendVertexAI,
-		Project:     "test-project",
-		Location:    "test-location",
-		Credentials: &google.Credentials{},
+		Backend:  BackendVertexAI,
+		Project:  "test-project",
+		Location: "test-location",
+		Credentials: auth.NewCredentials(&auth.CredentialsOptions{
+			TokenProvider: mockCred,
+		}),
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	mockToken := &oauth2.Token{
-		AccessToken: "fake_access_token",
-	}
-	mts := mockTokenSource{MockToken: mockToken}
 
 	connectTests := []struct {
 		desc            string
@@ -178,15 +182,11 @@ func TestLiveConnect(t *testing.T) {
 				url = tt.clientHTTPOpts.BaseURL
 			}
 			tt.client.Live.apiClient.clientConfig.HTTPOptions.BaseURL = strings.Replace(url, "http", "wss", 1)
-
 			tt.client.Live.apiClient.clientConfig.HTTPClient = ts.Client()
-			if tt.client.Live.apiClient.clientConfig.Backend == BackendVertexAI {
-				tt.client.Live.apiClient.clientConfig.Credentials.TokenSource = mts
-			}
 			if err != nil {
 				t.Fatalf("NewClient failed: %v", err)
 			}
-			session, err := tt.client.Live.Connect(model, tt.config)
+			session, err := tt.client.Live.Connect(ctx, model, tt.config)
 			if tt.wantErr && !strings.Contains(err.Error(), tt.wantErrMessage) {
 				t.Errorf("Connect() error message = %v, wantErrMessage %v", err.Error(), tt.wantErrMessage)
 				return
@@ -231,11 +231,8 @@ func TestLiveConnect(t *testing.T) {
 
 				tt.client.Live.apiClient.clientConfig.HTTPOptions.BaseURL = strings.Replace(ts.URL, "http", "ws", 1)
 				tt.client.Live.apiClient.clientConfig.HTTPClient = ts.Client()
-				if tt.client.Live.apiClient.clientConfig.Backend == BackendVertexAI {
-					tt.client.Live.apiClient.clientConfig.Credentials.TokenSource = mts
-				}
 
-				session, err := tt.client.Live.Connect("test-model", &LiveConnectConfig{})
+				session, err := tt.client.Live.Connect(ctx, "test-model", &LiveConnectConfig{})
 				if err != nil {
 					t.Fatalf("Connect failed: %v", err)
 				}

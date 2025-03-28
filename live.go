@@ -17,6 +17,7 @@
 package genai
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -45,7 +46,7 @@ type Session struct {
 // Connect establishes a realtime connection to the specified model with given configuration.
 // It returns a Session object representing the connection or an error if the connection fails.
 // The live module is experimental.
-func (r *Live) Connect(model string, config *LiveConnectConfig) (*Session, error) {
+func (r *Live) Connect(context context.Context, model string, config *LiveConnectConfig) (*Session, error) {
 	httpOptions := r.apiClient.clientConfig.HTTPOptions
 	if httpOptions.APIVersion == "" {
 		return nil, fmt.Errorf("live module requires APIVersion to be set. You can set APIVersion to v1beta1 for BackendVertexAI or v1apha for BackendGeminiAPI")
@@ -64,11 +65,11 @@ func (r *Live) Connect(model string, config *LiveConnectConfig) (*Session, error
 	// TODO(b/406076143): Support function level httpOptions.
 	var header http.Header = mergeHeaders(&httpOptions, nil)
 	if r.apiClient.clientConfig.Backend == BackendVertexAI {
-		token, err := r.apiClient.clientConfig.Credentials.TokenSource.Token()
+		token, err := r.apiClient.clientConfig.Credentials.Token(context)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get token: %w", err)
 		}
-		header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+		header.Set("Authorization", fmt.Sprintf("Bearer %s", token.Value))
 		u = url.URL{
 			Scheme: scheme,
 			Host:   baseURL.Host,

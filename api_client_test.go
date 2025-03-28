@@ -14,9 +14,9 @@ import (
 	"strings"
 	"testing"
 
+	"cloud.google.com/go/auth"
 	"cloud.google.com/go/civil"
 	"github.com/google/go-cmp/cmp"
-	"golang.org/x/oauth2/google"
 )
 
 // TODO(b/384580303): Add streaming request tests.
@@ -582,7 +582,7 @@ func TestBuildRequest(t *testing.T) {
 				Project:     "test-project",
 				Location:    "test-location",
 				Backend:     BackendVertexAI,
-				Credentials: &google.Credentials{},
+				Credentials: &auth.Credentials{},
 			},
 			path:   "models/test-model:generateContent",
 			body:   map[string]any{"key": "value"},
@@ -617,7 +617,7 @@ func TestBuildRequest(t *testing.T) {
 				Project:     "test-project",
 				Location:    "test-location",
 				Backend:     BackendVertexAI,
-				Credentials: &google.Credentials{},
+				Credentials: &auth.Credentials{},
 			},
 			path:   "projects/test-project/locations/test-location/models/test-model:generateContent",
 			body:   map[string]any{"key": "value"},
@@ -682,7 +682,7 @@ func TestBuildRequest(t *testing.T) {
 				Project:     "test-project",
 				Location:    "test-location",
 				Backend:     BackendVertexAI,
-				Credentials: &google.Credentials{},
+				Credentials: &auth.Credentials{},
 			},
 			path:   "models/test-model:generateContent",
 			body:   map[string]any{},

@@ -21,9 +21,9 @@ import (
 	"testing"
 	"time"
 
+	"cloud.google.com/go/auth"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"golang.org/x/oauth2/google"
 )
 
 func unsetEnvVars(t *testing.T) {
@@ -81,7 +81,7 @@ func TestNewClient(t *testing.T) {
 		})
 
 		t.Run("Credentials is read from passed config", func(t *testing.T) {
-			creds := &google.Credentials{}
+			creds := &auth.Credentials{}
 			client, err := NewClient(ctx, &ClientConfig{Backend: BackendVertexAI, Credentials: creds, Project: "test-project", Location: "test-location"})
 			if err != nil {
 				t.Fatalf("Expected no error, got %v", err)
@@ -368,7 +368,7 @@ func TestClientConfigHTTPOptions(t *testing.T) {
 					APIVersion: "v2",
 					BaseURL:    "https://test-base-url.com/",
 				},
-				Credentials: &google.Credentials{},
+				Credentials: &auth.Credentials{},
 			},
 			expectedBaseURL:    "https://test-base-url.com/",
 			expectedAPIVersion: "v2",
@@ -399,7 +399,7 @@ func TestClientConfigHTTPOptions(t *testing.T) {
 				Project:     "test-project",
 				Location:    "us-central1",
 				HTTPOptions: HTTPOptions{},
-				Credentials: &google.Credentials{},
+				Credentials: &auth.Credentials{},
 			},
 			expectedBaseURL:    "https://us-central1-aiplatform.googleapis.com/",
 			expectedAPIVersion: "v1beta1",
@@ -411,7 +411,7 @@ func TestClientConfigHTTPOptions(t *testing.T) {
 				Project:     "test-project",
 				Location:    "global",
 				HTTPOptions: HTTPOptions{},
-				Credentials: &google.Credentials{},
+				Credentials: &auth.Credentials{},
 			},
 			expectedBaseURL:    "https://aiplatform.googleapis.com/",
 			expectedAPIVersion: "v1beta1",
