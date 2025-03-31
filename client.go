@@ -35,6 +35,8 @@ type Client struct {
 	Live *Live
 	// Caches provides access to the Caches service.
 	Caches *Caches
+	// Chats provides util functions for creating a new chat session.
+	Chats *Chats
 	// Operations provides access to long-running operations.
 	Operations *Operations
 }
@@ -225,6 +227,7 @@ func NewClient(ctx context.Context, cc *ClientConfig) (*Client, error) {
 		Models:       &Models{apiClient: ac},
 		Live:         &Live{apiClient: ac},
 		Caches:       &Caches{apiClient: ac},
+		Chats:        &Chats{apiClient: ac},
 		Operations:   &Operations{apiClient: ac},
 	}
 	return c, nil

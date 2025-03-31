@@ -807,6 +807,63 @@ func ExampleModels_GenerateContentStream_text_geminiapi() {
 	}
 }
 
+func ExampleChats_geminiapi() {
+	ctx := context.Background()
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		APIKey:  apiKey,
+		Backend: genai.BackendGeminiAPI,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	chat, err := client.Chats.Create(ctx, "gemini-2.0-flash-exp", nil, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result, err := chat.SendMessage(ctx, genai.Part{Text: "What's the weather in New York?"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	debugPrint(result)
+
+	result, err = chat.SendMessage(ctx, genai.Part{Text: "How about San Francisco?"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	debugPrint(result)
+}
+
+func ExampleChats_vertexai() {
+	ctx := context.Background()
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		Project:  project,
+		Location: location,
+		Backend:  genai.BackendVertexAI,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	chat, err := client.Chats.Create(ctx, "gemini-2.0-flash-exp", nil, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result, err := chat.SendMessage(ctx, genai.Part{Text: "What's the weather in New York?"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	debugPrint(result)
+
+	result, err = chat.SendMessage(ctx, genai.Part{Text: "How about San Francisco?"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	debugPrint(result)
+}
+
 func debugPrint[T any](r *T) {
 	// Marshal the result to JSON.
 	response, err := json.MarshalIndent(*r, "", "  ")
