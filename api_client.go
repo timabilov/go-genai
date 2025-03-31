@@ -127,8 +127,7 @@ func sdkHeader(ac *apiClient) http.Header {
 	if ac.clientConfig.APIKey != "" {
 		header.Set("x-goog-api-key", ac.clientConfig.APIKey)
 	}
-	// TODO(b/381108714): Automate revisions to the SDK library version.
-	libraryLabel := "google-genai-sdk/0.0.1"
+	libraryLabel := fmt.Sprintf("google-genai-sdk/%s", version)
 	languageLabel := fmt.Sprintf("gl-go/%s", runtime.Version())
 	versionHeaderValue := fmt.Sprintf("%s %s", libraryLabel, languageLabel)
 	header.Set("user-agent", versionHeaderValue)

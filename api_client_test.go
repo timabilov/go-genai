@@ -569,8 +569,8 @@ func TestBuildRequest(t *testing.T) {
 					"Content-Type":      []string{"application/json"},
 					"X-Goog-Api-Key":    []string{"test-api-key"},
 					"X-Test-Header":     []string{"test-value"},
-					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
-					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
 				},
 				Body: io.NopCloser(strings.NewReader("{\"key\":\"value\"}\n")),
 			},
@@ -604,8 +604,8 @@ func TestBuildRequest(t *testing.T) {
 				Header: http.Header{
 					"Content-Type":      []string{"application/json"},
 					"X-Test-Header":     []string{"test-value"},
-					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
-					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
 				},
 				Body: io.NopCloser(strings.NewReader("{\"key\":\"value\"}\n")),
 			},
@@ -639,8 +639,8 @@ func TestBuildRequest(t *testing.T) {
 				Header: http.Header{
 					"Content-Type":      []string{"application/json"},
 					"X-Test-Header":     []string{"test-value"},
-					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
-					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
 				},
 				Body: io.NopCloser(strings.NewReader("{\"key\":\"value\"}\n")),
 			},
@@ -670,8 +670,8 @@ func TestBuildRequest(t *testing.T) {
 				},
 				Header: http.Header{
 					"Content-Type":      []string{"application/json"},
-					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
-					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
 				},
 				Body: io.NopCloser(strings.NewReader(``)),
 			},
@@ -700,8 +700,8 @@ func TestBuildRequest(t *testing.T) {
 				Header: http.Header{
 					"Content-Type":      []string{"application/json"},
 					"X-Goog-Api-Key":    []string{"test-api-key"},
-					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
-					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
 				},
 				Body: io.NopCloser(strings.NewReader(``)),
 			},
@@ -731,8 +731,8 @@ func TestBuildRequest(t *testing.T) {
 				},
 				Header: http.Header{
 					"Content-Type":      []string{"application/json"},
-					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
-					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+					"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
+					"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
 				},
 				Body: io.NopCloser(strings.NewReader(``)),
 			},
@@ -834,8 +834,8 @@ func Test_sdkHeader(t *testing.T) {
 			want: http.Header{
 				"Content-Type":      []string{"application/json"},
 				"X-Goog-Api-Key":    []string{"test_api_key"},
-				"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
-				"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+				"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
+				"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
 			},
 		},
 		{
@@ -843,8 +843,8 @@ func Test_sdkHeader(t *testing.T) {
 			args: args{&apiClient{clientConfig: &ClientConfig{}}},
 			want: http.Header{
 				"Content-Type":      []string{"application/json"},
-				"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
-				"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/0.0.1 gl-go/%s", runtime.Version())},
+				"User-Agent":        []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
+				"X-Goog-Api-Client": []string{fmt.Sprintf("google-genai-sdk/%s gl-go/%s", version, runtime.Version())},
 			},
 		},
 	}
