@@ -202,10 +202,11 @@ func (s *Session) Receive() (*LiveServerMessage, error) {
 
 // Close terminates the connection.
 // The live module is experimental.
-func (s *Session) Close() {
+func (s *Session) Close() error {
 	if s != nil && s.conn != nil {
-		s.conn.Close()
+		return s.conn.Close()
 	}
+	return nil
 }
 
 // BEGIN: Converter functions
