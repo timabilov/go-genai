@@ -2746,14 +2746,7 @@ type LiveClientSetup struct {
 	// use.
 	Model string `json:"model,omitempty"`
 	// The generation configuration for the session.
-	// The following fields are supported:
-	//   - `response_logprobs`
-	//   - `response_mime_type`
-	//   - `logprobs`
-	//   - `response_schema`
-	//   - `stop_sequence`
-	//   - `routing_config`
-	//   - `audio_timestamp`
+	// Note: only a subset of fields are supported.
 	GenerationConfig *GenerationConfig `json:"generationConfig,omitempty"`
 	// The user provided system instructions for the model.
 	// Note: only text should be used in parts and content in each part will be
