@@ -195,6 +195,13 @@ func TestSetValueByPath(t *testing.T) {
 			want:  map[string]any{"a": map[string]any{"b": "v"}},
 		},
 		{
+			name:  "Empty_value",
+			data:  map[string]any{},
+			keys:  []string{"a", "b"},
+			value: 0,
+			want:  map[string]any{"a": map[string]any{"b": 0}},
+		},
+		{
 			name:  "Nested",
 			data:  map[string]any{"a": map[string]any{}},
 			keys:  []string{"a", "b", "c"},

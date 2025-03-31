@@ -196,6 +196,7 @@ func (rac *replayAPIClient) assertRequest(sdkRequest *http.Request, replayReques
 	}
 	bodySegment = redactRequestBody(bodySegment)
 	bodySegment = convertKeysToCamelCase(bodySegment, "").(map[string]any)
+	omitEmptyValues(bodySegment)
 
 	headers := make(map[string]string)
 	for k, v := range sdkRequest.Header {
