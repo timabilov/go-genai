@@ -2817,6 +2817,10 @@ type LiveClientMessage struct {
 	ToolResponse *LiveClientToolResponse `json:"toolResponse,omitempty"`
 }
 
+// The audio transcription configuration in Setup.
+type AudioTranscriptionConfig struct {
+}
+
 // Session config for the API connection.
 type LiveConnectConfig struct {
 	// The generation configuration for the session.
