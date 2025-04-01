@@ -12,21 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the GenerateContent API.
+//go:build ignore_vet
+
 package main
-
-/*
-# For VertexAI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
-export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
-
-# For GeminiAPI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=false
-export GOOGLE_API_KEY={YOUR_API_KEY}
-
-go run samples/list_models.go
-*/
 
 import (
 	"context"
@@ -37,28 +25,27 @@ import (
 	"google.golang.org/genai"
 )
 
-func models(ctx context.Context) {
+func run(ctx context.Context) {
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+	config := genai.GetModelConfig{}
 	if client.ClientConfig().Backend == genai.BackendVertexAI {
 		fmt.Println("Calling VertexAI Backend...")
 	} else {
 		fmt.Println("Calling GeminiAPI Backend...")
 	}
-	// List all models.
-	fmt.Println("List models example.")
-	for item, err := range client.Models.All(ctx) {
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%#v\n", item)
+	fmt.Println("Get model example.")
+	model, err := client.Models.Get(ctx, "gemini-1.5-pro", &config)
+	if err != nil {
+		log.Fatal(err)
 	}
+	fmt.Printf("%#v\n", model)
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	models(ctx)
+	run(ctx)
 }

@@ -12,24 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the GenerateContent API.
+//go:build ignore_vet
+
 package main
-
-/*
-# For VertexAI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
-export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
-
-# For GeminiAPI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=false
-export GOOGLE_API_KEY={YOUR_API_KEY}
-
-go run samples/get_models.go
-*/
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -37,27 +26,36 @@ import (
 	"google.golang.org/genai"
 )
 
-func getModels(ctx context.Context) {
+var model = flag.String("model", "gemini-2.0-flash-exp", "the model name, e.g. gemini-2.0-flash-exp")
+
+func run(ctx context.Context) {
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	config := genai.GetModelConfig{}
 	if client.ClientConfig().Backend == genai.BackendVertexAI {
 		fmt.Println("Calling VertexAI Backend...")
 	} else {
 		fmt.Println("Calling GeminiAPI Backend...")
 	}
-	fmt.Println("Get model example.")
-	model, err := client.Models.Get(ctx, "gemini-1.5-pro", &config)
+	config := &genai.GenerateContentConfig{}
+	config.ResponseModalities = []string{"IMAGE", "TEXT"}
+	// Call the GenerateContent method.
+	result, err := client.Models.GenerateContent(ctx, *model, genai.Text("Generate a story about a cute baby turtle in a 3d digital art style. For each scene, generate an image."), config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%#v\n", model)
+	// Marshal the result to JSON and pretty-print it to a byte array.
+	response, err := json.MarshalIndent(*result, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Log the output.
+	fmt.Println(string(response))
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	getModels(ctx)
+	run(ctx)
 }

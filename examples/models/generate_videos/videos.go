@@ -12,21 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the GenerateContent API.
+//go:build ignore_vet
+
 package main
-
-/*
-# For Vertex AI API
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
-export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
-
-# For Gemini AI API
-export GOOGLE_GENAI_USE_VERTEXAI=false
-export GOOGLE_API_KEY={YOUR_API_KEY}
-
-go run samples/generate_videos.go --model=veo-2.0-generate-001
-*/
 
 import (
 	"context"
@@ -41,7 +29,7 @@ import (
 
 var model = flag.String("model", "veo-2.0-generate-001", "the model name, e.g. veo-2.0-generate-001")
 
-func generateVideos(ctx context.Context) {
+func run(ctx context.Context) {
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -82,5 +70,5 @@ func generateVideos(ctx context.Context) {
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	generateVideos(ctx)
+	run(ctx)
 }

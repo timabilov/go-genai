@@ -12,24 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the GenerateContent API.
+//go:build ignore_vet
+
 package main
-
-/*
-# For VertexAI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
-export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
-
-# For GeminiAPI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=false
-export GOOGLE_API_KEY={YOUR_API_KEY}
-
-go run samples/generate_text.go --model=gemini-2.0-flash
-*/
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -37,9 +26,9 @@ import (
 	"google.golang.org/genai"
 )
 
-var model = flag.String("model", "gemini-2.0-flash", "the model name, e.g. gemini-2.0-flash")
+var model = flag.String("model", "gemini-2.0-flash", "the model name, e.g. gemini-2.0-flash-exp")
 
-func generateText(ctx context.Context) {
+func run(ctx context.Context) {
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -49,17 +38,31 @@ func generateText(ctx context.Context) {
 	} else {
 		fmt.Println("Calling GeminiAPI Backend...")
 	}
-	var config *genai.GenerateContentConfig = &genai.GenerateContentConfig{Temperature: genai.Ptr[float32](0.5)}
+	config := &genai.GenerateContentConfig{}
+	config.ResponseModalities = []string{"AUDIO"}
+	config.SpeechConfig = &genai.SpeechConfig{
+		VoiceConfig: &genai.VoiceConfig{
+			PrebuiltVoiceConfig: &genai.PrebuiltVoiceConfig{
+				VoiceName: "Aoede",
+			},
+		},
+	}
 	// Call the GenerateContent method.
-	result, err := client.Models.GenerateContent(ctx, *model, genai.Text("What is your name?"), config)
+	result, err := client.Models.GenerateContent(ctx, *model, genai.Text("Say this in an upbeat tone: Welcome to Gemini 2.0!"), config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(result.Text())
+	// Marshal the result to JSON and pretty-print it to a byte array.
+	response, err := json.MarshalIndent(*result, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Log the output.
+	fmt.Println(string(response))
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	generateText(ctx)
+	run(ctx)
 }

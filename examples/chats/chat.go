@@ -12,21 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the GenerateContent API.
+//go:build ignore_vet
+
 package main
-
-/*
-# For VertexAI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
-export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
-
-# For GeminiAPI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=false
-export GOOGLE_API_KEY={YOUR_API_KEY}
-
-go run samples/chat.go --model=gemini-2.0-flash
-*/
 
 import (
 	"context"
@@ -54,21 +42,15 @@ func chat(ctx context.Context) {
 	// Create a new Chat.
 	chat, err := client.Chats.Create(ctx, *model, config, nil)
 
-	part := genai.Part{Text: "What is 1 + 2?"}
-	p := make([]genai.Part, 1)
-	p[0] = part
-
-	// Send first chat message (SendMessage accepts multiple parts array).
-	result, err := chat.SendMessage(ctx, p...)
+	// Send first chat message.
+	result, err := chat.SendMessage(ctx, genai.Part{Text: "What's the weather in San Francisco?"})
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(result.Text())
 
-	// Send second chat message (SendMessage also accepts single part).
-	part = genai.Part{Text: "Add 1 to the previous result."}
-
-	result, err = chat.SendMessage(ctx, part)
+	// Send second chat message.
+	result, err = chat.SendMessage(ctx, genai.Part{Text: "How about New York?"})
 	if err != nil {
 		log.Fatal(err)
 	}

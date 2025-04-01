@@ -12,21 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the GenerateContent API.
+//go:build ignore_vet
+
 package main
-
-/*
-# For VertexAI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
-export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
-
-# For GeminiAPI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=false
-export GOOGLE_API_KEY={YOUR_API_KEY}
-
-go run samples/count_tokens.go --model=gemini-2.0-flash
-*/
 
 import (
 	"context"
@@ -39,7 +27,7 @@ import (
 
 var model = flag.String("model", "gemini-2.0-flash", "the model name, e.g. gemini-2.0-flash")
 
-func tokens(ctx context.Context) {
+func run(ctx context.Context) {
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{Backend: genai.BackendVertexAI})
 	if err != nil {
 		log.Fatal(err)
@@ -56,20 +44,10 @@ func tokens(ctx context.Context) {
 		log.Fatal(err)
 	}
 	fmt.Println(countTokensResult.TotalTokens)
-
-	// Call the ComputeTokens method.
-	fmt.Println("Compute tokens example. Only supported in BackendVertexAI.")
-	computeTokensResult, err := client.Models.ComputeTokens(ctx, *model, genai.Text("What is your name?"), nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, tokenInfo := range computeTokensResult.TokensInfo {
-		fmt.Printf("%#v\n", tokenInfo)
-	}
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	tokens(ctx)
+	run(ctx)
 }

@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the Caches API.
+//go:build ignore_vet
+
 package main
-
-/*
-# For VertexAI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
-export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
-
-# This example is for BackendVertexAI.
-
-go run samples/cached_content.go --model=gemini-1.5-pro-002
-*/
 
 import (
 	"context"
@@ -32,7 +22,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"time"
 
 	"google.golang.org/genai"
 )
@@ -49,7 +38,7 @@ func print(r any) {
 	fmt.Println(string(response))
 }
 
-func cachedContent(ctx context.Context) {
+func run(ctx context.Context) {
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{Backend: genai.BackendVertexAI})
 	if err != nil {
 		log.Fatal(err)
@@ -59,51 +48,6 @@ func cachedContent(ctx context.Context) {
 	} else {
 		fmt.Println("Calling GeminiAPI Backend...")
 	}
-	// Create a cached content.
-	result, err := client.Caches.Create(ctx, *model, &genai.CreateCachedContentConfig{
-		TTL: "86400s",
-		Contents: []*genai.Content{
-			{
-				Role: "user",
-				Parts: []*genai.Part{
-					{
-						FileData: &genai.FileData{
-							MIMEType: "application/pdf",
-							FileURI:  "gs://cloud-samples-data/generative-ai/pdf/2312.11805v3.pdf",
-						},
-					},
-					{
-						FileData: &genai.FileData{
-							MIMEType: "application/pdf",
-							FileURI:  "gs://cloud-samples-data/generative-ai/pdf/2312.11805v3.pdf",
-						},
-					},
-				},
-			},
-		}})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Created cached content:")
-	print(result)
-
-	// Get the cached content.
-	result, err = client.Caches.Get(ctx, result.Name, &genai.GetCachedContentConfig{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Retrieved cached content:")
-	print(result)
-
-	// Update the cached content.
-	result, err = client.Caches.Update(ctx, result.Name, &genai.UpdateCachedContentConfig{
-		ExpireTime: genai.Ptr(time.Now().Add(time.Hour)),
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Updated cached content:")
-	print(result)
 
 	fmt.Println("Iterating over the cached contents...")
 	fmt.Println("Option 1: using the All function.")
@@ -129,17 +73,10 @@ func cachedContent(ctx context.Context) {
 		log.Fatal(err)
 	}
 	print(page.Items)
-
-	// Delete the cached content.
-	_, err = client.Caches.Delete(ctx, result.Name, &genai.DeleteCachedContentConfig{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Deleted cached content:", result.Name)
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	cachedContent(ctx)
+	run(ctx)
 }

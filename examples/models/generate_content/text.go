@@ -12,21 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the GenerateContent API.
+//go:build ignore_vet
+
 package main
-
-/*
-# For VertexAI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
-export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
-
-# For GeminiAPI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=false
-export GOOGLE_API_KEY={YOUR_API_KEY}
-
-go run samples/embed_content.go --model=text-embedding-004
-*/
 
 import (
 	"context"
@@ -37,9 +25,9 @@ import (
 	"google.golang.org/genai"
 )
 
-var model = flag.String("model", "text-embedding-004", "the model name, e.g. text-embedding-004")
+var model = flag.String("model", "gemini-2.0-flash", "the model name, e.g. gemini-2.0-flash")
 
-func embedContent(ctx context.Context) {
+func run(ctx context.Context) {
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -49,22 +37,17 @@ func embedContent(ctx context.Context) {
 	} else {
 		fmt.Println("Calling GeminiAPI Backend...")
 	}
+	var config *genai.GenerateContentConfig = &genai.GenerateContentConfig{Temperature: genai.Ptr[float32](0)}
 	// Call the GenerateContent method.
-	result, err := client.Models.EmbedContent(ctx, *model, genai.Text("What is your name?"), &genai.EmbedContentConfig{TaskType: "RETRIEVAL_QUERY"})
+	result, err := client.Models.GenerateContent(ctx, *model, genai.Text("What is your name?"), config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%#v\n", result.Embeddings[0])
-
-	result, err = client.Models.EmbedContent(ctx, *model, genai.Text("What is your name?"), &genai.EmbedContentConfig{TaskType: "RETRIEVAL_DOCUMENT"})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%#v\n", result.Embeddings[0])
+	fmt.Println(result.Text())
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	embedContent(ctx)
+	run(ctx)
 }

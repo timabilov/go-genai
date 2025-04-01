@@ -12,21 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main contains the sample code for the Imagen.
+//go:build ignore_vet
+
 package main
-
-/*
-# For VertexAI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT={YOUR_PROJECT_ID}
-export GOOGLE_CLOUD_LOCATION={YOUR_LOCATION}
-
-# For GeminiAPI Backend
-export GOOGLE_GENAI_USE_VERTEXAI=false
-export GOOGLE_API_KEY={YOUR_API_KEY}
-
-go run samples/imagen.go
-*/
 
 import (
 	"context"
@@ -48,7 +36,7 @@ func print(r any) {
 	fmt.Println(string(response))
 }
 
-func imagen(ctx context.Context) {
+func run(ctx context.Context) {
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -73,52 +61,13 @@ func imagen(ctx context.Context) {
 		log.Fatal(err)
 	}
 	print(response1)
+
+	fmt.Println("Positive prompt safety attributes:")
 	print(response1.PositivePromptSafetyAttributes)
-
-	fmt.Println("Upscale image example. Only supported in BackendVertexAI.")
-	response2, err := client.Models.UpscaleImage(
-		ctx, "imagen-3.0-generate-002",
-		response1.GeneratedImages[0].Image,
-		/*upscaleFactor=*/ "x2",
-		&genai.UpscaleImageConfig{
-			IncludeRAIReason: true,
-			OutputMIMEType:   "image/jpeg",
-		})
-	if err != nil {
-		log.Fatal(err)
-	}
-	print(response2)
-
-	fmt.Println("Edit image example. Only supported in BackendVertexAI.")
-	rawRefImg := &genai.RawReferenceImage{
-		ReferenceImage: response1.GeneratedImages[0].Image,
-		ReferenceID:    1,
-	}
-	maskRefImg := &genai.MaskReferenceImage{
-		ReferenceID: 2,
-		Config: &genai.MaskReferenceConfig{
-			MaskMode:     "MASK_MODE_BACKGROUND",
-			MaskDilation: genai.Ptr[float32](0.0),
-		},
-	}
-	response3, err := client.Models.EditImage(
-		ctx, "imagen-3.0-capability-001",
-		/*prompt=*/ "Sunlight and clear sky",
-		[]genai.ReferenceImage{rawRefImg, maskRefImg},
-		&genai.EditImageConfig{
-			EditMode:         "EDIT_MODE_INPAINT_INSERTION",
-			IncludeRAIReason: true,
-			OutputMIMEType:   "image/jpeg",
-		},
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	print(response3)
 }
 
 func main() {
 	ctx := context.Background()
 	flag.Parse()
-	imagen(ctx)
+	run(ctx)
 }
