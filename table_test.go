@@ -216,8 +216,8 @@ func createReplayAPIClient(t *testing.T, testTableDirectory string, testTableIte
 
 // TestTable only runs in apiMode or replayMode.
 func TestTable(t *testing.T) {
-	if *mode != apiMode && *mode != replayMode {
-		t.Skipf("Skipping test table because client env mode is enabled and affect environment variables")
+	if *mode == unitMode {
+		t.Skipf("Skipping test, mode is %s", *mode)
 	}
 	ctx := context.Background()
 	// Read the replaypath from the ReplayAPIClient instead of the env variable to avoid future

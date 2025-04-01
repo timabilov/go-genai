@@ -21,7 +21,6 @@ import (
 )
 
 func TestContentHelpers(t *testing.T) {
-	// mapValue := map[string]any{"key": "value"}
 	t.Run("Text", func(t *testing.T) {
 		expected := []*Content{{
 			Parts: []*Part{{Text: "Hello"}},

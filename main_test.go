@@ -56,6 +56,10 @@ var (
 			"models/count_tokens/test_count_tokens_vertex_custom_url",
 			"models/compute_tokens/test_compute_tokens_mldev_custom_url",
 		},
+		unitMode: []string{
+			// We don't run table tests in unit mode.
+			"TestTable/",
+		},
 	}
 	mode     = flag.String("mode", replayMode, "Test mode")
 	backends = []struct {

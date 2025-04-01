@@ -96,6 +96,28 @@ type ClientConfig struct {
 
 	// Optional HTTP options to override.
 	HTTPOptions HTTPOptions
+
+	envVarProvider func() map[string]string
+}
+
+func defaultEnvVarProvider() map[string]string {
+	vars := make(map[string]string)
+	if v, ok := os.LookupEnv("GOOGLE_GENAI_USE_VERTEXAI"); ok {
+		vars["GOOGLE_GENAI_USE_VERTEXAI"] = v
+	}
+	if v, ok := os.LookupEnv("GOOGLE_API_KEY"); ok {
+		vars["GOOGLE_API_KEY"] = v
+	}
+	if v, ok := os.LookupEnv("GOOGLE_CLOUD_PROJECT"); ok {
+		vars["GOOGLE_CLOUD_PROJECT"] = v
+	}
+	if v, ok := os.LookupEnv("GOOGLE_CLOUD_LOCATION"); ok {
+		vars["GOOGLE_CLOUD_LOCATION"] = v
+	}
+	if v, ok := os.LookupEnv("GOOGLE_CLOUD_REGION"); ok {
+		vars["GOOGLE_CLOUD_REGION"] = v
+	}
+	return vars
 }
 
 // NewClient creates a new GenAI client.
@@ -126,6 +148,11 @@ func NewClient(ctx context.Context, cc *ClientConfig) (*Client, error) {
 		cc = &ClientConfig{}
 	}
 
+	if cc.envVarProvider == nil {
+		cc.envVarProvider = defaultEnvVarProvider
+	}
+	envVars := cc.envVarProvider()
+
 	if cc.Project != "" && cc.APIKey != "" {
 		return nil, fmt.Errorf("project and API key are mutually exclusive in the client initializer. ClientConfig: %v", cc)
 	}
@@ -134,7 +161,7 @@ func NewClient(ctx context.Context, cc *ClientConfig) (*Client, error) {
 	}
 
 	if cc.Backend == BackendUnspecified {
-		if v, ok := os.LookupEnv("GOOGLE_GENAI_USE_VERTEXAI"); ok {
+		if v, ok := envVars["GOOGLE_GENAI_USE_VERTEXAI"]; ok {
 			v = strings.ToLower(v)
 			if v == "1" || v == "true" {
 				cc.Backend = BackendVertexAI
@@ -148,15 +175,15 @@ func NewClient(ctx context.Context, cc *ClientConfig) (*Client, error) {
 
 	// Only set the API key for MLDev API.
 	if cc.APIKey == "" && cc.Backend == BackendGeminiAPI {
-		cc.APIKey = os.Getenv("GOOGLE_API_KEY")
+		cc.APIKey = envVars["GOOGLE_API_KEY"]
 	}
 	if cc.Project == "" {
-		cc.Project = os.Getenv("GOOGLE_CLOUD_PROJECT")
+		cc.Project = envVars["GOOGLE_CLOUD_PROJECT"]
 	}
 	if cc.Location == "" {
-		if location, ok := os.LookupEnv("GOOGLE_CLOUD_LOCATION"); ok {
+		if location, ok := envVars["GOOGLE_CLOUD_LOCATION"]; ok {
 			cc.Location = location
-		} else if location, ok := os.LookupEnv("GOOGLE_CLOUD_REGION"); ok {
+		} else if location, ok := envVars["GOOGLE_CLOUD_REGION"]; ok {
 			cc.Location = location
 		}
 	}
