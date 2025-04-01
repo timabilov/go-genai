@@ -52,14 +52,14 @@ func TestNewClient(t *testing.T) {
 		})
 
 		t.Run("Missing project", func(t *testing.T) {
-			_, err := NewClient(ctx, &ClientConfig{Backend: BackendVertexAI})
+			_, err := NewClient(ctx, &ClientConfig{Backend: BackendVertexAI, envVarProvider: func() map[string]string { return map[string]string{} }})
 			if err == nil {
 				t.Errorf("Expected error, got empty")
 			}
 		})
 
 		t.Run("Missing location", func(t *testing.T) {
-			_, err := NewClient(ctx, &ClientConfig{Backend: BackendVertexAI, Project: "test-project"})
+			_, err := NewClient(ctx, &ClientConfig{Backend: BackendVertexAI, Project: "test-project", envVarProvider: func() map[string]string { return map[string]string{} }})
 			if err == nil {
 				t.Errorf("Expected error, got empty")
 			}
