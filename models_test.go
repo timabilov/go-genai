@@ -64,6 +64,9 @@ func TestModelsGenerateContentStream(t *testing.T) {
 							// Avoid skipping get a less noisy logs in the stream tests
 							return
 						}
+						if testTableItem.SkipInAPIMode != "" {
+							t.Skipf("Skipping because %s", testTableItem.SkipInAPIMode)
+						}
 						t.Run(testTableItem.Name, func(t *testing.T) {
 							t.Parallel()
 							client, err := NewClient(ctx, &ClientConfig{Backend: backend.Backend})

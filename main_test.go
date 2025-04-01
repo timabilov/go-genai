@@ -31,16 +31,6 @@ var (
 	}
 	disabledTestsByMode = map[string][]string{
 		apiMode: []string{
-			"TestModelsGenerateContentStream/mldev/models/generate_content/test_simple_shared_generation_config",
-			"TestModelsGenerateContentStream/mldev/models/generate_content_cached_content/",
-			"TestModelsGenerateContentStream/mldev/models/generate_content_part/",
-			"TestModelsGenerateContentStream/vertex/models/generate_content/test_2_candidates_gemini_1_5_flash",
-			"TestModelsGenerateContentStream/vertex/models/generate_content/test_llama",
-			"TestModelsGenerateContentStream/vertex/models/generate_content/test_simple_shared_generation_config",
-			"TestModelsGenerateContentStream/vertex/models/generate_content_cached_content",
-			"TestModelsGenerateContentStream/vertex/models/generate_content_part/test_video_gcs_file_uri",
-			"TestModelsGenerateContentStream/vertex/models/generate_content_tools/test_code_execution",
-			"TestModelsGenerateContentStream/mldev/models/generate_content_model",
 			"TestModelsGenerateContentAudio/",
 			"TestModelsGenerateVideosText2VideoPoll/",
 		},

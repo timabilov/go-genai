@@ -252,6 +252,9 @@ func TestTable(t *testing.T) {
 								// TODO(b/377989301): Handle unions.
 								t.Skipf("Skipping because it has union")
 							}
+							if testTableItem.SkipInAPIMode != "" {
+								t.Skipf("Skipping because %s", testTableItem.SkipInAPIMode)
+							}
 							config := ClientConfig{Backend: backend.Backend}
 							replayClient := createReplayAPIClient(t, testTableDirectory, testTableItem, backend.name)
 							if *mode == replayMode {
