@@ -231,7 +231,7 @@ type APIError struct {
 	Message string `json:"message,omitempty"`
 	// Status is the server response status.
 	Status string `json:"status,omitempty"`
-	// Details provide more context to an error.
+	// Details field provides more context to an error.
 	Details []map[string]any `json:"details,omitempty"`
 }
 

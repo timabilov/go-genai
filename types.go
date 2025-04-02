@@ -556,7 +556,7 @@ func NewPartFromBytes(data []byte, mimeType string) *Part {
 	}
 }
 
-// NewPartFromFunctionCall builds a Part from a given function call.
+// NewPartFromFunctionCall builds a [FunctionCall] Part from the given function name and args.
 func NewPartFromFunctionCall(name string, args map[string]any) *Part {
 	return &Part{
 		FunctionCall: &FunctionCall{
@@ -566,7 +566,7 @@ func NewPartFromFunctionCall(name string, args map[string]any) *Part {
 	}
 }
 
-// NewPartFromFunctionResponse builds a Part from a given function response.
+// NewPartFromFunctionResponse builds a [FunctionResponse] Part from the given function name and response.
 func NewPartFromFunctionResponse(name string, response map[string]any) *Part {
 	return &Part{
 		FunctionResponse: &FunctionResponse{
@@ -576,7 +576,7 @@ func NewPartFromFunctionResponse(name string, response map[string]any) *Part {
 	}
 }
 
-// NewPartFromExecutableCode builds a Part from a given executable code and language.
+// NewPartFromExecutableCode builds a [ExecutableCode] Part from a single piece of source code in the given [Language].
 func NewPartFromExecutableCode(code string, language Language) *Part {
 	return &Part{
 		ExecutableCode: &ExecutableCode{
@@ -586,7 +586,7 @@ func NewPartFromExecutableCode(code string, language Language) *Part {
 	}
 }
 
-// NewPartFromCodeExecutionResult builds a Part from a given outcome and output.
+// NewPartFromCodeExecutionResult builds a [CodeExecutionResult] Part from the given [Outcome] and std output.
 func NewPartFromCodeExecutionResult(outcome Outcome, output string) *Part {
 	return &Part{
 		CodeExecutionResult: &CodeExecutionResult{
@@ -607,81 +607,103 @@ type Content struct {
 	Role string `json:"role,omitempty"`
 }
 
-// NewContentFromParts builds a Content from a list of parts.
-func NewContentFromParts(parts []*Part, role string) *Content {
+type Role string
+
+const (
+	RoleUser  = "user"
+	RoleModel = "model"
+)
+
+func roleString(role Role) string {
+	if role == "" {
+		return "user"
+	}
+	return string(role)
+}
+
+// NewContentFromParts builds a Content from a list of parts and a [Role].
+// If role is the empty string, it defaults to [RoleUser].
+func NewContentFromParts(parts []*Part, role Role) *Content {
 	return &Content{
 		Parts: parts,
-		Role:  role,
+		Role:  roleString(role),
 	}
 }
 
 // NewContentFromText builds a Content from a text string.
-func NewContentFromText(text string, role string) *Content {
+// If role is the empty string, it defaults to [RoleUser].
+func NewContentFromText(text string, role Role) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromText(text),
 		},
-		Role: role,
+		Role: roleString(role),
 	}
 }
 
-// NewContentFromBytes builds a Content from a byte array and mime type.
-func NewContentFromBytes(data []byte, mimeType string, role string) *Content {
+// NewContentFromBytes builds a Content from a byte slice and mime type.
+// If role is the empty string, it defaults to [RoleUser].
+func NewContentFromBytes(data []byte, mimeType string, role Role) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromBytes(data, mimeType),
 		},
-		Role: role,
+		Role: roleString(role),
 	}
 }
 
 // NewContentFromURI builds a Content from a file URI and mime type.
-func NewContentFromURI(fileURI, mimeType string, role string) *Content {
+// If role is the empty string, it defaults to [RoleUser].
+func NewContentFromURI(fileURI, mimeType string, role Role) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromURI(fileURI, mimeType),
 		},
-		Role: role,
+		Role: roleString(role),
 	}
 }
 
-// NewContentFromFunctionCall builds a Content from a single function call.
-func NewContentFromFunctionCall(name string, args map[string]any, role string) *Content {
+// NewContentFromFunctionCall builds a Content from a single [FunctionCall] given the function name and args.
+// If role is the empty string, it defaults to [RoleUser].
+func NewContentFromFunctionCall(name string, args map[string]any, role Role) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromFunctionCall(name, args),
 		},
-		Role: role,
+		Role: roleString(role),
 	}
 }
 
-// NewContentFromFunctionResponse builds a Content from a function response.
-func NewContentFromFunctionResponse(name string, response map[string]any, role string) *Content {
+// NewContentFromFunctionResponse builds a Content from a single [FunctionResponse] given the function name and response.
+// If role is the empty string, it defaults to [RoleUser].
+func NewContentFromFunctionResponse(name string, response map[string]any, role Role) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromFunctionResponse(name, response),
 		},
-		Role: role,
+		Role: roleString(role),
 	}
 }
 
-// NewContentFromExecutableCode builds a Content from a executable code and language.
-func NewContentFromExecutableCode(code string, language Language, role string) *Content {
+// NewContentFromExecutableCode builds a Content from a single piece of source code in the given [Language].
+// If role is the empty string, it defaults to [RoleUser].
+func NewContentFromExecutableCode(code string, language Language, role Role) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromExecutableCode(code, language),
 		},
-		Role: role,
+		Role: roleString(role),
 	}
 }
 
-// NewContentFromCodeExecutionResult builds a Content from a given outcome and output.
-func NewContentFromCodeExecutionResult(outcome Outcome, output string, role string) *Content {
+// NewContentFromCodeExecutionResult builds a Content from a given [Outcome] and std output of the code execution.
+// If role is the empty string, it defaults to [RoleUser].
+func NewContentFromCodeExecutionResult(outcome Outcome, output string, role Role) *Content {
 	return &Content{
 		Parts: []*Part{
 			NewPartFromCodeExecutionResult(outcome, output),
 		},
-		Role: role,
+		Role: roleString(role),
 	}
 }
 
@@ -1070,7 +1092,7 @@ type GenerateContentConfig struct {
 	// random responses.
 	TopK *float32 `json:"topK,omitempty"`
 	// Number of response variations to return.
-	// If empty, then this will default to 1.
+	// If empty, the system will choose a default value (currently 1).
 	CandidateCount int32 `json:"candidateCount,omitempty"`
 	// Maximum number of tokens that can be generated in the response.
 	// If empty, API will use a default value. The default value varies by model.
@@ -1544,7 +1566,7 @@ func (c *GenerateContentResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
-// Optional parameters for the embed_content method.
+// Optional parameters for the EmbedContent method.
 type EmbedContentConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
@@ -1611,6 +1633,7 @@ type GenerateImagesConfig struct {
 	// Description of what to discourage in the generated images.
 	NegativePrompt string `json:"negativePrompt,omitempty"`
 	// Number of images to generate.
+	// If empty, the system will choose a default value (currently 4).
 	NumberOfImages int32 `json:"numberOfImages,omitempty"`
 	// Aspect ratio of the generated images.
 	AspectRatio string `json:"aspectRatio,omitempty"`
@@ -1802,7 +1825,7 @@ func NewStyleReferenceImage(referenceImage *Image, referenceID int32, config *St
 	}
 }
 
-// NewSubjectReferenceImage creates a new StyleReferenceImage.
+// NewSubjectReferenceImage creates a new SubjectReferenceImage.
 func NewSubjectReferenceImage(referenceImage *Image, referenceID int32, config *SubjectReferenceConfig) *SubjectReferenceImage {
 	return &SubjectReferenceImage{
 		ReferenceImage: referenceImage,
@@ -1821,6 +1844,7 @@ type EditImageConfig struct {
 	// Description of what to discourage in the generated images.
 	NegativePrompt string `json:"negativePrompt,omitempty"`
 	// Number of images to generate.
+	// If empty, the system will choose a default value (currently 4).
 	NumberOfImages int32 `json:"numberOfImages,omitempty"`
 	// Aspect ratio of the generated images.
 	AspectRatio string `json:"aspectRatio,omitempty"`
@@ -1892,7 +1916,7 @@ type GetModelConfig struct {
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
 }
 
-// An endpoint where you deploy models.
+// An endpoint where models are deployed.
 type Endpoint struct {
 	// Resource name of the endpoint.
 	Name string `json:"name,omitempty"`
@@ -2003,7 +2027,8 @@ type DeleteModelResponse struct {
 type GenerationConfig struct {
 	// Optional. If enabled, audio timestamp will be included in the request to the model.
 	AudioTimestamp bool `json:"audioTimestamp,omitempty"`
-	// Optional. Number of candidates to generate. If empty, then this will default to 1.
+	// Optional. Number of candidates to generate. If empty, the system will choose a default
+	// value (currently 1).
 	CandidateCount int32 `json:"candidateCount,omitempty"`
 	// Optional. Frequency penalties.
 	FrequencyPenalty *float32 `json:"frequencyPenalty,omitempty"`
@@ -2137,7 +2162,7 @@ type ComputeTokensResponse struct {
 type GenerateVideosConfig struct {
 	// Used to override HTTP request options.
 	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
-	// Number of output videos. If empty, API will use a default value.
+	// Number of output videos. If empty, the system will choose a default value.
 	NumberOfVideos int32 `json:"numberOfVideos,omitempty"`
 	// The GCS bucket where to save the generated videos.
 	OutputGCSURI string `json:"outputGcsUri,omitempty"`
@@ -2598,10 +2623,10 @@ func (r *MaskReferenceImage) referenceImageAPI() *referenceImageAPI {
 }
 
 // A control image is an image that represents a sketch image of areas for the model
-// to fill in based on the prompt. The image of the control reference image is either
-// a control image provided by the user, or a regular image which the backend will use
-// to generate a control image of. In the case of the latter, the enable_control_image_computation
-// field in the config should be set to true.
+// to fill in based on the prompt. Its image is either a control image provided by the
+// user, or a regular image which the backend will use to generate a control image of.
+// In the case of the latter, the EnableControlImageComputation field in the config
+// should be set to true.
 type ControlReferenceImage struct {
 	// The reference image for the editing operation.
 	ReferenceImage *Image `json:"referenceImage,omitempty"`

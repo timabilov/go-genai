@@ -24,7 +24,7 @@ func TestContentHelpers(t *testing.T) {
 	t.Run("Text", func(t *testing.T) {
 		expected := []*Content{{
 			Parts: []*Part{{Text: "Hello"}},
-			Role:  roleUser,
+			Role:  RoleUser,
 		}}
 		got := Text("Hello")
 		if diff := cmp.Diff(got, expected); diff != "" {
@@ -33,7 +33,7 @@ func TestContentHelpers(t *testing.T) {
 	})
 
 	t.Run("Content_setDefaults", func(t *testing.T) {
-		expected := &Content{Parts: []*Part{{Text: "Hello"}}, Role: roleUser}
+		expected := &Content{Parts: []*Part{{Text: "Hello"}}, Role: RoleUser}
 		got := &Content{Parts: []*Part{{Text: "Hello"}}}
 		got.setDefaults()
 		if diff := cmp.Diff(got, expected); diff != "" {
@@ -42,7 +42,7 @@ func TestContentHelpers(t *testing.T) {
 	})
 
 	t.Run("GenerateContentConfig_setDefaults", func(t *testing.T) {
-		expected := &GenerateContentConfig{SystemInstruction: &Content{Parts: []*Part{{Text: "Hello"}}, Role: roleUser}}
+		expected := &GenerateContentConfig{SystemInstruction: &Content{Parts: []*Part{{Text: "Hello"}}, Role: RoleUser}}
 		got := &GenerateContentConfig{SystemInstruction: &Content{Parts: []*Part{{Text: "Hello"}}}}
 		got.setDefaults()
 		if diff := cmp.Diff(got, expected); diff != "" {

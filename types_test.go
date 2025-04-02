@@ -365,224 +365,185 @@ func TestNewPartFromCodeExecutionResult(t *testing.T) {
 	}
 }
 
-func TestNewUserContentFromParts(t *testing.T) {
+func TestNewContentFromParts(t *testing.T) {
+	tests := []struct {
+		role     Role
+		wantRole string
+	}{
+		{role: RoleUser, wantRole: RoleUser},
+		{role: RoleModel, wantRole: RoleModel},
+		{role: "", wantRole: RoleUser},
+	}
 	parts := []*Part{
 		{Text: "Hello, world!"},
 		{Text: "This is a test."},
 	}
-	expected := &Content{
-		Parts: parts,
-		Role:  "user",
-	}
 
-	result := NewContentFromParts(parts, "user")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
+	for _, tt := range tests {
+		expected := &Content{
+			Parts: parts,
+			Role:  tt.wantRole,
+		}
+		result := NewContentFromParts(parts, tt.role)
+		if !reflect.DeepEqual(result, expected) {
+			t.Fatalf("expected %v, got %v", expected, result)
+		}
 	}
 }
 
-func TestNewUserContentFromText(t *testing.T) {
+func TestNewContentFromText(t *testing.T) {
+	tests := []struct {
+		role     Role
+		wantRole string
+	}{
+		{role: RoleUser, wantRole: RoleUser},
+		{role: RoleModel, wantRole: RoleModel},
+		{role: "", wantRole: RoleUser},
+	}
 	text := "Hello, world!"
-	expected := &Content{
-		Parts: []*Part{
-			{Text: "Hello, world!"},
-		},
-		Role: "user",
-	}
 
-	result := NewContentFromText(text, "user")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
+	for _, tt := range tests {
+		expected := &Content{
+			Parts: []*Part{
+				{Text: "Hello, world!"},
+			},
+			Role: tt.wantRole,
+		}
+		result := NewContentFromText(text, tt.role)
+		if !reflect.DeepEqual(result, expected) {
+			t.Fatalf("expected %v, got %v", expected, result)
+		}
 	}
 }
 
-func TestNewUserContentFromBytes(t *testing.T) {
+func TestNewContentFromBytes(t *testing.T) {
+	tests := []struct {
+		role     Role
+		wantRole string
+	}{
+		{role: RoleUser, wantRole: RoleUser},
+		{role: RoleModel, wantRole: RoleModel},
+		{role: "", wantRole: RoleUser},
+	}
 	data := []byte{0x01, 0x02, 0x03}
 	mimeType := "application/octet-stream"
-	expected := &Content{
-		Parts: []*Part{
-			{InlineData: &Blob{Data: data, MIMEType: mimeType}},
-		},
-		Role: "user",
-	}
 
-	result := NewContentFromBytes(data, mimeType, "user")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
+	for _, tt := range tests {
+		expected := &Content{
+			Parts: []*Part{
+				{InlineData: &Blob{Data: data, MIMEType: mimeType}},
+			},
+			Role: tt.wantRole,
+		}
+		result := NewContentFromBytes(data, mimeType, tt.role)
+		if !reflect.DeepEqual(result, expected) {
+			t.Fatalf("expected %v, got %v", expected, result)
+		}
 	}
 }
 
-func TestNewUserContentFromURI(t *testing.T) {
+func TestNewContentFromURI(t *testing.T) {
+	tests := []struct {
+		role     Role
+		wantRole string
+	}{
+		{role: RoleUser, wantRole: RoleUser},
+		{role: RoleModel, wantRole: RoleModel},
+		{role: "", wantRole: RoleUser},
+	}
 	fileURI := "http://example.com/video.mp4"
 	mimeType := "video/mp4"
-	expected := &Content{
-		Parts: []*Part{
-			{FileData: &FileData{FileURI: fileURI, MIMEType: mimeType}},
-		},
-		Role: "user",
-	}
 
-	result := NewContentFromURI(fileURI, mimeType, "user")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
+	for _, tt := range tests {
+		expected := &Content{
+			Parts: []*Part{
+				{FileData: &FileData{FileURI: fileURI, MIMEType: mimeType}},
+			},
+			Role: tt.wantRole,
+		}
+		result := NewContentFromURI(fileURI, mimeType, tt.role)
+		if !reflect.DeepEqual(result, expected) {
+			t.Fatalf("expected %v, got %v", expected, result)
+		}
 	}
 }
 
-func TestNewUserContentFromFunctionResponse(t *testing.T) {
+func TestNewContentFromFunctionResponse(t *testing.T) {
+	tests := []struct {
+		role     Role
+		wantRole string
+	}{
+		{role: RoleUser, wantRole: RoleUser},
+		{role: RoleModel, wantRole: RoleModel},
+		{role: "", wantRole: RoleUser},
+	}
 	funcName := "myFunction"
 	response := map[string]any{"result": "success"}
-	expected := &Content{
-		Parts: []*Part{
-			{FunctionResponse: &FunctionResponse{Name: funcName, Response: response}},
-		},
-		Role: "user",
-	}
 
-	result := NewContentFromFunctionResponse(funcName, response, "user")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
+	for _, tt := range tests {
+		expected := &Content{
+			Parts: []*Part{
+				{FunctionResponse: &FunctionResponse{Name: funcName, Response: response}},
+			},
+			Role: tt.wantRole,
+		}
+		result := NewContentFromFunctionResponse(funcName, response, tt.role)
+		if !reflect.DeepEqual(result, expected) {
+			t.Fatalf("expected %v, got %v", expected, result)
+		}
 	}
 }
 
-func TestNewUserContentFromExecutableCode(t *testing.T) {
+func TestNewContentFromExecutableCode(t *testing.T) {
+	tests := []struct {
+		role     Role
+		wantRole string
+	}{
+		{role: RoleUser, wantRole: RoleUser},
+		{role: RoleModel, wantRole: RoleModel},
+		{role: "", wantRole: RoleUser},
+	}
 	code := "print('Hello, world!')"
 	language := LanguagePython
-	expected := &Content{
-		Parts: []*Part{
-			{ExecutableCode: &ExecutableCode{Code: code, Language: language}},
-		},
-		Role: "user",
-	}
 
-	result := NewContentFromExecutableCode(code, language, "user")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
+	for _, tt := range tests {
+		expected := &Content{
+			Parts: []*Part{
+				{ExecutableCode: &ExecutableCode{Code: code, Language: language}},
+			},
+			Role: tt.wantRole,
+		}
+
+		result := NewContentFromExecutableCode(code, language, tt.role)
+		if !reflect.DeepEqual(result, expected) {
+			t.Fatalf("expected %v, got %v", expected, result)
+		}
 	}
 }
 
-func TestNewUserContentFromCodeExecutionResult(t *testing.T) {
+func TestNewContentFromCodeExecutionResult(t *testing.T) {
+	tests := []struct {
+		role     Role
+		wantRole string
+	}{
+		{role: RoleUser, wantRole: RoleUser},
+		{role: RoleModel, wantRole: RoleModel},
+		{role: "", wantRole: RoleUser},
+	}
 	outcome := OutcomeOK
 	output := "Execution output"
-	expected := &Content{
-		Parts: []*Part{
-			{CodeExecutionResult: &CodeExecutionResult{Outcome: outcome, Output: output}},
-		},
-		Role: "user",
-	}
 
-	result := NewContentFromCodeExecutionResult(outcome, output, "user")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
-	}
-}
+	for _, tt := range tests {
+		expected := &Content{
+			Parts: []*Part{
+				{CodeExecutionResult: &CodeExecutionResult{Outcome: outcome, Output: output}},
+			},
+			Role: tt.wantRole,
+		}
 
-func TestNewModelContentFromParts(t *testing.T) {
-	parts := []*Part{
-		{Text: "Hello, world!"},
-		{Text: "This is a test."},
-	}
-	expected := &Content{
-		Parts: parts,
-		Role:  "model",
-	}
-
-	result := NewContentFromParts(parts, "model")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
-	}
-}
-
-func TestNewModelContentFromText(t *testing.T) {
-	text := "Hello, world!"
-	expected := &Content{
-		Parts: []*Part{
-			{Text: "Hello, world!"},
-		},
-		Role: "model",
-	}
-
-	result := NewContentFromText(text, "model")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
-	}
-}
-
-func TestNewModelContentFromBytes(t *testing.T) {
-	data := []byte{0x01, 0x02, 0x03}
-	mimeType := "application/octet-stream"
-	expected := &Content{
-		Parts: []*Part{
-			{InlineData: &Blob{Data: data, MIMEType: mimeType}},
-		},
-		Role: "model",
-	}
-
-	result := NewContentFromBytes(data, mimeType, "model")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
-	}
-}
-
-func TestNewModelContentFromURI(t *testing.T) {
-	fileURI := "http://example.com/video.mp4"
-	mimeType := "video/mp4"
-	expected := &Content{
-		Parts: []*Part{
-			{FileData: &FileData{FileURI: fileURI, MIMEType: mimeType}},
-		},
-		Role: "model",
-	}
-
-	result := NewContentFromURI(fileURI, mimeType, "model")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
-	}
-}
-
-func TestNewModelContentFromFunctionCall(t *testing.T) {
-	funcName := "myFunction"
-	args := map[string]any{"arg1": "value1"}
-	expected := &Content{
-		Parts: []*Part{
-			{FunctionCall: &FunctionCall{Name: funcName, Args: args}},
-		},
-		Role: "model",
-	}
-
-	result := NewContentFromFunctionCall(funcName, args, "model")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
-	}
-}
-
-func TestNewModelContentFromExecutableCode(t *testing.T) {
-	code := "print('Hello, world!')"
-	language := LanguagePython
-	expected := &Content{
-		Parts: []*Part{
-			{ExecutableCode: &ExecutableCode{Code: code, Language: language}},
-		},
-		Role: "model",
-	}
-
-	result := NewContentFromExecutableCode(code, language, "model")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
-	}
-}
-
-func TestNewModelContentFromCodeExecutionResult(t *testing.T) {
-	outcome := OutcomeOK
-	output := "Execution output"
-	expected := &Content{
-		Parts: []*Part{
-			{CodeExecutionResult: &CodeExecutionResult{Outcome: outcome, Output: output}},
-		},
-		Role: "model",
-	}
-
-	result := NewContentFromCodeExecutionResult(outcome, output, "model")
-	if !reflect.DeepEqual(result, expected) {
-		t.Fatalf("expected %v, got %v", expected, result)
+		result := NewContentFromCodeExecutionResult(outcome, output, tt.role)
+		if !reflect.DeepEqual(result, expected) {
+			t.Fatalf("expected %v, got %v", expected, result)
+		}
 	}
 }
