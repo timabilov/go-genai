@@ -18,6 +18,9 @@ package genai
 
 import (
 	"context"
+	"io"
+	"iter"
+	"log"
 )
 
 // Chats provides util functions for creating a new chat session.
@@ -53,16 +56,11 @@ func (c *Chats) Create(ctx context.Context, model string, config *GenerateConten
 	return chat, nil
 }
 
-func (c *Chat) recordHistory(ctx context.Context, inputContent *Content, cands []*Candidate) {
+func (c *Chat) recordHistory(ctx context.Context, inputContent *Content, outputContents []*Content) {
 	c.comprehensiveHistory = append(c.comprehensiveHistory, inputContent)
 
-	// By default, use the first candidate for history. The user can modify that if they want.
-	if len(cands) > 0 {
-		content := cands[0].Content
-		if content == nil {
-			return
-		}
-		c.comprehensiveHistory = append(c.comprehensiveHistory, copySanitizedModelContent(content))
+	for _, outputContent := range outputContents {
+		c.comprehensiveHistory = append(c.comprehensiveHistory, copySanitizedModelContent(outputContent))
 	}
 }
 
@@ -77,6 +75,15 @@ func copySanitizedModelContent(modelContent *Content) *Content {
 		}
 	}
 	return newContent
+}
+
+// History returns the chat history. Curated (valid only) history is not supported yet.
+func (c *Chat) History(curated bool) []*Content {
+	if curated {
+		log.Println("curated history is not supported yet")
+		return nil
+	}
+	return c.comprehensiveHistory
 }
 
 // SendMessage sends the conversation history with the additional user's message and returns the model's response.
@@ -97,8 +104,48 @@ func (c *Chat) SendMessage(ctx context.Context, parts ...Part) (*GenerateContent
 		return nil, err
 	}
 
-	// Record history
-	c.recordHistory(ctx, inputContent, modelOutput.Candidates)
+	// Record history. By default, use the first candidate for history.
+	var outputContents []*Content
+	if len(modelOutput.Candidates) > 0 && modelOutput.Candidates[0].Content != nil {
+		outputContents = append(outputContents, modelOutput.Candidates[0].Content)
+	}
+	c.recordHistory(ctx, inputContent, outputContents)
 
 	return modelOutput, err
+}
+
+// SendMessageStream sends the conversation history with the additional user's message and returns the model's response.
+func (c *Chat) SendMessageStream(ctx context.Context, parts ...Part) iter.Seq2[*GenerateContentResponse, error] {
+	// Transform Parts to single Content
+	p := make([]*Part, len(parts))
+	for i, part := range parts {
+		p[i] = &part
+	}
+	inputContent := &Content{Parts: p, Role: "user"}
+
+	// Combine history with input content to send to model
+	contents := append(c.comprehensiveHistory, inputContent)
+
+	// Generate Content
+	response := c.GenerateContentStream(ctx, c.model, contents, c.config)
+
+	// Return a new iterator that will yield the responses and record history with merged response.
+	return func(yield func(*GenerateContentResponse, error) bool) {
+		var outputContents []*Content
+		for chunk, err := range response {
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				yield(nil, err)
+				return
+			}
+			if len(chunk.Candidates) > 0 && chunk.Candidates[0].Content != nil {
+				outputContents = append(outputContents, chunk.Candidates[0].Content)
+			}
+			yield(chunk, nil)
+		}
+		// Record history. By default, use the first candidate for history.
+		c.recordHistory(ctx, inputContent, outputContents)
+	}
 }
