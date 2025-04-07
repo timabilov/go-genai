@@ -240,18 +240,6 @@ const (
 	DeploymentResourcesTypeSharedResources DeploymentResourcesType = "SHARED_RESOURCES"
 )
 
-// RAGFile state.
-type State string
-
-const (
-	// RAGFile state is unspecified.
-	StateUnspecified State = "STATE_UNSPECIFIED"
-	// RAGFile resource has been created and indexed successfully.
-	StateActive State = "ACTIVE"
-	// RAGFile resource is in a problematic state. See `error_message` field for details.
-	StateError State = "ERROR"
-)
-
 // Config for the dynamic retrieval config mode.
 type DynamicRetrievalConfigMode string
 
@@ -2232,10 +2220,28 @@ type Video struct {
 	MIMEType string `json:"mimeType,omitempty"`
 }
 
+func (v *Video) uri() string {
+	return v.URI
+}
+
+func (v *Video) setVideoBytes(b []byte) bool {
+	v.VideoBytes = b
+	return true
+}
+
 // A generated video.
 type GeneratedVideo struct {
 	// The output video
 	Video *Video `json:"video,omitempty"`
+}
+
+func (v *GeneratedVideo) uri() string {
+	return v.Video.uri()
+}
+
+func (v *GeneratedVideo) setVideoBytes(b []byte) bool {
+	v.Video.setVideoBytes(b)
+	return true
 }
 
 // Response with generated videos.
@@ -2477,6 +2483,19 @@ type ListCachedContentsResponse struct {
 	CachedContents []*CachedContent `json:"cachedContents,omitempty"`
 }
 
+// Used to override the default configuration.
+type ListFilesConfig struct {
+	// Used to override HTTP request options.
+	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
+	// PageSize specifies the maximum number of cached contents to return per API call.
+	// If zero, the server will use a default value.
+	PageSize int32 `json:"pageSize,omitempty"`
+	// PageToken represents a token used for pagination in API responses. It's an opaque
+	// string that should be passed to subsequent requests to retrieve the next page of
+	// results. An empty PageToken typically indicates that there are no further pages available.
+	PageToken string `json:"pageToken,omitempty"`
+}
+
 // Status of a File that uses a common error model.
 type FileStatus struct {
 	// A list of messages that carry the error details. There is a common set of message
@@ -2527,29 +2546,44 @@ type File struct {
 	Error *FileStatus `json:"error,omitempty"`
 }
 
-func (f *File) MarshalJSON() ([]byte, error) {
-	type Alias File
+// DownloadURI represents a resource that can be downloaded.
+//
+// It is used to abstract the different types of resources that can be downloaded,
+// such as files or videos
+//
+// You can create instances that implement this interface using the following
+// constructor functions:
+//   - NewDownloadURIFromFile
+//   - NewDownloadURIFromVideo
+//   - NewDownloadURIFromGeneratedVideo
+//   - ...
+type DownloadURI interface {
+	uri() string
+	setVideoBytes([]byte) bool
+}
 
-	aux := &struct {
-		ExpirationTime *time.Time `json:"expirationTime,omitempty"`
-		CreateTime     *time.Time `json:"createTime,omitempty"`
-		UpdateTime     *time.Time `json:"updateTime,omitempty"`
-		*Alias
-	}{
-		Alias: (*Alias)(f),
-	}
+// NewDownloadURIFromFile creates a DownloadURI from a [File].
+func NewDownloadURIFromFile(f *File) DownloadURI {
+	return f
+}
 
-	if !f.ExpirationTime.IsZero() {
-		aux.ExpirationTime = &f.ExpirationTime
-	}
-	if !f.CreateTime.IsZero() {
-		aux.CreateTime = &f.CreateTime
-	}
-	if !f.UpdateTime.IsZero() {
-		aux.UpdateTime = &f.UpdateTime
-	}
+// NewDownloadURIFromVideo creates a DownloadURI from a [Video].
+func NewDownloadURIFromVideo(v *Video) DownloadURI {
+	return v
+}
 
-	return json.Marshal(aux)
+// NewDownloadURIFromVideo creates a DownloadURI from a [GeneratedVideo].
+func NewDownloadURIFromGeneratedVideo(v *GeneratedVideo) DownloadURI {
+	return v
+}
+
+func (f *File) uri() string {
+	return f.DownloadURI
+}
+
+func (f *File) setVideoBytes(b []byte) bool {
+	// File does not support setting video bytes.
+	return false
 }
 
 func (f *File) UnmarshalJSON(data []byte) error {
@@ -2576,6 +2610,43 @@ func (f *File) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (f *File) MarshalJSON() ([]byte, error) {
+	type Alias File
+	aux := struct {
+		SizeBytes      string     `json:"sizeBytes,omitempty"`
+		ExpirationTime *time.Time `json:"expirationTime,omitempty"`
+		CreateTime     *time.Time `json:"createTime,omitempty"`
+		UpdateTime     *time.Time `json:"updateTime,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(f),
+	}
+
+	if f.SizeBytes != nil {
+		aux.SizeBytes = strconv.FormatInt(*f.SizeBytes, 10)
+	}
+
+	if !f.ExpirationTime.IsZero() {
+		aux.ExpirationTime = &f.ExpirationTime
+	}
+	if !f.CreateTime.IsZero() {
+		aux.CreateTime = &f.CreateTime
+	}
+	if !f.UpdateTime.IsZero() {
+		aux.UpdateTime = &f.UpdateTime
+	}
+
+	return json.Marshal(aux)
+}
+
+// Response for the list files method.
+type ListFilesResponse struct {
+	// A token to retrieve next page of results.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+	// The list of files.
+	Files []*File `json:"files,omitempty"`
+}
+
 // Used to override the default configuration.
 type CreateFileConfig struct {
 	// Used to override HTTP request options.
@@ -2586,6 +2657,22 @@ type CreateFileConfig struct {
 type CreateFileResponse struct {
 	// Used to retain the HTTP headers in the request
 	HTTPHeaders http.Header `json:"httpHeaders,omitempty"`
+}
+
+// Used to override the default configuration.
+type GetFileConfig struct {
+	// Used to override HTTP request options.
+	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
+}
+
+// Used to override the default configuration.
+type DeleteFileConfig struct {
+	// Used to override HTTP request options.
+	HTTPOptions *HTTPOptions `json:"httpOptions,omitempty"`
+}
+
+// Response for the delete file method.
+type DeleteFileResponse struct {
 }
 
 type GetOperationConfig struct {

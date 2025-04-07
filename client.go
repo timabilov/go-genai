@@ -37,10 +37,10 @@ type Client struct {
 	Caches *Caches
 	// Chats provides util functions for creating a new chat session.
 	Chats *Chats
-	// Operations provides access to long-running operations.
-	Operations *Operations
 	// Files provides access to the Files service.
 	Files *Files
+	// Operations provides access to long-running operations.
+	Operations *Operations
 }
 
 // Backend is the GenAI backend to use for the client.

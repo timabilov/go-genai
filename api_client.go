@@ -25,6 +25,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	// "net/http/httputil"
 	"net/url"
 	"os"
 	"runtime"
@@ -68,6 +69,19 @@ func sendRequest(ctx context.Context, ac *apiClient, path string, method string,
 	defer resp.Body.Close()
 
 	return deserializeUnaryResponse(resp)
+}
+
+func downloadFile(ctx context.Context, ac *apiClient, path string, httpOptions *HTTPOptions) ([]byte, error) {
+	req, err := buildRequest(ctx, ac, path, nil, http.MethodGet, httpOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := doRequest(ac, req)
+	if err != nil {
+		return nil, err
+	}
+	return io.ReadAll(resp.Body)
 }
 
 func mapToStruct[R any](input map[string]any, output *R) error {
