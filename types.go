@@ -1252,6 +1252,8 @@ type GroundingChunkRetrievedContext struct {
 
 // Chunk from the web.
 type GroundingChunkWeb struct {
+	// Domain of the (original) URI.
+	Domain string `json:"domain,omitempty"`
 	// Title of the chunk.
 	Title string `json:"title,omitempty"`
 	// URI reference of the chunk.
