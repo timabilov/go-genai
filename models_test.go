@@ -16,14 +16,19 @@ package genai
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 // Stream test runs in api mode but read _test_table.json for retrieving test params.
@@ -175,6 +180,112 @@ func TestModelsGenerateVideosText2VideoPoll(t *testing.T) {
 			}
 			if operation.Response.GeneratedVideos[0].Video.URI == "" && operation.Response.GeneratedVideos[0].Video.VideoBytes == nil {
 				t.Fatalf("expected generated video to have either URI or video bytes")
+			}
+		})
+	}
+}
+
+func TestModelsAll(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name            string
+		serverResponses []map[string]any
+		expectedModels  []*Model
+	}{
+		{
+			name: "Pagination_SinglePage",
+			serverResponses: []map[string]any{
+				{
+					"models": []*Model{
+						{Name: "model1", DisplayName: "Model 1"},
+						{Name: "model2", DisplayName: "Model 2"},
+					},
+					"nextPageToken": "",
+				},
+			},
+			expectedModels: []*Model{
+				{Name: "model1", DisplayName: "Model 1", TunedModelInfo: &TunedModelInfo{}},
+				{Name: "model2", DisplayName: "Model 2", TunedModelInfo: &TunedModelInfo{}},
+			},
+		},
+		{
+			name: "Pagination_MultiplePages",
+			serverResponses: []map[string]any{
+				{
+					"models": []*Model{
+						{Name: "model1", DisplayName: "Model 1"},
+					},
+					"nextPageToken": "next_page_token",
+				},
+				{
+					"models": []*Model{
+						{Name: "model2", DisplayName: "Model 2"},
+						{Name: "model3", DisplayName: "Model 3"},
+					},
+					"nextPageToken": "",
+				},
+			},
+			expectedModels: []*Model{
+				{Name: "model1", DisplayName: "Model 1", TunedModelInfo: &TunedModelInfo{}},
+				{Name: "model2", DisplayName: "Model 2", TunedModelInfo: &TunedModelInfo{}},
+				{Name: "model3", DisplayName: "Model 3", TunedModelInfo: &TunedModelInfo{}},
+			},
+		},
+		{
+			name:            "Empty_Response",
+			serverResponses: []map[string]any{{"models": []*Model{}, "nextPageToken": ""}},
+			expectedModels:  []*Model{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			responseIndex := 0
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if responseIndex > 0 && r.URL.Query().Get("pageToken") == "" {
+					t.Errorf("Models.All() failed to pass pageToken in the request")
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+				response, err := json.Marshal(tt.serverResponses[responseIndex])
+				if err != nil {
+					t.Errorf("Failed to marshal response: %v", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusOK)
+				_, err = w.Write(response)
+				if err != nil {
+					t.Errorf("Failed to write response: %v", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				responseIndex++
+			}))
+			defer ts.Close()
+
+			client, err := NewClient(ctx, &ClientConfig{HTTPOptions: HTTPOptions{BaseURL: ts.URL},
+				envVarProvider: func() map[string]string {
+					return map[string]string{
+						"GOOGLE_API_KEY": "test-api-key",
+					}
+				},
+			})
+			if err != nil {
+				t.Fatalf("Failed to create client: %v", err)
+			}
+
+			gotModels := []*Model{}
+			for model, err := range client.Models.All(ctx) {
+				if err != nil {
+					t.Errorf("Models.All() iteration error = %v", err)
+					return
+				}
+				gotModels = append(gotModels, model)
+			}
+
+			if diff := cmp.Diff(tt.expectedModels, gotModels); diff != "" {
+				t.Errorf("Models.All() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

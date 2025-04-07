@@ -2,6 +2,7 @@ package genai
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -154,4 +155,112 @@ func TestFilesDownload(t *testing.T) {
 			t.Errorf("Files.Download() error = %v, want error containing 'method Upload is only supported in the Gemini Developer client'", err)
 		}
 	})
+}
+
+func TestFilesAll(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name              string
+		serverResponses   []map[string]any
+		expectedFiles     []*File
+		expectedNextPages []string
+	}{
+		{
+			name: "Pagination_SinglePage",
+			serverResponses: []map[string]any{
+				{
+					"files": []*File{
+						{Name: "file1", DisplayName: "File 1"},
+						{Name: "file2", DisplayName: "File 2"},
+					},
+					"nextPageToken": "",
+				},
+			},
+			expectedFiles: []*File{
+				{Name: "file1", DisplayName: "File 1"},
+				{Name: "file2", DisplayName: "File 2"},
+			},
+		},
+		{
+			name: "Pagination_MultiplePages",
+			serverResponses: []map[string]any{
+				{
+					"files": []*File{
+						{Name: "file1", DisplayName: "File 1"},
+					},
+					"nextPageToken": "next_page_token",
+				},
+				{
+					"files": []*File{
+						{Name: "file2", DisplayName: "File 2"},
+						{Name: "file3", DisplayName: "File 3"},
+					},
+					"nextPageToken": "",
+				},
+			},
+			expectedFiles: []*File{
+				{Name: "file1", DisplayName: "File 1"},
+				{Name: "file2", DisplayName: "File 2"},
+				{Name: "file3", DisplayName: "File 3"},
+			},
+		},
+		{
+			name:              "Empty_Response",
+			serverResponses:   []map[string]any{{"files": []*File{}, "nextPageToken": ""}},
+			expectedFiles:     []*File{},
+			expectedNextPages: []string{""},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			responseIndex := 0
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if responseIndex > 0 && r.URL.Query().Get("pageToken") == "" {
+					t.Errorf("Files.All() failed to pass pageToken in the request")
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+				response, err := json.Marshal(tt.serverResponses[responseIndex])
+				if err != nil {
+					t.Errorf("Failed to marshal response: %v", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusOK)
+				_, err = w.Write(response)
+				if err != nil {
+					t.Errorf("Failed to write response: %v", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				responseIndex++
+			}))
+			defer ts.Close()
+
+			client, err := NewClient(ctx, &ClientConfig{HTTPOptions: HTTPOptions{BaseURL: ts.URL},
+				envVarProvider: func() map[string]string {
+					return map[string]string{
+						"GOOGLE_API_KEY": "test-api-key",
+					}
+				},
+			})
+			if err != nil {
+				t.Fatalf("Failed to create client: %v", err)
+			}
+
+			gotFiles := []*File{}
+			for file, err := range client.Files.All(ctx) {
+				if err != nil {
+					t.Errorf("Files.All() iteration error = %v", err)
+					return
+				}
+				gotFiles = append(gotFiles, file)
+			}
+
+			if diff := cmp.Diff(tt.expectedFiles, gotFiles); diff != "" {
+				t.Errorf("Files.All() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
 }

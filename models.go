@@ -4846,8 +4846,16 @@ func (m Models) List(ctx context.Context, config *ListModelsConfig) (Page[Model]
 // content entry one by one. You do not need to manage pagination
 // tokens or make multiple calls to retrieve all data.
 func (m Models) All(ctx context.Context) iter.Seq2[*Model, error] {
-	listFunc := func(ctx context.Context, _ map[string]any) ([]*Model, string, error) {
-		resp, err := m.list(ctx, &ListModelsConfig{QueryBase: Ptr(true)})
+	listFunc := func(ctx context.Context, config map[string]any) ([]*Model, string, error) {
+		var c ListModelsConfig
+		if err := mapToStruct(config, &c); err != nil {
+			return nil, "", err
+		}
+		if c.QueryBase == nil {
+			c.QueryBase = Ptr(true)
+		}
+
+		resp, err := m.list(ctx, &c)
 		if err != nil {
 			return nil, "", err
 		}
