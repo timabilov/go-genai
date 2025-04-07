@@ -23,11 +23,16 @@ import (
 	"io"
 	"iter"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"runtime"
+	"strconv"
 	"strings"
 )
+
+const maxChunkSize = 8 * 1024 * 1024 // 8 MB chunk size
 
 type apiClient struct {
 	clientConfig *ClientConfig
@@ -90,7 +95,10 @@ func (ac *apiClient) createAPIURL(suffix, method string, httpOptions *HTTPOption
 		}
 		return u, nil
 	} else {
-		u, err := url.Parse(fmt.Sprintf("%s/%s/%s", httpOptions.BaseURL, httpOptions.APIVersion, suffix))
+		if !strings.Contains(suffix, fmt.Sprintf("/%s/", httpOptions.APIVersion)) {
+			suffix = fmt.Sprintf("%s/%s", httpOptions.APIVersion, suffix)
+		}
+		u, err := url.Parse(fmt.Sprintf("%s/%s", httpOptions.BaseURL, suffix))
 		if err != nil {
 			return nil, fmt.Errorf("createAPIURL: error parsing ML Dev URL: %w", err)
 		}
@@ -155,10 +163,13 @@ func deserializeUnaryResponse(resp *http.Response) (map[string]any, error) {
 	}
 
 	output := make(map[string]any)
-	err = json.Unmarshal(respBody, &output)
-	if err != nil {
-		return nil, fmt.Errorf("deserializeUnaryResponse: error unmarshalling response: %w\n%s", err, respBody)
+	if len(respBody) > 0 {
+		err = json.Unmarshal(respBody, &output)
+		if err != nil {
+			return nil, fmt.Errorf("deserializeUnaryResponse: error unmarshalling response: %w\n%s", err, respBody)
+		}
 	}
+	output["httpHeaders"] = resp.Header
 	return output, nil
 }
 
@@ -313,4 +324,88 @@ func scan(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	}
 	// Request more data.
 	return 0, nil, nil
+}
+
+func (ac *apiClient) uploadFileFromPath(ctx context.Context, filePath string, uploadURL string, uploadSize int64, httpOptions *HTTPOptions) (*File, error) {
+	r, err := os.Open(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to open file")
+	}
+	defer r.Close()
+
+	return ac.uploadFile(ctx, r, uploadURL, uploadSize, httpOptions)
+}
+
+func (ac *apiClient) uploadFile(ctx context.Context, r io.Reader, uploadURL string, uploadSize int64, httpOptions *HTTPOptions) (*File, error) {
+	var offset int64 = 0
+	var resp *http.Response
+	var respBody map[string]any
+	var uploadCommand = "upload"
+
+	for {
+		chunkSize := int64(math.Min(maxChunkSize, float64(uploadSize-offset)))
+		if offset+chunkSize >= uploadSize {
+			uploadCommand += ", finalize"
+		}
+		buffer := make([]byte, chunkSize)
+		bytesRead, err := r.Read(buffer)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to read %d bytes from file at offset %d: %w", chunkSize, offset, err)
+		}
+
+		if int64(bytesRead) != chunkSize {
+			return nil, fmt.Errorf("Failed to read %d bytes from file at offset %d. bytes actually read: %d", chunkSize, offset, bytesRead)
+		}
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, uploadURL, bytes.NewReader(buffer[:bytesRead]))
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create upload request for chunk at offset %d: %w", offset, err)
+		}
+		doMergeHeaders(httpOptions.Headers, &req.Header)
+		doMergeHeaders(sdkHeader(ac), &req.Header)
+
+		req.Header.Set("X-Goog-Upload-Command", uploadCommand)
+		req.Header.Set("X-Goog-Upload-Offset", strconv.FormatInt(offset, 10))
+		req.Header.Set("Content-Length", strconv.FormatInt(chunkSize, 10))
+
+		resp, err = doRequest(ac, req)
+		if err != nil {
+			return nil, fmt.Errorf("upload request failed for chunk at offset %d: %w", offset, err)
+		}
+		defer resp.Body.Close()
+
+		respBody, err = deserializeUnaryResponse(resp)
+		if err != nil {
+			return nil, fmt.Errorf("response body is invalid for chunk at offset %d: %w", offset, err)
+		}
+
+		offset += chunkSize
+
+		uploadStatus := resp.Header.Get("X-Goog-Upload-Status")
+		if uploadStatus != "active" {
+			// Upload is complete ('final') or interrupted ('cancelled', etc.)
+			break
+		}
+
+		if uploadSize <= offset {
+			// Status is not finalized.
+			return nil, fmt.Errorf("All content has been uploaded, but the upload status is not finalized")
+		}
+	}
+
+	if resp == nil {
+		return nil, fmt.Errorf("Upload request failed. No response received")
+	}
+
+	finalUploadStatus := resp.Header.Get("X-Goog-Upload-Status")
+	if finalUploadStatus != "final" {
+		return nil, fmt.Errorf("Failed to upload file: Upload status is not finalized")
+	}
+
+	var response = new(File)
+	err := mapToStruct(respBody["file"].(map[string]any), &response)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
 }

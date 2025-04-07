@@ -39,6 +39,8 @@ type Client struct {
 	Chats *Chats
 	// Operations provides access to long-running operations.
 	Operations *Operations
+	// Files provides access to the Files service.
+	Files *Files
 }
 
 // Backend is the GenAI backend to use for the client.
@@ -256,6 +258,7 @@ func NewClient(ctx context.Context, cc *ClientConfig) (*Client, error) {
 		Caches:       &Caches{apiClient: ac},
 		Chats:        &Chats{apiClient: ac},
 		Operations:   &Operations{apiClient: ac},
+		Files:        &Files{apiClient: ac},
 	}
 	return c, nil
 }
