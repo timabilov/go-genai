@@ -264,7 +264,7 @@ func TestChatsHistory(t *testing.T) {
 			}
 
 			// Curated history is not supported
-			history = chat.History(false)
+			history = chat.History(true)
 			if history != nil {
 				log.Fatal("Curated history should return nil since it is not supported yet")
 			}
