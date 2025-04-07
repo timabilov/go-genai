@@ -20,8 +20,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -43,10 +45,18 @@ type Session struct {
 	apiClient *apiClient
 }
 
+var (
+	experimentalWarningLiveConnect sync.Once
+)
+
 // Connect establishes a realtime connection to the specified model with given configuration.
 // It returns a Session object representing the connection or an error if the connection fails.
 // The live module is experimental.
 func (r *Live) Connect(context context.Context, model string, config *LiveConnectConfig) (*Session, error) {
+	experimentalWarningLiveConnect.Do(func() {
+		log.Println("Warning: The Live API is experimental and may change in future versions.")
+	})
+
 	httpOptions := r.apiClient.clientConfig.HTTPOptions
 	if httpOptions.APIVersion == "" {
 		return nil, fmt.Errorf("live module requires APIVersion to be set. You can set APIVersion to v1beta1 for BackendVertexAI or v1apha for BackendGeminiAPI")
@@ -130,10 +140,67 @@ func (r *Live) Connect(context context.Context, model string, config *LiveConnec
 	return s, nil
 }
 
+// LiveClientContentInput is the input for [SendClientContent].
+type LiveClientContentInput struct {
+	// The content appended to the current conversation with the model.
+	// For single-turn queries, this is a single instance. For multi-turn
+	// queries, this is a repeated field that contains conversation history and
+	// latest request.
+	turns []*Content
+	// TurnComplete is default to true, indicating that the server content generation should
+	// start with the currently accumulated prompt. If set to false, the server will await
+	// additional messages, accumulating the prompt, and start generation until received a
+	// TurnComplete true message.
+	TurnComplete *bool `json:"turnComplete,omitempty"`
+}
+
+// SendClientContent transmits a [LiveClientContent] over the established connection.
+// It returns an error if sending the message fails.
+// The live module is experimental.
+func (s *Session) SendClientContent(input LiveClientContentInput) error {
+	if input.TurnComplete == nil {
+		input.TurnComplete = Ptr(true)
+	}
+	clientMessage := &LiveClientMessage{
+		ClientContent: &LiveClientContent{Turns: input.turns, TurnComplete: *input.TurnComplete},
+	}
+	return s.send(clientMessage)
+}
+
+// LiveRealtimeInput is the input for [SendRealtimeInput].
+type LiveRealtimeInput struct {
+	media *Blob
+}
+
+// SendRealtimeInput transmits a [LiveClientRealtimeInput] over the established connection.
+// It returns an error if sending the message fails.
+// The live module is experimental.
+func (s *Session) SendRealtimeInput(input LiveRealtimeInput) error {
+	clientMessage := &LiveClientMessage{
+		RealtimeInput: &LiveClientRealtimeInput{MediaChunks: []*Blob{input.media}},
+	}
+	return s.send(clientMessage)
+}
+
+// LiveToolResponseInput is the input for [SendToolResponse].
+type LiveToolResponseInput struct {
+	FunctionResponses []*FunctionResponse
+}
+
+// SendToolResponse transmits a [LiveClientToolResponse] over the established connection.
+// It returns an error if sending the message fails.
+// The live module is experimental.
+func (s *Session) SendToolResponse(input LiveToolResponseInput) error {
+	clientMessage := &LiveClientMessage{
+		ToolResponse: &LiveClientToolResponse{FunctionResponses: input.FunctionResponses},
+	}
+	return s.send(clientMessage)
+}
+
 // Send transmits a LiveClientMessage over the established connection.
 // It returns an error if sending the message fails.
 // The live module is experimental.
-func (s *Session) Send(input *LiveClientMessage) error {
+func (s *Session) send(input *LiveClientMessage) error {
 	if input.Setup != nil {
 		return fmt.Errorf("message SetUp is not supported in Send(). Use Connect() instead")
 	}
