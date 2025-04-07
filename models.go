@@ -525,6 +525,9 @@ func generateContentConfigToMldev(ac *apiClient, fromObject map[string]any, pare
 	fromTools := getValueByPath(fromObject, []string{"tools"})
 	if fromTools != nil {
 		fromTools, err = applyItemTransformerToSlice(ac, fromTools.([]any), tTool)
+		if err != nil {
+			return nil, err
+		}
 
 		fromTools, err = tTools(ac, fromTools)
 		if err != nil {
@@ -1651,6 +1654,9 @@ func generateContentConfigToVertex(ac *apiClient, fromObject map[string]any, par
 	fromTools := getValueByPath(fromObject, []string{"tools"})
 	if fromTools != nil {
 		fromTools, err = applyItemTransformerToSlice(ac, fromTools.([]any), tTool)
+		if err != nil {
+			return nil, err
+		}
 
 		fromTools, err = tTools(ac, fromTools)
 		if err != nil {
