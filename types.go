@@ -210,6 +210,19 @@ const (
 	BlockedReasonProhibitedContent BlockedReason = "PROHIBITED_CONTENT"
 )
 
+// Traffic type. This shows whether a request consumes Pay-As-You-Go or Provisioned
+// Throughput quota.
+type TrafficType string
+
+const (
+	// Unspecified request traffic type.
+	TrafficTypeUnspecified TrafficType = "TRAFFIC_TYPE_UNSPECIFIED"
+	// Type for Pay-As-You-Go traffic.
+	TrafficTypeOnDemand TrafficType = "ON_DEMAND"
+	// Type for Provisioned Throughput traffic.
+	TrafficTypeProvisionedThroughput TrafficType = "PROVISIONED_THROUGHPUT"
+)
+
 // Server content modalities.
 type Modality string
 
@@ -1443,6 +1456,9 @@ type GenerateContentResponseUsageMetadata struct {
 	ToolUsePromptTokensDetails []*ModalityTokenCount `json:"toolUsePromptTokensDetails,omitempty"`
 	// Total token count for prompt, response candidates, and tool-use prompts (if present).
 	TotalTokenCount int32 `json:"totalTokenCount,omitempty"`
+	// Output only. Traffic type. This shows whether a request consumes Pay-As-You-Go or
+	// Provisioned Throughput quota.
+	TrafficType TrafficType `json:"trafficType,omitempty"`
 }
 
 // Response message for PredictionService.GenerateContent.
