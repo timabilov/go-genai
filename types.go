@@ -373,6 +373,58 @@ const (
 	FileSourceGenerated   FileSource = "GENERATED"
 )
 
+// Start of speech sensitivity.
+type StartSensitivity string
+
+const (
+	// The default is START_SENSITIVITY_LOW.
+	StartSensitivityUnspecified StartSensitivity = "START_SENSITIVITY_UNSPECIFIED"
+	// Automatic detection will detect the start of speech more often.
+	StartSensitivityHigh StartSensitivity = "START_SENSITIVITY_HIGH"
+	// Automatic detection will detect the start of speech less often.
+	StartSensitivityLow StartSensitivity = "START_SENSITIVITY_LOW"
+)
+
+// End of speech sensitivity.
+type EndSensitivity string
+
+const (
+	// The default is END_SENSITIVITY_LOW.
+	EndSensitivityUnspecified EndSensitivity = "END_SENSITIVITY_UNSPECIFIED"
+	// Automatic detection ends speech more often.
+	EndSensitivityHigh EndSensitivity = "END_SENSITIVITY_HIGH"
+	// Automatic detection ends speech less often.
+	EndSensitivityLow EndSensitivity = "END_SENSITIVITY_LOW"
+)
+
+// The different ways of handling user activity.
+type ActivityHandling string
+
+const (
+	// If unspecified, the default behavior is `START_OF_ACTIVITY_INTERRUPTS`.
+	ActivityHandlingUnspecified ActivityHandling = "ACTIVITY_HANDLING_UNSPECIFIED"
+	// If true, start of activity will interrupt the model's response (also called "barge
+	// in"). The model's current response will be cut-off in the moment of the interruption.
+	// This is the default behavior.
+	ActivityHandlingStartOfActivityInterrupts ActivityHandling = "START_OF_ACTIVITY_INTERRUPTS"
+	// The model's response will not be interrupted.
+	ActivityHandlingNoInterruption ActivityHandling = "NO_INTERRUPTION"
+)
+
+// Options about which input is included in the user's turn.
+type TurnCoverage string
+
+const (
+	// If unspecified, the default behavior is `TURN_INCLUDES_ONLY_ACTIVITY`.
+	TurnCoverageUnspecified TurnCoverage = "TURN_COVERAGE_UNSPECIFIED"
+	// The users turn only includes activity since the last turn, excluding inactivity (e.g.
+	// silence on the audio stream). This is the default behavior.
+	TurnCoverageTurnIncludesOnlyActivity TurnCoverage = "TURN_INCLUDES_ONLY_ACTIVITY"
+	// The users turn includes all realtime input since the last turn, including inactivity
+	// (e.g. silence on the audio stream).
+	TurnCoverageTurnIncludesAllInput TurnCoverage = "TURN_INCLUDES_ALL_INPUT"
+)
+
 // Server content modalities.
 type MediaModality string
 
@@ -3011,6 +3063,38 @@ type LiveServerMessage struct {
 	ToolCallCancellation *LiveServerToolCallCancellation `json:"toolCallCancellation,omitempty"`
 }
 
+// Configures automatic detection of activity.
+type AutomaticActivityDetection struct {
+	// If enabled, detected voice and text input count as activity. If disabled, the client
+	// must send activity signals.
+	Disabled bool `json:"disabled,omitempty"`
+	// Determines how likely speech is to be detected.
+	StartOfSpeechSensitivity StartSensitivity `json:"startOfSpeechSensitivity,omitempty"`
+	// Determines how likely detected speech is ended.
+	EndOfSpeechSensitivity EndSensitivity `json:"endOfSpeechSensitivity,omitempty"`
+	// The required duration of detected speech before start-of-speech is committed. The
+	// lower this value the more sensitive the start-of-speech detection is and the shorter
+	// speech can be recognized. However, this also increases the probability of false positives.
+	PrefixPaddingMs int32 `json:"prefixPaddingMs,omitempty"`
+	// The required duration of detected non-speech (e.g. silence) before end-of-speech
+	// is committed. The larger this value, the longer speech gaps can be without interrupting
+	// the user's activity but this will increase the model's latency.
+	SilenceDurationMs int32 `json:"silenceDurationMs,omitempty"`
+}
+
+// Marks the end of user activity.
+// This can only be sent if automatic (i.e. server-side) activity detection is
+// disabled.
+type RealtimeInputConfig struct {
+	// If not set, automatic activity detection is enabled by default. If automatic voice
+	// detection is disabled, the client must send activity signals.
+	AutomaticActivityDetection *AutomaticActivityDetection `json:"automaticActivityDetection,omitempty"`
+	// Defines what effect activity has.
+	ActivityHandling ActivityHandling `json:"activityHandling,omitempty"`
+	// Defines which input is included in the user's turn.
+	TurnCoverage TurnCoverage `json:"turnCoverage,omitempty"`
+}
+
 // Configuration of session resumption mechanism.
 // Included in `LiveConnectConfig.session_resumption`. If included server
 // will send `LiveServerSessionResumptionUpdate` messages.
@@ -3057,6 +3141,18 @@ type LiveClientContent struct {
 	// the currently accumulated prompt. Otherwise, the server will await
 	// additional messages before starting generation.
 	TurnComplete bool `json:"turnComplete,omitempty"`
+}
+
+// Marks the start of user activity.
+// This can only be sent if automatic (i.e. server-side) activity detection is
+// disabled.
+type ActivityStart struct {
+}
+
+// Marks the end of user activity.
+// This can only be sent if automatic (i.e. server-side) activity detection is
+// disabled.
+type ActivityEnd struct {
 }
 
 // User input that is sent in real time.
