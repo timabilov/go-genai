@@ -2957,6 +2957,37 @@ type LiveServerToolCallCancellation struct {
 	IDs []string `json:"ids,omitempty"`
 }
 
+// Server will not be able to service client soon.
+type LiveServerGoAway struct {
+	// The remaining time before the connection will be terminated as ABORTED. The minimal
+	// time returned here is specified differently together with the rate limits for a given
+	// model.
+	TimeLeft time.Duration `json:"timeLeft,omitempty"`
+}
+
+// Update of the session resumption state.
+// Only sent if `session_resumption` was set in the connection config.
+type LiveServerSessionResumptionUpdate struct {
+	// New handle that represents state that can be resumed. Empty if `resumable`=false.
+	NewHandle string `json:"newHandle,omitempty"`
+	// True if session can be resumed at this point. It might be not possible to resume
+	// session at some points. In that case we send update empty new_handle and resumable=false.
+	// Example of such case could be model executing function calls or just generating.
+	// Resuming session (using previous session token) in such state will result in some
+	// data loss.
+	Resumable bool `json:"resumable,omitempty"`
+	// Index of last message sent by client that is included in state represented by this
+	// SessionResumptionToken. Only sent when `SessionResumptionConfig.transparent` is set.
+	// Presence of this index allows users to transparently reconnect and avoid issue of
+	// losing some part of realtime audio input/video. If client wishes to temporarily disconnect
+	// (for example as result of receiving GoAway) they can do it without losing state by
+	// buffering messages sent since last `SessionResmumptionTokenUpdate`. This field will
+	// enable them to limit buffering (avoid keeping all requests in RAM).
+	// Note: This should not be used for when resuming a session at some time later -- in
+	// those cases partial audio and video frames arelikely not needed.
+	LastConsumedClientMessageIndex int64 `json:"lastConsumedClientMessageIndex,omitempty"`
+}
+
 // Response message for API call.
 type LiveServerMessage struct {
 	// Sent in response to a `LiveClientSetup` message from the client.
@@ -2969,6 +3000,18 @@ type LiveServerMessage struct {
 	// Notification for the client that a previously issued `ToolCallMessage` with the specified
 	// `id`s should have been not executed and should be cancelled.
 	ToolCallCancellation *LiveServerToolCallCancellation `json:"toolCallCancellation,omitempty"`
+}
+
+// Configuration of session resumption mechanism.
+// Included in `LiveConnectConfig.session_resumption`. If included server
+// will send `LiveServerSessionResumptionUpdate` messages.
+type SessionResumptionConfig struct {
+	// Session resumption handle of previous session (session to restore).
+	// If not present new session will be started.
+	Handle string `json:"handle,omitempty"`
+	// If set the server will send `last_consumed_client_message_index` in the `session_resumption_update`
+	// messages to allow for transparent reconnections.
+	Transparent bool `json:"transparent,omitempty"`
 }
 
 // Message contains configuration that will apply for the duration of the streaming
