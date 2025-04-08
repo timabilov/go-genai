@@ -2,6 +2,7 @@ package genai
 
 import (
 	"encoding/json"
+	"reflect"
 	"testing"
 	"time"
 
@@ -381,7 +382,7 @@ func TestMarshalJSON(t *testing.T) {
 				Title:           "Test Title",
 				URI:             "https://example.com",
 			},
-			want:    `{"publicationDate":"2023-10-26","endIndex":10,"license":"MIT","startIndex":5,"title":"Test Title","uri":"https://example.com"}`,
+			want:    `{"publicationDate":{"day":26,"month":10,"year":2023},"endIndex":10,"license":"MIT","startIndex":5,"title":"Test Title","uri":"https://example.com"}`,
 			wantErr: false,
 			target:  "Citation",
 		},
@@ -399,9 +400,9 @@ func TestMarshalJSON(t *testing.T) {
 			input: &TokensInfo{
 				Role:     "user",
 				TokenIDs: []int64{1, 2, 3},
-				Tokens:   [][]byte{},
+				Tokens:   [][]byte{[]byte("test")},
 			},
-			want:    `{"tokenIds":["1","2","3"],"role":"user"}`,
+			want:    `{"tokenIds":["1","2","3"],"role":"user","tokens":["dGVzdA=="]}`,
 			wantErr: false,
 			target:  "TokensInfo",
 		},
@@ -516,6 +517,46 @@ func TestMarshalJSON(t *testing.T) {
 			wantErr: false,
 			target:  "VideoMetadata",
 		},
+		// File tests
+		{
+			name:    "File empty",
+			input:   &File{},
+			want:    `{}`,
+			wantErr: false,
+			target:  "File",
+		},
+		{
+			name: "File with all fields",
+			input: &File{
+				Name:           "files/test-file",
+				DisplayName:    "Test File",
+				MIMEType:       "image/jpeg",
+				SizeBytes:      Ptr[int64](1024),
+				CreateTime:     time.Date(2024, 12, 31, 23, 59, 59, 0, time.UTC),
+				ExpirationTime: time.Date(2025, 12, 31, 23, 59, 59, 0, time.UTC),
+				UpdateTime:     time.Date(2025, 01, 01, 0, 0, 0, 0, time.UTC),
+				Sha256Hash:     "test-hash",
+				URI:            "https://example.com/test-file",
+				DownloadURI:    "https://example.com/download/test-file",
+				State:          "ACTIVE",
+				Source:         "UPLOADED",
+				VideoMetadata:  map[string]any{"test": "test"},
+				Error:          &FileStatus{Message: "test error"},
+			},
+			want:    `{"name":"files/test-file","displayName":"Test File","mimeType":"image/jpeg","sha256Hash":"test-hash","uri":"https://example.com/test-file","downloadUri":"https://example.com/download/test-file","state":"ACTIVE","source":"UPLOADED","videoMetadata":{"test":"test"},"error":{"message":"test error"},"sizeBytes":"1024","expirationTime":"2025-12-31T23:59:59Z","createTime":"2024-12-31T23:59:59Z","updateTime":"2025-01-01T00:00:00Z"}`,
+			wantErr: false,
+			target:  "File",
+		},
+		{
+			name: "File with empty time",
+			input: &File{
+				Name:      "files/test-file",
+				SizeBytes: Ptr[int64](1024),
+			},
+			want:    `{"name":"files/test-file","sizeBytes":"1024"}`,
+			wantErr: false,
+			target:  "File",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -540,6 +581,8 @@ func TestMarshalJSON(t *testing.T) {
 				got, err = json.Marshal(tt.input.(*UpdateCachedContentConfig))
 			case "VideoMetadata":
 				got, err = json.Marshal(tt.input.(*VideoMetadata))
+			case "File":
+				got, err = json.Marshal(tt.input.(*File))
 			default:
 				t.Fatalf("unknown target: %s", tt.target)
 			}
@@ -553,6 +596,17 @@ func TestMarshalJSON(t *testing.T) {
 					t.Errorf("%s.MarshalJSON() = %v, want %v", tt.target, string(got), tt.want)
 				}
 			}
+
+			roundTrip := reflect.New(reflect.TypeOf(tt.input).Elem()).Interface()
+			if err := json.Unmarshal(got, &roundTrip); err != nil {
+				t.Errorf("%s.UnmarshalJSON() error = %v", tt.target, err)
+				return
+			}
+			// Verify that the original and unmarshaled structs are equal.
+			if diff := cmp.Diff(tt.input, roundTrip); diff != "" {
+				t.Errorf("%s mismatch after marshal/unmarshal (-want +got):\n%s", tt.target, diff)
+			}
+
 		})
 	}
 }

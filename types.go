@@ -1219,14 +1219,17 @@ func (c *Citation) UnmarshalJSON(data []byte) error {
 func (c *Citation) MarshalJSON() ([]byte, error) {
 	type Alias Citation
 	aux := &struct {
-		PublicationDate *civil.Date `json:"publicationDate,omitempty"`
+		PublicationDate map[string]int `json:"publicationDate,omitempty"`
 		*Alias
 	}{
 		Alias: (*Alias)(c),
 	}
 
 	if !c.PublicationDate.IsZero() {
-		aux.PublicationDate = &c.PublicationDate
+		aux.PublicationDate = make(map[string]int)
+		aux.PublicationDate["year"] = c.PublicationDate.Year
+		aux.PublicationDate["month"] = int(c.PublicationDate.Month)
+		aux.PublicationDate["day"] = c.PublicationDate.Day
 	}
 
 	return json.Marshal(aux)
@@ -2591,8 +2594,8 @@ func (f *File) setVideoBytes(b []byte) bool {
 func (f *File) UnmarshalJSON(data []byte) error {
 	type Alias File
 	aux := &struct {
-		SizeBytes string `json:"sizeBytes,omitempty"`
 		*Alias
+		SizeBytes string `json:"sizeBytes,omitempty"`
 	}{
 		Alias: (*Alias)(f),
 	}
@@ -2615,11 +2618,11 @@ func (f *File) UnmarshalJSON(data []byte) error {
 func (f *File) MarshalJSON() ([]byte, error) {
 	type Alias File
 	aux := struct {
+		*Alias
 		SizeBytes      string     `json:"sizeBytes,omitempty"`
 		ExpirationTime *time.Time `json:"expirationTime,omitempty"`
 		CreateTime     *time.Time `json:"createTime,omitempty"`
 		UpdateTime     *time.Time `json:"updateTime,omitempty"`
-		*Alias
 	}{
 		Alias: (*Alias)(f),
 	}
