@@ -237,22 +237,6 @@ const (
 	ModalityAudio Modality = "AUDIO"
 )
 
-type DeploymentResourcesType string
-
-const (
-	// Should not be used.
-	DeploymentResourcesTypeUnspecified DeploymentResourcesType = "DEPLOYMENT_RESOURCES_TYPE_UNSPECIFIED"
-	// Resources that are dedicated to the DeployedModel, and that need a higher degree
-	// of manual configuration.
-	DeploymentResourcesTypeDedicatedResources DeploymentResourcesType = "DEDICATED_RESOURCES"
-	// Resources that to large degree are decided by Vertex AI, and require only a modest
-	// additional configuration.
-	DeploymentResourcesTypeAutomaticResources DeploymentResourcesType = "AUTOMATIC_RESOURCES"
-	// Resources that can be shared by multiple DeployedModels. A pre-configured DeploymentResourcePool
-	// is required.
-	DeploymentResourcesTypeSharedResources DeploymentResourcesType = "SHARED_RESOURCES"
-)
-
 // Config for the dynamic retrieval config mode.
 type DynamicRetrievalConfigMode string
 
