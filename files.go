@@ -19,6 +19,7 @@ package genai
 import (
 	"context"
 	"fmt"
+	"io"
 	"iter"
 	"mime"
 	"net/http"
@@ -727,8 +728,9 @@ func (m Files) Download(ctx context.Context, uri DownloadURI, config *DownloadFi
 	return data, nil
 }
 
-// Calls the API to upload a file using a supported file service.
-func (m Files) Upload(ctx context.Context, file string, config *UploadFileConfig) (*File, error) {
+// Upload copies the contents of the given io.Reader to file storage associated
+// with the service, and returns information about the resulting file.
+func (m Files) Upload(ctx context.Context, r io.Reader, config *UploadFileConfig) (*File, error) {
 	if m.apiClient.clientConfig.Backend == BackendVertexAI {
 		return nil, fmt.Errorf("This method is only supported in the Gemini Developer client.")
 	}
@@ -744,30 +746,18 @@ func (m Files) Upload(ctx context.Context, file string, config *UploadFileConfig
 		fileToUpload.Name = "files/" + fileToUpload.Name
 	}
 
-	fileInfo, err := os.Stat(file)
-	if err != nil || fileInfo.IsDir() {
-		return nil, fmt.Errorf("%s is not a valid file path.", file)
-	}
-
-	fileToUpload.SizeBytes = Ptr[int64](fileInfo.Size())
-
-	if fileToUpload.MIMEType == "" {
-		fileToUpload.MIMEType = mime.TypeByExtension(filepath.Ext(file))
-		if fileToUpload.MIMEType == "" {
-			return nil, fmt.Errorf("Unknown mime type: Could not determine the mimetype for your file please set the `MIMEType` argument")
-		}
-	}
-
 	httpOptions := HTTPOptions{Headers: http.Header{}}
 	if config != nil && config.HTTPOptions != nil {
 		httpOptions = *config.HTTPOptions
+	}
+	if config.HTTPOptions.Headers == nil {
+		config.HTTPOptions.Headers = http.Header{}
 	}
 
 	httpOptions.APIVersion = ""
 	httpOptions.Headers.Add("Content-Type", "application/json")
 	httpOptions.Headers.Add("X-Goog-Upload-Protocol", "resumable")
 	httpOptions.Headers.Add("X-Goog-Upload-Command", "start")
-	httpOptions.Headers.Add("X-Goog-Upload-Header-Content-Length", strconv.FormatInt(*fileToUpload.SizeBytes, 10))
 	httpOptions.Headers.Add("X-Goog-Upload-Header-Content-Type", fileToUpload.MIMEType)
 
 	var createFileConfig CreateFileConfig
@@ -782,5 +772,44 @@ func (m Files) Upload(ctx context.Context, file string, config *UploadFileConfig
 	}
 
 	uploadURL := resp.HTTPHeaders.Get("x-goog-upload-url")
-	return m.apiClient.uploadFileFromPath(ctx, file, uploadURL, *fileToUpload.SizeBytes, &httpOptions)
+	return m.apiClient.uploadFile(ctx, r, uploadURL, &httpOptions)
+}
+
+// UploadFromPath uploads a file from the specified path and returns information
+// about the resulting file.
+func (m Files) UploadFromPath(ctx context.Context, path string, config *UploadFileConfig) (*File, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil || fileInfo.IsDir() {
+		return nil, fmt.Errorf("%s is not a valid file path.", path)
+	}
+
+	osf, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer osf.Close()
+
+	var fileToUpload File
+	fileToUpload.SizeBytes = Ptr[int64](fileInfo.Size())
+
+	if fileToUpload.MIMEType == "" {
+		fileToUpload.MIMEType = mime.TypeByExtension(filepath.Ext(path))
+		if fileToUpload.MIMEType == "" {
+			return nil, fmt.Errorf("Unknown mime type: Could not determine the mimetype for your file please set the `MIMEType` argument")
+		}
+	}
+
+	if config == nil {
+		config = &UploadFileConfig{}
+	}
+	config.MIMEType = fileToUpload.MIMEType
+	if config.HTTPOptions == nil {
+		config.HTTPOptions = &HTTPOptions{Headers: http.Header{}}
+	}
+	if config.HTTPOptions.Headers == nil {
+		config.HTTPOptions.Headers = http.Header{}
+	}
+	config.HTTPOptions.Headers.Add("X-Goog-Upload-Header-Content-Length", strconv.FormatInt(*fileToUpload.SizeBytes, 10))
+
+	return m.Upload(ctx, osf, config)
 }

@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/sha256"
 	b64 "encoding/base64"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"io"
@@ -65,7 +66,7 @@ func calculateSHA256(filePath string) (string, error) {
 	}
 	hashBytes := hasher.Sum(nil)
 
-	return b64.StdEncoding.EncodeToString(hashBytes), nil
+	return hex.EncodeToString(hashBytes), nil
 }
 
 func run(ctx context.Context) {
@@ -81,7 +82,7 @@ func run(ctx context.Context) {
 	// Upload a new file.
 	var testDataDir = filepath.Join(moduleRootDir(), "testdata")
 	filePath := filepath.Join(testDataDir, "google.jpg")
-	file, err := client.Files.Upload(ctx, filePath, nil)
+	file, err := client.Files.UploadFromPath(ctx, filePath, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,8 +91,12 @@ func run(ctx context.Context) {
 	if err != nil {
 		log.Fatal("Failed to calculate checksum: ", err)
 	}
+	uploadedFileHash, err := b64.StdEncoding.DecodeString(file.Sha256Hash)
+	if err != nil {
+		log.Fatal("Failed to decode uploaded file hash: ", err)
+	}
 	fmt.Println("Calculated file checksum: ", checksum)
-	fmt.Println("Uploaded file checksum: ", file.Sha256Hash)
+	fmt.Println("Uploaded file checksum: ", string(uploadedFileHash))
 }
 
 func main() {

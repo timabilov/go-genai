@@ -23,11 +23,8 @@ import (
 	"io"
 	"iter"
 	"log"
-	"math"
 	"net/http"
-	// "net/http/httputil"
 	"net/url"
-	"os"
 	"runtime"
 	"strconv"
 	"strings"
@@ -340,38 +337,42 @@ func scan(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	return 0, nil, nil
 }
 
-func (ac *apiClient) uploadFileFromPath(ctx context.Context, filePath string, uploadURL string, uploadSize int64, httpOptions *HTTPOptions) (*File, error) {
-	r, err := os.Open(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to open file")
-	}
-	defer r.Close()
-
-	return ac.uploadFile(ctx, r, uploadURL, uploadSize, httpOptions)
-}
-
-func (ac *apiClient) uploadFile(ctx context.Context, r io.Reader, uploadURL string, uploadSize int64, httpOptions *HTTPOptions) (*File, error) {
+func (ac *apiClient) uploadFile(ctx context.Context, r io.Reader, uploadURL string, httpOptions *HTTPOptions) (*File, error) {
 	var offset int64 = 0
 	var resp *http.Response
 	var respBody map[string]any
 	var uploadCommand = "upload"
 
+	// A Reader(io.Reader) returning a non-zero number of bytes at the end of the input stream may return
+	// either err == EOF or err == nil. The next Read should return 0, EOF.
+	// But backend requires to attach "finalize" command at the same call to allow uploading bytes that's a multiple of the 8M byte chunk granularity.
+	// So we use two buffer slice here to pre-execute the next call in order to get next call's (0, EOF) returns.
+	nextBuffer := make([]byte, maxChunkSize)
+	curBuffer := make([]byte, maxChunkSize)
+	bytesRead, nextIOErr := r.Read(nextBuffer)
+
 	for {
-		chunkSize := int64(math.Min(maxChunkSize, float64(uploadSize-offset)))
-		if offset+chunkSize >= uploadSize {
+		// Copy data from next Read to current.
+		copy(curBuffer, nextBuffer)
+		curBytesRead := bytesRead
+		curIOError := nextIOErr
+
+		// Execute the next Read call when the previous Read success.
+		if curIOError == nil {
+			bytesRead, nextIOErr = r.Read(nextBuffer)
+		}
+
+		// If io.Read returns io.EOF at the current(EOF error) or next call(0 bytes read and EOF error),
+		// we need to append finalize command now.
+		if curIOError == io.EOF || (nextIOErr == io.EOF && bytesRead == 0) {
 			uploadCommand += ", finalize"
-		}
-		buffer := make([]byte, chunkSize)
-		bytesRead, err := r.Read(buffer)
-		if err != nil {
-			return nil, fmt.Errorf("Failed to read %d bytes from file at offset %d: %w", chunkSize, offset, err)
-		}
-
-		if int64(bytesRead) != chunkSize {
-			return nil, fmt.Errorf("Failed to read %d bytes from file at offset %d. bytes actually read: %d", chunkSize, offset, bytesRead)
+		} else if curIOError != nil {
+			// If previous Read returns other errors, return the error.
+			// nextIOErr != nil will be handled at the next iteration, so no need to check it here.
+			return nil, fmt.Errorf("Failed to read bytes from file at offset %d: %w. Bytes actually read: %d", offset, curIOError, curBytesRead)
 		}
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, uploadURL, bytes.NewReader(buffer[:bytesRead]))
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, uploadURL, bytes.NewReader(curBuffer[:curBytesRead]))
 		if err != nil {
 			return nil, fmt.Errorf("Failed to create upload request for chunk at offset %d: %w", offset, err)
 		}
@@ -380,7 +381,7 @@ func (ac *apiClient) uploadFile(ctx context.Context, r io.Reader, uploadURL stri
 
 		req.Header.Set("X-Goog-Upload-Command", uploadCommand)
 		req.Header.Set("X-Goog-Upload-Offset", strconv.FormatInt(offset, 10))
-		req.Header.Set("Content-Length", strconv.FormatInt(chunkSize, 10))
+		req.Header.Set("Content-Length", strconv.FormatInt(int64(curBytesRead), 10))
 
 		resp, err = doRequest(ac, req)
 		if err != nil {
@@ -393,17 +394,15 @@ func (ac *apiClient) uploadFile(ctx context.Context, r io.Reader, uploadURL stri
 			return nil, fmt.Errorf("response body is invalid for chunk at offset %d: %w", offset, err)
 		}
 
-		offset += chunkSize
+		offset += int64(curBytesRead)
 
 		uploadStatus := resp.Header.Get("X-Goog-Upload-Status")
+		if uploadStatus != "final" && strings.Contains(uploadStatus, "finalize") {
+			return nil, fmt.Errorf("send finalize command but doesn't receive final status. Offset %d, Bytes read: %d, Upload status: %s", offset, curBytesRead, uploadStatus)
+		}
 		if uploadStatus != "active" {
 			// Upload is complete ('final') or interrupted ('cancelled', etc.)
 			break
-		}
-
-		if uploadSize <= offset {
-			// Status is not finalized.
-			return nil, fmt.Errorf("All content has been uploaded, but the upload status is not finalized")
 		}
 	}
 

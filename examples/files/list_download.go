@@ -43,6 +43,7 @@ func run(ctx context.Context) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println("Downloading file:", file)
 		data, err := client.Files.Download(ctx, file, nil)
 		if err != nil {
 			log.Printf("Download %s failed: %w\n", file.Name, err)
