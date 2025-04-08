@@ -20,9 +20,7 @@ import (
 	"context"
 	"fmt"
 	"iter"
-	"log"
 	"net/http"
-	"sync"
 )
 
 func partToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
@@ -4727,16 +4725,8 @@ func (m Models) ComputeTokens(ctx context.Context, model string, contents []*Con
 	return response, nil
 }
 
-var (
-	experimentalWarningModelsGenerateVideos sync.Once
-)
-
 // GenerateVideos creates a long-running video generation operation.
 func (m Models) GenerateVideos(ctx context.Context, model string, prompt string, image *Image, config *GenerateVideosConfig) (*GenerateVideosOperation, error) {
-	experimentalWarningModelsGenerateVideos.Do(func() {
-		log.Println("Warning: The method Models.GenerateVideos is experimental and may change in future versions.")
-	})
-
 	parameterMap := make(map[string]any)
 
 	kwargs := map[string]any{"model": model, "prompt": prompt, "image": image, "config": config}
