@@ -1062,6 +1062,8 @@ type ThinkingConfig struct {
 	// Indicates whether to include thoughts in the response. If true, thoughts are returned
 	// only if the model supports thought and thoughts are available.
 	IncludeThoughts bool `json:"includeThoughts,omitempty"`
+	// Indicates the thinking budget in tokens.
+	ThinkingBudget *int32 `json:"thinkingBudget,omitempty"`
 }
 
 // When automated routing is specified, the routing will be determined by the pretrained
