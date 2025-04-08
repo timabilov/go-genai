@@ -16,7 +16,6 @@ package genai
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -66,15 +65,16 @@ func TestLiveConnect(t *testing.T) {
 	}
 
 	connectTests := []struct {
-		desc            string
-		client          *Client
-		clientHTTPOpts  *HTTPOptions
-		config          *LiveConnectConfig
-		wantRequestBody string
-		wantHeaders     map[string]string
-		wantPath        string
-		wantErr         bool
-		wantErrMessage  string
+		desc             string
+		client           *Client
+		clientHTTPOpts   *HTTPOptions
+		config           *LiveConnectConfig
+		fakeResponseBody string
+		wantRequestBody  string
+		wantHeaders      map[string]string
+		wantPath         string
+		wantErr          bool
+		wantErrMessage   string
 	}{
 		{
 			desc:            "successful connection mldev",
@@ -105,7 +105,7 @@ func TestLiveConnect(t *testing.T) {
 			client:          mldevClient,
 			clientHTTPOpts:  &HTTPOptions{BaseURL: "http://not-the-testing-server-url/path", APIVersion: "v1apha"},
 			wantRequestBody: `{"setup":{"model":"models/test-model"}}`,
-			wantErrMessage:  "Connect to wss://not-the-testing-server-url/path/ws/",
+			wantErrMessage:  "Connect to ws://not-the-testing-server-url/path/ws/",
 			wantErr:         true,
 		},
 		{
@@ -122,6 +122,30 @@ func TestLiveConnect(t *testing.T) {
 				Tools:             []*Tool{{GoogleSearch: &GoogleSearch{}}},
 			},
 			wantRequestBody: `{"setup":{"generationConfig":{"temperature":0.5},"model":"projects/test-project/locations/test-location/publishers/google/models/test-model","systemInstruction":{"parts":[{"text":"test instruction"}]},"tools":[{"googleSearch":{}}]}}`,
+		},
+		{
+			desc:   "failed connection when set transparent using mldev client",
+			client: mldevClient,
+			config: &LiveConnectConfig{
+				SessionResumption: &SessionResumptionConfig{
+					Handle:      "test_handle",
+					Transparent: true,
+				},
+			},
+			wantErr:        true,
+			wantErrMessage: "transparent parameter is not supported in Gemini API",
+		},
+		{
+			desc:   "successful connection when set transparent using vertex client",
+			client: vertexClient,
+			config: &LiveConnectConfig{
+				SessionResumption: &SessionResumptionConfig{
+					Handle:      "test_handle",
+					Transparent: true,
+				},
+			},
+			fakeResponseBody: `{"sessionResumptionUpdate":{"newHandle":"test_handle","resumable":true,"lastConsumedClientMessageIndex":"123456789"}}`,
+			wantRequestBody:  `{"setup":{"model":"projects/test-project/locations/test-location/publishers/google/models/test-model","sessionResumption":{"handle":"test_handle","transparent":true}}}`,
 		},
 	}
 
@@ -146,30 +170,27 @@ func TestLiveConnect(t *testing.T) {
 				}
 
 				mt, message, err := conn.ReadMessage()
+
 				if err != nil {
 					if tt.wantErr {
 						return
 					}
 					t.Fatalf("ReadMessage: %v", err)
 				}
-				if diff := cmp.Diff(string(message), tt.wantRequestBody); diff != "" {
-					t.Errorf("Request message mismatch (-want +got):\n%s", diff)
+
+				if string(message) != tt.wantRequestBody {
+					t.Errorf("Request message mismatch got %s, want %s", string(message), tt.wantRequestBody)
 				}
 				if tt.wantErr {
 					conn.Close()
 					return
 				}
 
-				response := &LiveServerMessage{}
-				if err := json.Unmarshal([]byte(`{"setupComplete":{}}`), response); err != nil {
-					t.Fatalf("Unmarshal: %v", err)
-				}
-				responseBytes, err := json.Marshal(response)
-				if err != nil {
-					t.Fatalf("Marshal: %v", err)
+				if tt.fakeResponseBody == "" {
+					tt.fakeResponseBody = `{"setupComplete":{}}`
 				}
 
-				err = conn.WriteMessage(mt, responseBytes)
+				err = conn.WriteMessage(mt, []byte(tt.fakeResponseBody))
 				if err != nil {
 					t.Fatalf("WriteMessage: %v", err)
 				}
@@ -181,12 +202,13 @@ func TestLiveConnect(t *testing.T) {
 				tt.client.Live.apiClient.clientConfig.HTTPOptions = *tt.clientHTTPOpts
 				url = tt.clientHTTPOpts.BaseURL
 			}
-			tt.client.Live.apiClient.clientConfig.HTTPOptions.BaseURL = strings.Replace(url, "http", "wss", 1)
+			tt.client.Live.apiClient.clientConfig.HTTPOptions.BaseURL = strings.Replace(url, "http", "ws", 1)
 			tt.client.Live.apiClient.clientConfig.HTTPClient = ts.Client()
 			if err != nil {
 				t.Fatalf("NewClient failed: %v", err)
 			}
 			session, err := tt.client.Live.Connect(ctx, model, tt.config)
+
 			if tt.wantErr && !strings.Contains(err.Error(), tt.wantErrMessage) {
 				t.Errorf("Connect() error message = %v, wantErrMessage %v", err.Error(), tt.wantErrMessage)
 				return
@@ -238,10 +260,8 @@ func TestLiveConnect(t *testing.T) {
 				}
 				defer session.Close()
 
-				// Construct a test message
-
 				// Test sending the message
-				err = session.SendClientContent(LiveClientContentInput{turns: Text("client test message")})
+				err = session.SendClientContent(LiveClientContentInput{Turns: Text("client test message")})
 				if err != nil {
 					t.Errorf("Send failed : %v", err)
 				}
@@ -249,6 +269,10 @@ func TestLiveConnect(t *testing.T) {
 				// Construct the expected response
 				serverMessage := &LiveServerMessage{ServerContent: &LiveServerContent{ModelTurn: Text("server test message")[0]}}
 				// Test receiving the response
+				_, err = session.Receive()
+				if err != nil {
+					t.Errorf("Receive failed: %v", err)
+				}
 				gotMessage, err := session.Receive()
 				if err != nil {
 					if tt.wantErr {
@@ -315,6 +339,10 @@ func TestLiveConnect(t *testing.T) {
 				// Construct the expected response
 				serverMessage := &LiveServerMessage{ServerContent: &LiveServerContent{ModelTurn: Text("server test message")[0]}}
 				// Test receiving the response
+				_, err = session.Receive()
+				if err != nil {
+					t.Errorf("Receive failed: %v", err)
+				}
 				gotMessage, err := session.Receive()
 				if err != nil {
 					if tt.wantErr {
@@ -381,6 +409,10 @@ func TestLiveConnect(t *testing.T) {
 				// Construct the expected response
 				serverMessage := &LiveServerMessage{ServerContent: &LiveServerContent{ModelTurn: Text("server test message")[0]}}
 				// Test receiving the response
+				_, err = session.Receive()
+				if err != nil {
+					t.Errorf("Receive failed: %v", err)
+				}
 				gotMessage, err := session.Receive()
 				if err != nil {
 					if tt.wantErr {

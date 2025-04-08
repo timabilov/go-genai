@@ -3026,6 +3026,42 @@ type LiveServerGoAway struct {
 	TimeLeft time.Duration `json:"timeLeft,omitempty"`
 }
 
+func (c *LiveServerGoAway) MarshalJSON() ([]byte, error) {
+	type Alias LiveServerGoAway
+	aux := &struct {
+		TimeLeft string `json:"timeLeft,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if c.TimeLeft != 0 {
+		aux.TimeLeft = fmt.Sprintf("%.0fs", c.TimeLeft.Seconds())
+	}
+
+	return json.Marshal(aux)
+}
+
+func (c *LiveServerGoAway) UnmarshalJSON(data []byte) error {
+	type Alias LiveServerGoAway
+	aux := &struct {
+		TimeLeft string `json:"timeLeft,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if aux.TimeLeft != "" {
+		d, err := time.ParseDuration(aux.TimeLeft)
+		if err != nil {
+			return err
+		}
+		c.TimeLeft = d
+	}
+
+	return nil
+}
+
 // Update of the session resumption state.
 // Only sent if `session_resumption` was set in the connection config.
 type LiveServerSessionResumptionUpdate struct {
@@ -3049,6 +3085,45 @@ type LiveServerSessionResumptionUpdate struct {
 	LastConsumedClientMessageIndex int64 `json:"lastConsumedClientMessageIndex,omitempty"`
 }
 
+func (s *LiveServerSessionResumptionUpdate) UnmarshalJSON(data []byte) error {
+	type Alias LiveServerSessionResumptionUpdate
+	aux := &struct {
+		LastConsumedClientMessageIndex string `json:"lastConsumedClientMessageIndex,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(s),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.LastConsumedClientMessageIndex != "" {
+		LastConsumedClientMessageIndex, err := strconv.ParseInt(aux.LastConsumedClientMessageIndex, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing LastConsumedClientMessageIndex: %w", err)
+		}
+		s.LastConsumedClientMessageIndex = LastConsumedClientMessageIndex
+	}
+
+	return nil
+}
+
+func (s *LiveServerSessionResumptionUpdate) MarshalJSON() ([]byte, error) {
+	type Alias LiveServerSessionResumptionUpdate
+	aux := struct {
+		LastConsumedClientMessageIndex string `json:"maxLength,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(s),
+	}
+
+	if s.LastConsumedClientMessageIndex != 0 {
+		aux.LastConsumedClientMessageIndex = strconv.FormatInt(s.LastConsumedClientMessageIndex, 10)
+	}
+	return json.Marshal(aux)
+}
+
 // Response message for API call.
 type LiveServerMessage struct {
 	// Sent in response to a `LiveClientSetup` message from the client.
@@ -3061,6 +3136,10 @@ type LiveServerMessage struct {
 	// Notification for the client that a previously issued `ToolCallMessage` with the specified
 	// `id`s should have been not executed and should be cancelled.
 	ToolCallCancellation *LiveServerToolCallCancellation `json:"toolCallCancellation,omitempty"`
+	// Server will disconnect soon.
+	GoAway *LiveServerGoAway `json:"goAway,omitempty"`
+	// Update of the session resumption state.
+	SessionResumptionUpdate *LiveServerSessionResumptionUpdate `json:"sessionResumptionUpdate,omitempty"`
 }
 
 // Configures automatic detection of activity.
@@ -3125,6 +3204,9 @@ type LiveClientSetup struct {
 	// external systems to perform an action, or set of actions, outside of
 	// knowledge and scope of the model.
 	Tools []*Tool `json:"tools,omitempty"`
+	// Configures session resumption mechanism.
+	// If included server will send SessionResumptionUpdate messages.
+	SessionResumption *SessionResumptionConfig `json:"sessionResumption,omitempty"`
 }
 
 // Incremental update of the current conversation delivered from the client.
@@ -3239,4 +3321,7 @@ type LiveConnectConfig struct {
 	// external systems to perform an action, or set of actions, outside of
 	// knowledge and scope of the model.
 	Tools []*Tool `json:"tools,omitempty"`
+	// Configures session resumption mechanism.
+	// If included the server will send SessionResumptionUpdate messages.
+	SessionResumption *SessionResumptionConfig `json:"sessionResumption,omitempty"`
 }
