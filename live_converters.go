@@ -770,6 +770,98 @@ func liveServerSessionResumptionUpdateFromMldev(ac *apiClient, fromObject map[st
 	return toObject, nil
 }
 
+func modalityTokenCountFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromModality := getValueByPath(fromObject, []string{"modality"})
+	if fromModality != nil {
+		setValueByPath(toObject, []string{"modality"}, fromModality)
+	}
+
+	fromTokenCount := getValueByPath(fromObject, []string{"tokenCount"})
+	if fromTokenCount != nil {
+		setValueByPath(toObject, []string{"tokenCount"}, fromTokenCount)
+	}
+
+	return toObject, nil
+}
+
+func usageMetadataFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromPromptTokenCount := getValueByPath(fromObject, []string{"promptTokenCount"})
+	if fromPromptTokenCount != nil {
+		setValueByPath(toObject, []string{"promptTokenCount"}, fromPromptTokenCount)
+	}
+
+	fromCachedContentTokenCount := getValueByPath(fromObject, []string{"cachedContentTokenCount"})
+	if fromCachedContentTokenCount != nil {
+		setValueByPath(toObject, []string{"cachedContentTokenCount"}, fromCachedContentTokenCount)
+	}
+
+	fromResponseTokenCount := getValueByPath(fromObject, []string{"responseTokenCount"})
+	if fromResponseTokenCount != nil {
+		setValueByPath(toObject, []string{"responseTokenCount"}, fromResponseTokenCount)
+	}
+
+	fromToolUsePromptTokenCount := getValueByPath(fromObject, []string{"toolUsePromptTokenCount"})
+	if fromToolUsePromptTokenCount != nil {
+		setValueByPath(toObject, []string{"toolUsePromptTokenCount"}, fromToolUsePromptTokenCount)
+	}
+
+	fromThoughtsTokenCount := getValueByPath(fromObject, []string{"thoughtsTokenCount"})
+	if fromThoughtsTokenCount != nil {
+		setValueByPath(toObject, []string{"thoughtsTokenCount"}, fromThoughtsTokenCount)
+	}
+
+	fromTotalTokenCount := getValueByPath(fromObject, []string{"totalTokenCount"})
+	if fromTotalTokenCount != nil {
+		setValueByPath(toObject, []string{"totalTokenCount"}, fromTotalTokenCount)
+	}
+
+	fromPromptTokensDetails := getValueByPath(fromObject, []string{"promptTokensDetails"})
+	if fromPromptTokensDetails != nil {
+		fromPromptTokensDetails, err = applyConverterToSlice(ac, fromPromptTokensDetails.([]any), modalityTokenCountFromMldev)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"promptTokensDetails"}, fromPromptTokensDetails)
+	}
+
+	fromCacheTokensDetails := getValueByPath(fromObject, []string{"cacheTokensDetails"})
+	if fromCacheTokensDetails != nil {
+		fromCacheTokensDetails, err = applyConverterToSlice(ac, fromCacheTokensDetails.([]any), modalityTokenCountFromMldev)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"cacheTokensDetails"}, fromCacheTokensDetails)
+	}
+
+	fromResponseTokensDetails := getValueByPath(fromObject, []string{"responseTokensDetails"})
+	if fromResponseTokensDetails != nil {
+		fromResponseTokensDetails, err = applyConverterToSlice(ac, fromResponseTokensDetails.([]any), modalityTokenCountFromMldev)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"responseTokensDetails"}, fromResponseTokensDetails)
+	}
+
+	fromToolUsePromptTokensDetails := getValueByPath(fromObject, []string{"toolUsePromptTokensDetails"})
+	if fromToolUsePromptTokensDetails != nil {
+		fromToolUsePromptTokensDetails, err = applyConverterToSlice(ac, fromToolUsePromptTokensDetails.([]any), modalityTokenCountFromMldev)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"toolUsePromptTokensDetails"}, fromToolUsePromptTokensDetails)
+	}
+
+	return toObject, nil
+}
+
 func liveServerMessageFromMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -831,6 +923,16 @@ func liveServerMessageFromMldev(ac *apiClient, fromObject map[string]any, parent
 		}
 
 		setValueByPath(toObject, []string{"sessionResumptionUpdate"}, fromSessionResumptionUpdate)
+	}
+
+	fromUsageMetadata := getValueByPath(fromObject, []string{"usageMetadata"})
+	if fromUsageMetadata != nil {
+		fromUsageMetadata, err = usageMetadataFromMldev(ac, fromUsageMetadata.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"usageMetadata"}, fromUsageMetadata)
 	}
 
 	return toObject, nil
@@ -948,6 +1050,103 @@ func liveServerSessionResumptionUpdateFromVertex(ac *apiClient, fromObject map[s
 	return toObject, nil
 }
 
+func modalityTokenCountFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromModality := getValueByPath(fromObject, []string{"modality"})
+	if fromModality != nil {
+		setValueByPath(toObject, []string{"modality"}, fromModality)
+	}
+
+	fromTokenCount := getValueByPath(fromObject, []string{"tokenCount"})
+	if fromTokenCount != nil {
+		setValueByPath(toObject, []string{"tokenCount"}, fromTokenCount)
+	}
+
+	return toObject, nil
+}
+
+func usageMetadataFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromPromptTokenCount := getValueByPath(fromObject, []string{"promptTokenCount"})
+	if fromPromptTokenCount != nil {
+		setValueByPath(toObject, []string{"promptTokenCount"}, fromPromptTokenCount)
+	}
+
+	fromCachedContentTokenCount := getValueByPath(fromObject, []string{"cachedContentTokenCount"})
+	if fromCachedContentTokenCount != nil {
+		setValueByPath(toObject, []string{"cachedContentTokenCount"}, fromCachedContentTokenCount)
+	}
+
+	fromResponseTokenCount := getValueByPath(fromObject, []string{"candidatesTokenCount"})
+	if fromResponseTokenCount != nil {
+		setValueByPath(toObject, []string{"responseTokenCount"}, fromResponseTokenCount)
+	}
+
+	fromToolUsePromptTokenCount := getValueByPath(fromObject, []string{"toolUsePromptTokenCount"})
+	if fromToolUsePromptTokenCount != nil {
+		setValueByPath(toObject, []string{"toolUsePromptTokenCount"}, fromToolUsePromptTokenCount)
+	}
+
+	fromThoughtsTokenCount := getValueByPath(fromObject, []string{"thoughtsTokenCount"})
+	if fromThoughtsTokenCount != nil {
+		setValueByPath(toObject, []string{"thoughtsTokenCount"}, fromThoughtsTokenCount)
+	}
+
+	fromTotalTokenCount := getValueByPath(fromObject, []string{"totalTokenCount"})
+	if fromTotalTokenCount != nil {
+		setValueByPath(toObject, []string{"totalTokenCount"}, fromTotalTokenCount)
+	}
+
+	fromPromptTokensDetails := getValueByPath(fromObject, []string{"promptTokensDetails"})
+	if fromPromptTokensDetails != nil {
+		fromPromptTokensDetails, err = applyConverterToSlice(ac, fromPromptTokensDetails.([]any), modalityTokenCountFromVertex)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"promptTokensDetails"}, fromPromptTokensDetails)
+	}
+
+	fromCacheTokensDetails := getValueByPath(fromObject, []string{"cacheTokensDetails"})
+	if fromCacheTokensDetails != nil {
+		fromCacheTokensDetails, err = applyConverterToSlice(ac, fromCacheTokensDetails.([]any), modalityTokenCountFromVertex)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"cacheTokensDetails"}, fromCacheTokensDetails)
+	}
+
+	fromToolUsePromptTokensDetails := getValueByPath(fromObject, []string{"toolUsePromptTokensDetails"})
+	if fromToolUsePromptTokensDetails != nil {
+		fromToolUsePromptTokensDetails, err = applyConverterToSlice(ac, fromToolUsePromptTokensDetails.([]any), modalityTokenCountFromVertex)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"toolUsePromptTokensDetails"}, fromToolUsePromptTokensDetails)
+	}
+
+	fromResponseTokensDetails := getValueByPath(fromObject, []string{"candidatesTokensDetails"})
+	if fromResponseTokensDetails != nil {
+		fromResponseTokensDetails, err = applyConverterToSlice(ac, fromResponseTokensDetails.([]any), modalityTokenCountFromVertex)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"responseTokensDetails"}, fromResponseTokensDetails)
+	}
+
+	fromTrafficType := getValueByPath(fromObject, []string{"trafficType"})
+	if fromTrafficType != nil {
+		setValueByPath(toObject, []string{"trafficType"}, fromTrafficType)
+	}
+
+	return toObject, nil
+}
+
 func liveServerMessageFromVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -989,6 +1188,16 @@ func liveServerMessageFromVertex(ac *apiClient, fromObject map[string]any, paren
 		}
 
 		setValueByPath(toObject, []string{"toolCallCancellation"}, fromToolCallCancellation)
+	}
+
+	fromUsageMetadata := getValueByPath(fromObject, []string{"usageMetadata"})
+	if fromUsageMetadata != nil {
+		fromUsageMetadata, err = usageMetadataFromVertex(ac, fromUsageMetadata.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"usageMetadata"}, fromUsageMetadata)
 	}
 
 	fromGoAway := getValueByPath(fromObject, []string{"goAway"})

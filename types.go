@@ -373,6 +373,24 @@ const (
 	FileSourceGenerated   FileSource = "GENERATED"
 )
 
+// Server content modalities.
+type MediaModality string
+
+const (
+	// The modality is unspecified.
+	MediaModalityUnspecified MediaModality = "MODALITY_UNSPECIFIED"
+	// Plain text.
+	MediaModalityText MediaModality = "TEXT"
+	// Images.
+	MediaModalityImage MediaModality = "IMAGE"
+	// Video.
+	MediaModalityVideo MediaModality = "VIDEO"
+	// Audio.
+	MediaModalityAudio MediaModality = "AUDIO"
+	// Document, e.g. PDF.
+	MediaModalityDocument MediaModality = "DOCUMENT"
+)
+
 // Start of speech sensitivity.
 type StartSensitivity string
 
@@ -423,24 +441,6 @@ const (
 	// The users turn includes all realtime input since the last turn, including inactivity
 	// (e.g. silence on the audio stream).
 	TurnCoverageTurnIncludesAllInput TurnCoverage = "TURN_INCLUDES_ALL_INPUT"
-)
-
-// Server content modalities.
-type MediaModality string
-
-const (
-	// The modality is unspecified.
-	MediaModalityUnspecified MediaModality = "MODALITY_UNSPECIFIED"
-	// Plain text.
-	MediaModalityText MediaModality = "TEXT"
-	// Images.
-	MediaModalityImage MediaModality = "IMAGE"
-	// Video.
-	MediaModalityVideo MediaModality = "VIDEO"
-	// Audio.
-	MediaModalityAudio MediaModality = "AUDIO"
-	// Document, e.g. PDF.
-	MediaModalityDocument MediaModality = "DOCUMENT"
 )
 
 // Metadata describes the input video content.
@@ -3018,6 +3018,34 @@ type LiveServerToolCallCancellation struct {
 	IDs []string `json:"ids,omitempty"`
 }
 
+// Usage metadata about response(s).
+type UsageMetadata struct {
+	// Number of tokens in the prompt. When `cached_content` is set, this is still the total
+	// effective prompt size meaning this includes the number of tokens in the cached content.
+	PromptTokenCount int32 `json:"promptTokenCount,omitempty"`
+	// Number of tokens in the cached part of the prompt (the cached content).
+	CachedContentTokenCount int32 `json:"cachedContentTokenCount,omitempty"`
+	// Total number of tokens across all the generated response candidates.
+	ResponseTokenCount int32 `json:"responseTokenCount,omitempty"`
+	// Number of tokens present in tool-use prompt(s).
+	ToolUsePromptTokenCount int32 `json:"toolUsePromptTokenCount,omitempty"`
+	// Number of tokens of thoughts for thinking models.
+	ThoughtsTokenCount int32 `json:"thoughtsTokenCount,omitempty"`
+	// Total token count for prompt, response candidates, and tool-use prompts(if present).
+	TotalTokenCount int32 `json:"totalTokenCount,omitempty"`
+	// List of modalities that were processed in the request input.
+	PromptTokensDetails []*ModalityTokenCount `json:"promptTokensDetails,omitempty"`
+	// List of modalities that were processed in the cache input.
+	CacheTokensDetails []*ModalityTokenCount `json:"cacheTokensDetails,omitempty"`
+	// List of modalities that were returned in the response.
+	ResponseTokensDetails []*ModalityTokenCount `json:"responseTokensDetails,omitempty"`
+	// List of modalities that were processed in the tool-use prompt.
+	ToolUsePromptTokensDetails []*ModalityTokenCount `json:"toolUsePromptTokensDetails,omitempty"`
+	// Traffic type. This shows whether a request consumes Pay-As-You-Go
+	// or Provisioned Throughput quota.
+	TrafficType TrafficType `json:"trafficType,omitempty"`
+}
+
 // Server will not be able to service client soon.
 type LiveServerGoAway struct {
 	// The remaining time before the connection will be terminated as ABORTED. The minimal
@@ -3136,6 +3164,8 @@ type LiveServerMessage struct {
 	// Notification for the client that a previously issued `ToolCallMessage` with the specified
 	// `id`s should have been not executed and should be cancelled.
 	ToolCallCancellation *LiveServerToolCallCancellation `json:"toolCallCancellation,omitempty"`
+	// Usage metadata about model response(s).
+	UsageMetadata *UsageMetadata `json:"usageMetadata,omitempty"`
 	// Server will disconnect soon.
 	GoAway *LiveServerGoAway `json:"goAway,omitempty"`
 	// Update of the session resumption state.
