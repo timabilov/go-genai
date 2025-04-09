@@ -3186,6 +3186,107 @@ type SessionResumptionConfig struct {
 	Transparent bool `json:"transparent,omitempty"`
 }
 
+// Context window will be truncated by keeping only suffix of it.
+// Context window will always be cut at start of USER role turn. System
+// instructions and `BidiGenerateContentSetup.prefix_turns` will not be
+// subject to the sliding window mechanism, they will always stay at the
+// beginning of context window.
+type SlidingWindow struct {
+	// Session reduction target -- how many tokens we should keep. Window shortening operation
+	// has some latency costs, so we should avoid running it on every turn. Should be <
+	// trigger_tokens. If not set, trigger_tokens/2 is assumed.
+	TargetTokens int64 `json:"targetTokens,omitempty"`
+}
+
+func (s *SlidingWindow) UnmarshalJSON(data []byte) error {
+	type Alias SlidingWindow
+	aux := &struct {
+		*Alias
+		TargetTokens string `json:"targetTokens,omitempty"`
+	}{
+		Alias: (*Alias)(s),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.TargetTokens != "" {
+		targetTokens, err := strconv.ParseInt(aux.TargetTokens, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing TargetTokens: %w", err)
+		}
+		s.TargetTokens = targetTokens
+	}
+
+	return nil
+}
+
+func (s *SlidingWindow) MarshalJSON() ([]byte, error) {
+	type Alias SlidingWindow
+	aux := &struct {
+		*Alias
+		TargetTokens string `json:"targetTokens,omitempty"`
+	}{
+		Alias: (*Alias)(s),
+	}
+
+	if s.TargetTokens != 0 {
+		aux.TargetTokens = strconv.FormatInt(s.TargetTokens, 10)
+	}
+
+	return json.Marshal(aux)
+}
+
+// Enables context window compression -- mechanism managing model context window so
+// it does not exceed given length.
+type ContextWindowCompressionConfig struct {
+	// Number of tokens (before running turn) that triggers context window compression mechanism.
+	TriggerTokens int64 `json:"triggerTokens,omitempty"`
+	// Sliding window compression mechanism.
+	SlidingWindow *SlidingWindow `json:"slidingWindow,omitempty"`
+}
+
+func (c *ContextWindowCompressionConfig) UnmarshalJSON(data []byte) error {
+	type Alias ContextWindowCompressionConfig
+	aux := &struct {
+		*Alias
+		TriggerTokens string `json:"triggerTokens,omitempty"`
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.TriggerTokens != "" {
+		triggerTokens, err := strconv.ParseInt(aux.TriggerTokens, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing TriggerTokens: %w", err)
+		}
+		c.TriggerTokens = triggerTokens
+	}
+
+	return nil
+}
+
+func (c *ContextWindowCompressionConfig) MarshalJSON() ([]byte, error) {
+	type Alias ContextWindowCompressionConfig
+	aux := &struct {
+		*Alias
+		TriggerTokens string `json:"triggerTokens,omitempty"`
+	}{
+		Alias: (*Alias)(c),
+	}
+
+	if c.TriggerTokens != 0 {
+		aux.TriggerTokens = strconv.FormatInt(c.TriggerTokens, 10)
+	}
+
+	return json.Marshal(aux)
+}
+
 // Message contains configuration that will apply for the duration of the streaming
 // session.
 type LiveClientSetup struct {

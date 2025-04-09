@@ -557,6 +557,41 @@ func TestMarshalJSON(t *testing.T) {
 			wantErr: false,
 			target:  "File",
 		},
+		// SlidingWindow tests
+		{
+			name:    "SlidingWindow empty",
+			input:   &SlidingWindow{},
+			want:    `{}`,
+			wantErr: false,
+			target:  "SlidingWindow",
+		},
+		{
+			name: "SlidingWindow with all fields",
+			input: &SlidingWindow{
+				TargetTokens: 1024,
+			},
+			want:    `{"targetTokens":"1024"}`,
+			wantErr: false,
+			target:  "SlidingWindow",
+		},
+		// ContextWindowCompressionConfig tests
+		{
+			name:    "ContextWindowCompressionConfig empty",
+			input:   &ContextWindowCompressionConfig{},
+			want:    `{}`,
+			wantErr: false,
+			target:  "ContextWindowCompressionConfig",
+		},
+		{
+			name: "ContextWindowCompressionConfig with all fields",
+			input: &ContextWindowCompressionConfig{
+				TriggerTokens: 1024,
+				SlidingWindow: &SlidingWindow{TargetTokens: 1024},
+			},
+			want:    `{"slidingWindow":{"targetTokens":"1024"},"triggerTokens":"1024"}`,
+			wantErr: false,
+			target:  "ContextWindowCompressionConfig",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -583,6 +618,10 @@ func TestMarshalJSON(t *testing.T) {
 				got, err = json.Marshal(tt.input.(*VideoMetadata))
 			case "File":
 				got, err = json.Marshal(tt.input.(*File))
+			case "SlidingWindow":
+				got, err = json.Marshal(tt.input.(*SlidingWindow))
+			case "ContextWindowCompressionConfig":
+				got, err = json.Marshal(tt.input.(*ContextWindowCompressionConfig))
 			default:
 				t.Fatalf("unknown target: %s", tt.target)
 			}
