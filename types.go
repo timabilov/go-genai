@@ -237,6 +237,20 @@ const (
 	ModalityAudio Modality = "AUDIO"
 )
 
+// The media resolution to use.
+type MediaResolution string
+
+const (
+	// Media resolution has not been set
+	MediaResolutionUnspecified MediaResolution = "MEDIA_RESOLUTION_UNSPECIFIED"
+	// Media resolution set to low (64 tokens).
+	MediaResolutionLow MediaResolution = "MEDIA_RESOLUTION_LOW"
+	// Media resolution set to medium (256 tokens).
+	MediaResolutionMedium MediaResolution = "MEDIA_RESOLUTION_MEDIUM"
+	// Media resolution set to high (zoomed reframing with 256 tokens).
+	MediaResolutionHigh MediaResolution = "MEDIA_RESOLUTION_HIGH"
+)
+
 // Config for the dynamic retrieval config mode.
 type DynamicRetrievalConfigMode string
 
@@ -263,20 +277,6 @@ const (
 	// Model will not predict any function calls. Model behavior is same as when not passing
 	// any function declarations.
 	FunctionCallingConfigModeNone FunctionCallingConfigMode = "NONE"
-)
-
-// The media resolution to use.
-type MediaResolution string
-
-const (
-	// Media resolution has not been set
-	MediaResolutionUnspecified MediaResolution = "MEDIA_RESOLUTION_UNSPECIFIED"
-	// Media resolution set to low (64 tokens).
-	MediaResolutionLow MediaResolution = "MEDIA_RESOLUTION_LOW"
-	// Media resolution set to medium (256 tokens).
-	MediaResolutionMedium MediaResolution = "MEDIA_RESOLUTION_MEDIUM"
-	// Media resolution set to high (zoomed reframing with 256 tokens).
-	MediaResolutionHigh MediaResolution = "MEDIA_RESOLUTION_HIGH"
 )
 
 // Enum that controls the safety filter level for objectionable content.
@@ -2115,6 +2115,8 @@ type GenerationConfig struct {
 	// Optional. The maximum number of output tokens to generate per message. If empty,
 	// API will use a default value. The default value varies by model.
 	MaxOutputTokens int32 `json:"maxOutputTokens,omitempty"`
+	// Optional. If specified, the media resolution specified will be used.
+	MediaResolution MediaResolution `json:"mediaResolution,omitempty"`
 	// Optional. Positive penalties.
 	PresencePenalty *float32 `json:"presencePenalty,omitempty"`
 	// Optional. If true, export the logprobs results in response.
