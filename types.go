@@ -1020,6 +1020,57 @@ type VertexRAGStoreRAGResource struct {
 	RAGFileIDs []string `json:"ragFileIds,omitempty"`
 }
 
+// Config for filters.
+type RAGRetrievalConfigFilter struct {
+	// Optional. String for metadata filtering.
+	MetadataFilter string `json:"metadataFilter,omitempty"`
+	// Optional. Only returns contexts with vector distance smaller than the threshold.
+	VectorDistanceThreshold *float64 `json:"vectorDistanceThreshold,omitempty"`
+	// Optional. Only returns contexts with vector similarity larger than the threshold.
+	VectorSimilarityThreshold *float64 `json:"vectorSimilarityThreshold,omitempty"`
+}
+
+// Config for Hybrid Search.
+type RAGRetrievalConfigHybridSearch struct {
+	// Optional. Alpha value controls the weight between dense and sparse vector search
+	// results. The range is [0, 1], while 0 means sparse vector search only and 1 means
+	// dense vector search only. The default value is 0.5 which balances sparse and dense
+	// vector search equally.
+	Alpha *float32 `json:"alpha,omitempty"`
+}
+
+// Config for LlmRanker.
+type RAGRetrievalConfigRankingLlmRanker struct {
+	// Optional. The model name used for ranking. Format: `gemini-1.5-pro`
+	ModelName string `json:"modelName,omitempty"`
+}
+
+// Config for Rank Service.
+type RAGRetrievalConfigRankingRankService struct {
+	// Optional. The model name of the rank service. Format: `semantic-ranker-512@latest`
+	ModelName string `json:"modelName,omitempty"`
+}
+
+// Config for ranking and reranking.
+type RAGRetrievalConfigRanking struct {
+	// Optional. Config for LlmRanker.
+	LlmRanker *RAGRetrievalConfigRankingLlmRanker `json:"llmRanker,omitempty"`
+	// Optional. Config for Rank Service.
+	RankService *RAGRetrievalConfigRankingRankService `json:"rankService,omitempty"`
+}
+
+// Specifies the context retrieval config.
+type RAGRetrievalConfig struct {
+	// Optional. Config for filters.
+	Filter *RAGRetrievalConfigFilter `json:"filter,omitempty"`
+	// Optional. Config for Hybrid Search.
+	HybridSearch *RAGRetrievalConfigHybridSearch `json:"hybridSearch,omitempty"`
+	// Optional. Config for ranking and reranking.
+	Ranking *RAGRetrievalConfigRanking `json:"ranking,omitempty"`
+	// Optional. The number of contexts to retrieve.
+	TopK *int32 `json:"topK,omitempty"`
+}
+
 // Retrieve from Vertex RAG Store for grounding. You can find API default values and
 // more details at https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/rag-api-v1#parameters-list
 type VertexRAGStore struct {
@@ -1029,6 +1080,8 @@ type VertexRAGStore struct {
 	// only or ragfiles. Currently only support one corpus or multiple files from one corpus.
 	// In the future we may open up multiple corpora support.
 	RAGResources []*VertexRAGStoreRAGResource `json:"ragResources,omitempty"`
+	// Optional. The retrieval config for the RAG query.
+	RAGRetrievalConfig *RAGRetrievalConfig `json:"ragRetrievalConfig,omitempty"`
 	// Optional. Number of top k results to return from the selected corpora.
 	SimilarityTopK *int32 `json:"similarityTopK,omitempty"`
 	// Optional. Only return results with vector distance smaller than the threshold.
