@@ -1104,6 +1104,9 @@ type VoiceConfig struct {
 type SpeechConfig struct {
 	// The configuration for the speaker to use.
 	VoiceConfig *VoiceConfig `json:"voiceConfig,omitempty"`
+	// Language code (ISO 639. e.g. en-US) for the speech synthesization.
+	// Only available for Live API.
+	LanguageCode string `json:"languageCode,omitempty"`
 }
 
 // The thinking features configuration.

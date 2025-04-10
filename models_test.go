@@ -132,6 +132,7 @@ func TestModelsGenerateContentAudio(t *testing.T) {
 							VoiceName: "Aoede",
 						},
 					},
+					LanguageCode: "en-US",
 				},
 			}
 			result, err := client.Models.GenerateContent(ctx, "gemini-2.0-flash", Text("say something nice to me"), config)

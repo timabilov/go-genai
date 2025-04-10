@@ -399,6 +399,11 @@ func speechConfigToMldev(ac *apiClient, fromObject map[string]any, parentObject 
 		setValueByPath(toObject, []string{"voiceConfig"}, fromVoiceConfig)
 	}
 
+	fromLanguageCode := getValueByPath(fromObject, []string{"languageCode"})
+	if fromLanguageCode != nil {
+		setValueByPath(toObject, []string{"languageCode"}, fromLanguageCode)
+	}
+
 	return toObject, nil
 }
 
@@ -1530,6 +1535,11 @@ func speechConfigToVertex(ac *apiClient, fromObject map[string]any, parentObject
 		}
 
 		setValueByPath(toObject, []string{"voiceConfig"}, fromVoiceConfig)
+	}
+
+	fromLanguageCode := getValueByPath(fromObject, []string{"languageCode"})
+	if fromLanguageCode != nil {
+		setValueByPath(toObject, []string{"languageCode"}, fromLanguageCode)
 	}
 
 	return toObject, nil
