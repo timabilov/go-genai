@@ -3208,16 +3208,6 @@ func generateVideosOperationFromMldev(ac *apiClient, fromObject map[string]any, 
 		setValueByPath(toObject, []string{"response"}, fromResponse)
 	}
 
-	fromResult := getValueByPath(fromObject, []string{"response", "generateVideoResponse"})
-	if fromResult != nil {
-		fromResult, err = generateVideosResponseFromMldev(ac, fromResult.(map[string]any), toObject)
-		if err != nil {
-			return nil, err
-		}
-
-		setValueByPath(toObject, []string{"result"}, fromResult)
-	}
-
 	return toObject, nil
 }
 
@@ -3862,16 +3852,6 @@ func generateVideosOperationFromVertex(ac *apiClient, fromObject map[string]any,
 		}
 
 		setValueByPath(toObject, []string{"response"}, fromResponse)
-	}
-
-	fromResult := getValueByPath(fromObject, []string{"response"})
-	if fromResult != nil {
-		fromResult, err = generateVideosResponseFromVertex(ac, fromResult.(map[string]any), toObject)
-		if err != nil {
-			return nil, err
-		}
-
-		setValueByPath(toObject, []string{"result"}, fromResult)
 	}
 
 	return toObject, nil
