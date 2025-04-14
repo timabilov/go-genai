@@ -338,6 +338,16 @@ func liveConnectConfigToMldev(ac *apiClient, fromObject map[string]any, parentOb
 		setValueByPath(parentObject, []string{"setup", "outputAudioTranscription"}, fromOutputAudioTranscription)
 	}
 
+	fromContextWindowCompression := getValueByPath(fromObject, []string{"contextWindowCompression"})
+	if fromContextWindowCompression != nil {
+		fromContextWindowCompression, err = contextWindowCompressionConfigToMldev(ac, fromContextWindowCompression.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(parentObject, []string{"setup", "contextWindowCompression"}, fromContextWindowCompression)
+	}
+
 	return toObject, nil
 }
 
@@ -442,6 +452,16 @@ func liveConnectConfigToVertex(ac *apiClient, fromObject map[string]any, parentO
 		}
 
 		setValueByPath(parentObject, []string{"setup", "outputAudioTranscription"}, fromOutputAudioTranscription)
+	}
+
+	fromContextWindowCompression := getValueByPath(fromObject, []string{"contextWindowCompression"})
+	if fromContextWindowCompression != nil {
+		fromContextWindowCompression, err = contextWindowCompressionConfigToVertex(ac, fromContextWindowCompression.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(parentObject, []string{"setup", "contextWindowCompression"}, fromContextWindowCompression)
 	}
 
 	return toObject, nil
@@ -557,6 +577,16 @@ func liveClientSetupToMldev(ac *apiClient, fromObject map[string]any, parentObje
 		setValueByPath(toObject, []string{"sessionResumption"}, fromSessionResumption)
 	}
 
+	fromContextWindowCompression := getValueByPath(fromObject, []string{"contextWindowCompression"})
+	if fromContextWindowCompression != nil {
+		fromContextWindowCompression, err = contextWindowCompressionConfigToMldev(ac, fromContextWindowCompression.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"contextWindowCompression"}, fromContextWindowCompression)
+	}
+
 	if getValueByPath(fromObject, []string{"inputAudioTranscription"}) != nil {
 		return nil, fmt.Errorf("inputAudioTranscription parameter is not supported in Gemini API")
 	}
@@ -630,6 +660,16 @@ func liveClientSetupToVertex(ac *apiClient, fromObject map[string]any, parentObj
 		}
 
 		setValueByPath(toObject, []string{"sessionResumption"}, fromSessionResumption)
+	}
+
+	fromContextWindowCompression := getValueByPath(fromObject, []string{"contextWindowCompression"})
+	if fromContextWindowCompression != nil {
+		fromContextWindowCompression, err = contextWindowCompressionConfigToVertex(ac, fromContextWindowCompression.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"contextWindowCompression"}, fromContextWindowCompression)
 	}
 
 	fromInputAudioTranscription := getValueByPath(fromObject, []string{"inputAudioTranscription"})

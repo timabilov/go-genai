@@ -568,7 +568,7 @@ func TestMarshalJSON(t *testing.T) {
 		{
 			name: "SlidingWindow with all fields",
 			input: &SlidingWindow{
-				TargetTokens: 1024,
+				TargetTokens: Ptr[int64](1024),
 			},
 			want:    `{"targetTokens":"1024"}`,
 			wantErr: false,
@@ -585,8 +585,8 @@ func TestMarshalJSON(t *testing.T) {
 		{
 			name: "ContextWindowCompressionConfig with all fields",
 			input: &ContextWindowCompressionConfig{
-				TriggerTokens: 1024,
-				SlidingWindow: &SlidingWindow{TargetTokens: 1024},
+				TriggerTokens: Ptr[int64](1024),
+				SlidingWindow: &SlidingWindow{TargetTokens: Ptr[int64](1024)},
 			},
 			want:    `{"slidingWindow":{"targetTokens":"1024"},"triggerTokens":"1024"}`,
 			wantErr: false,

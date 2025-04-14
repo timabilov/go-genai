@@ -3299,7 +3299,7 @@ type SlidingWindow struct {
 	// Session reduction target -- how many tokens we should keep. Window shortening operation
 	// has some latency costs, so we should avoid running it on every turn. Should be <
 	// trigger_tokens. If not set, trigger_tokens/2 is assumed.
-	TargetTokens int64 `json:"targetTokens,omitempty"`
+	TargetTokens *int64 `json:"targetTokens,omitempty"`
 }
 
 func (s *SlidingWindow) UnmarshalJSON(data []byte) error {
@@ -3320,7 +3320,7 @@ func (s *SlidingWindow) UnmarshalJSON(data []byte) error {
 		if err != nil {
 			return fmt.Errorf("error parsing TargetTokens: %w", err)
 		}
-		s.TargetTokens = targetTokens
+		s.TargetTokens = &targetTokens
 	}
 
 	return nil
@@ -3335,8 +3335,8 @@ func (s *SlidingWindow) MarshalJSON() ([]byte, error) {
 		Alias: (*Alias)(s),
 	}
 
-	if s.TargetTokens != 0 {
-		aux.TargetTokens = strconv.FormatInt(s.TargetTokens, 10)
+	if s.TargetTokens != nil {
+		aux.TargetTokens = strconv.FormatInt(*s.TargetTokens, 10)
 	}
 
 	return json.Marshal(aux)
@@ -3346,7 +3346,7 @@ func (s *SlidingWindow) MarshalJSON() ([]byte, error) {
 // it does not exceed given length.
 type ContextWindowCompressionConfig struct {
 	// Number of tokens (before running turn) that triggers context window compression mechanism.
-	TriggerTokens int64 `json:"triggerTokens,omitempty"`
+	TriggerTokens *int64 `json:"triggerTokens,omitempty"`
 	// Sliding window compression mechanism.
 	SlidingWindow *SlidingWindow `json:"slidingWindow,omitempty"`
 }
@@ -3369,7 +3369,7 @@ func (c *ContextWindowCompressionConfig) UnmarshalJSON(data []byte) error {
 		if err != nil {
 			return fmt.Errorf("error parsing TriggerTokens: %w", err)
 		}
-		c.TriggerTokens = triggerTokens
+		c.TriggerTokens = &triggerTokens
 	}
 
 	return nil
@@ -3384,8 +3384,8 @@ func (c *ContextWindowCompressionConfig) MarshalJSON() ([]byte, error) {
 		Alias: (*Alias)(c),
 	}
 
-	if c.TriggerTokens != 0 {
-		aux.TriggerTokens = strconv.FormatInt(c.TriggerTokens, 10)
+	if c.TriggerTokens != nil {
+		aux.TriggerTokens = strconv.FormatInt(*c.TriggerTokens, 10)
 	}
 
 	return json.Marshal(aux)
@@ -3416,6 +3416,9 @@ type LiveClientSetup struct {
 	// Configures session resumption mechanism.
 	// If included server will send SessionResumptionUpdate messages.
 	SessionResumption *SessionResumptionConfig `json:"sessionResumption,omitempty"`
+	// Configures context window compression mechanism.
+	// If included, server will compress context window to fit into given length.
+	ContextWindowCompression *ContextWindowCompressionConfig `json:"contextWindowCompression,omitempty"`
 	// The transcription of the input aligns with the input audio language.
 	InputAudioTranscription *AudioTranscriptionConfig `json:"inputAudioTranscription,omitempty"`
 	// The transcription of the output aligns with the language code
@@ -3539,4 +3542,7 @@ type LiveConnectConfig struct {
 	// The transcription of the output aligns with the language code
 	// specified for the output audio.
 	OutputAudioTranscription *AudioTranscriptionConfig `json:"outputAudioTranscription,omitempty"`
+	// Configures context window compression mechanism.
+	// If included, server will compress context window to fit into given length.
+	ContextWindowCompression *ContextWindowCompressionConfig `json:"contextWindowCompression,omitempty"`
 }
