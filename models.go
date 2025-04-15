@@ -201,6 +201,15 @@ func schemaToMldev(ac *apiClient, fromObject map[string]any, parentObject map[st
 	return toObject, nil
 }
 
+func modelSelectionConfigToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+	if getValueByPath(fromObject, []string{"featureSelectionPreference"}) != nil {
+		return nil, fmt.Errorf("featureSelectionPreference parameter is not supported in Gemini API")
+	}
+
+	return toObject, nil
+}
+
 func safetySettingToMldev(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 	if getValueByPath(fromObject, []string{"method"}) != nil {
@@ -518,6 +527,10 @@ func generateContentConfigToMldev(ac *apiClient, fromObject map[string]any, pare
 
 	if getValueByPath(fromObject, []string{"routingConfig"}) != nil {
 		return nil, fmt.Errorf("routingConfig parameter is not supported in Gemini API")
+	}
+
+	if getValueByPath(fromObject, []string{"modelSelectionConfig"}) != nil {
+		return nil, fmt.Errorf("modelSelectionConfig parameter is not supported in Gemini API")
 	}
 
 	fromSafetySettings := getValueByPath(fromObject, []string{"safetySettings"})
@@ -1329,6 +1342,17 @@ func schemaToVertex(ac *apiClient, fromObject map[string]any, parentObject map[s
 	return toObject, nil
 }
 
+func modelSelectionConfigToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
+	toObject = make(map[string]any)
+
+	fromFeatureSelectionPreference := getValueByPath(fromObject, []string{"featureSelectionPreference"})
+	if fromFeatureSelectionPreference != nil {
+		setValueByPath(toObject, []string{"featureSelectionPreference"}, fromFeatureSelectionPreference)
+	}
+
+	return toObject, nil
+}
+
 func safetySettingToVertex(ac *apiClient, fromObject map[string]any, parentObject map[string]any) (toObject map[string]any, err error) {
 	toObject = make(map[string]any)
 
@@ -1657,6 +1681,16 @@ func generateContentConfigToVertex(ac *apiClient, fromObject map[string]any, par
 	fromRoutingConfig := getValueByPath(fromObject, []string{"routingConfig"})
 	if fromRoutingConfig != nil {
 		setValueByPath(toObject, []string{"routingConfig"}, fromRoutingConfig)
+	}
+
+	fromModelSelectionConfig := getValueByPath(fromObject, []string{"modelSelectionConfig"})
+	if fromModelSelectionConfig != nil {
+		fromModelSelectionConfig, err = modelSelectionConfigToVertex(ac, fromModelSelectionConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"modelConfig"}, fromModelSelectionConfig)
 	}
 
 	fromSafetySettings := getValueByPath(fromObject, []string{"safetySettings"})

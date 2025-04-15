@@ -251,6 +251,16 @@ const (
 	MediaResolutionHigh MediaResolution = "MEDIA_RESOLUTION_HIGH"
 )
 
+// Options for feature selection preference.
+type FeatureSelectionPreference string
+
+const (
+	FeatureSelectionPreferenceUnspecified       FeatureSelectionPreference = "FEATURE_SELECTION_PREFERENCE_UNSPECIFIED"
+	FeatureSelectionPreferencePrioritizeQuality FeatureSelectionPreference = "PRIORITIZE_QUALITY"
+	FeatureSelectionPreferenceBalanced          FeatureSelectionPreference = "BALANCED"
+	FeatureSelectionPreferencePrioritizeCost    FeatureSelectionPreference = "PRIORITIZE_COST"
+)
+
 // Config for the dynamic retrieval config mode.
 type DynamicRetrievalConfigMode string
 
@@ -947,6 +957,12 @@ func (s *Schema) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
+// Config for model selection.
+type ModelSelectionConfig struct {
+	// Options for feature selection preference.
+	FeatureSelectionPreference FeatureSelectionPreference `json:"featureSelectionPreference,omitempty"`
+}
+
 // Safety settings.
 type SafetySetting struct {
 	// Determines if the harm block method uses probability or probability
@@ -1250,6 +1266,8 @@ type GenerateContentConfig struct {
 	ResponseSchema *Schema `json:"responseSchema,omitempty"`
 	// Configuration for model router requests.
 	RoutingConfig *GenerationConfigRoutingConfig `json:"routingConfig,omitempty"`
+	// Configuration for model selection.
+	ModelSelectionConfig *ModelSelectionConfig `json:"modelSelectionConfig,omitempty"`
 	// Safety settings in the request to block unsafe content in the
 	// response.
 	SafetySettings []*SafetySetting `json:"safetySettings,omitempty"`
