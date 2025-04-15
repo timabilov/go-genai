@@ -125,8 +125,17 @@ func TestLiveConnect(t *testing.T) {
 					TriggerTokens: Ptr[int64](1024),
 					SlidingWindow: &SlidingWindow{TargetTokens: Ptr[int64](1024)},
 				},
+				RealtimeInputConfig: &RealtimeInputConfig{
+					AutomaticActivityDetection: &AutomaticActivityDetection{
+						Disabled:                 true,
+						StartOfSpeechSensitivity: StartSensitivityLow,
+						EndOfSpeechSensitivity:   EndSensitivityLow,
+						PrefixPaddingMs:          Ptr[int32](1000),
+						SilenceDurationMs:        Ptr[int32](2000),
+					},
+				},
 			},
-			wantRequestBody: `{"setup":{"contextWindowCompression":{"slidingWindow":{"targetTokens":"1024"},"triggerTokens":"1024"},"generationConfig":{"temperature":0.5},"model":"projects/test-project/locations/test-location/publishers/google/models/test-model","outputAudioTranscription":{},"systemInstruction":{"parts":[{"text":"test instruction"}]},"tools":[{"googleSearch":{}}]}}`,
+			wantRequestBody: `{"setup":{"contextWindowCompression":{"slidingWindow":{"targetTokens":"1024"},"triggerTokens":"1024"},"generationConfig":{"temperature":0.5},"model":"projects/test-project/locations/test-location/publishers/google/models/test-model","outputAudioTranscription":{},"realtimeInputConfig":{"automaticActivityDetection":{"disabled":true,"endOfSpeechSensitivity":"END_SENSITIVITY_LOW","prefixPaddingMs":1000,"silenceDurationMs":2000,"startOfSpeechSensitivity":"START_SENSITIVITY_LOW"}},"systemInstruction":{"parts":[{"text":"test instruction"}]},"tools":[{"googleSearch":{}}]}}`,
 		},
 		{
 			desc:   "failed connection when set transparent using mldev client",

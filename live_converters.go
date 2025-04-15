@@ -338,6 +338,16 @@ func liveConnectConfigToMldev(ac *apiClient, fromObject map[string]any, parentOb
 		setValueByPath(parentObject, []string{"setup", "outputAudioTranscription"}, fromOutputAudioTranscription)
 	}
 
+	fromRealtimeInputConfig := getValueByPath(fromObject, []string{"realtimeInputConfig"})
+	if fromRealtimeInputConfig != nil {
+		fromRealtimeInputConfig, err = realtimeInputConfigToMldev(ac, fromRealtimeInputConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(parentObject, []string{"setup", "realtimeInputConfig"}, fromRealtimeInputConfig)
+	}
+
 	fromContextWindowCompression := getValueByPath(fromObject, []string{"contextWindowCompression"})
 	if fromContextWindowCompression != nil {
 		fromContextWindowCompression, err = contextWindowCompressionConfigToMldev(ac, fromContextWindowCompression.(map[string]any), toObject)
@@ -454,6 +464,16 @@ func liveConnectConfigToVertex(ac *apiClient, fromObject map[string]any, parentO
 		setValueByPath(parentObject, []string{"setup", "outputAudioTranscription"}, fromOutputAudioTranscription)
 	}
 
+	fromRealtimeInputConfig := getValueByPath(fromObject, []string{"realtimeInputConfig"})
+	if fromRealtimeInputConfig != nil {
+		fromRealtimeInputConfig, err = realtimeInputConfigToVertex(ac, fromRealtimeInputConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(parentObject, []string{"setup", "realtimeInputConfig"}, fromRealtimeInputConfig)
+	}
+
 	fromContextWindowCompression := getValueByPath(fromObject, []string{"contextWindowCompression"})
 	if fromContextWindowCompression != nil {
 		fromContextWindowCompression, err = contextWindowCompressionConfigToVertex(ac, fromContextWindowCompression.(map[string]any), toObject)
@@ -567,6 +587,16 @@ func liveClientSetupToMldev(ac *apiClient, fromObject map[string]any, parentObje
 		setValueByPath(toObject, []string{"tools"}, fromTools)
 	}
 
+	fromRealtimeInputConfig := getValueByPath(fromObject, []string{"realtimeInputConfig"})
+	if fromRealtimeInputConfig != nil {
+		fromRealtimeInputConfig, err = realtimeInputConfigToMldev(ac, fromRealtimeInputConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"realtimeInputConfig"}, fromRealtimeInputConfig)
+	}
+
 	fromSessionResumption := getValueByPath(fromObject, []string{"sessionResumption"})
 	if fromSessionResumption != nil {
 		fromSessionResumption, err = sessionResumptionConfigToMldev(ac, fromSessionResumption.(map[string]any), toObject)
@@ -650,6 +680,16 @@ func liveClientSetupToVertex(ac *apiClient, fromObject map[string]any, parentObj
 		}
 
 		setValueByPath(toObject, []string{"tools"}, fromTools)
+	}
+
+	fromRealtimeInputConfig := getValueByPath(fromObject, []string{"realtimeInputConfig"})
+	if fromRealtimeInputConfig != nil {
+		fromRealtimeInputConfig, err = realtimeInputConfigToVertex(ac, fromRealtimeInputConfig.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"realtimeInputConfig"}, fromRealtimeInputConfig)
 	}
 
 	fromSessionResumption := getValueByPath(fromObject, []string{"sessionResumption"})
@@ -769,6 +809,26 @@ func liveClientRealtimeInputToMldev(ac *apiClient, fromObject map[string]any, pa
 		setValueByPath(toObject, []string{"mediaChunks"}, fromMediaChunks)
 	}
 
+	fromActivityStart := getValueByPath(fromObject, []string{"activityStart"})
+	if fromActivityStart != nil {
+		fromActivityStart, err = activityStartToMldev(ac, fromActivityStart.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"activityStart"}, fromActivityStart)
+	}
+
+	fromActivityEnd := getValueByPath(fromObject, []string{"activityEnd"})
+	if fromActivityEnd != nil {
+		fromActivityEnd, err = activityEndToMldev(ac, fromActivityEnd.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"activityEnd"}, fromActivityEnd)
+	}
+
 	return toObject, nil
 }
 
@@ -778,6 +838,26 @@ func liveClientRealtimeInputToVertex(ac *apiClient, fromObject map[string]any, p
 	fromMediaChunks := getValueByPath(fromObject, []string{"mediaChunks"})
 	if fromMediaChunks != nil {
 		setValueByPath(toObject, []string{"mediaChunks"}, fromMediaChunks)
+	}
+
+	fromActivityStart := getValueByPath(fromObject, []string{"activityStart"})
+	if fromActivityStart != nil {
+		fromActivityStart, err = activityStartToVertex(ac, fromActivityStart.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"activityStart"}, fromActivityStart)
+	}
+
+	fromActivityEnd := getValueByPath(fromObject, []string{"activityEnd"})
+	if fromActivityEnd != nil {
+		fromActivityEnd, err = activityEndToVertex(ac, fromActivityEnd.(map[string]any), toObject)
+		if err != nil {
+			return nil, err
+		}
+
+		setValueByPath(toObject, []string{"activityEnd"}, fromActivityEnd)
 	}
 
 	return toObject, nil

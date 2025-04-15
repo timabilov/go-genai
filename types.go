@@ -3258,11 +3258,11 @@ type AutomaticActivityDetection struct {
 	// The required duration of detected speech before start-of-speech is committed. The
 	// lower this value the more sensitive the start-of-speech detection is and the shorter
 	// speech can be recognized. However, this also increases the probability of false positives.
-	PrefixPaddingMs int32 `json:"prefixPaddingMs,omitempty"`
+	PrefixPaddingMs *int32 `json:"prefixPaddingMs,omitempty"`
 	// The required duration of detected non-speech (e.g. silence) before end-of-speech
 	// is committed. The larger this value, the longer speech gaps can be without interrupting
 	// the user's activity but this will increase the model's latency.
-	SilenceDurationMs int32 `json:"silenceDurationMs,omitempty"`
+	SilenceDurationMs *int32 `json:"silenceDurationMs,omitempty"`
 }
 
 // Marks the end of user activity.
@@ -3413,6 +3413,8 @@ type LiveClientSetup struct {
 	// external systems to perform an action, or set of actions, outside of
 	// knowledge and scope of the model.
 	Tools []*Tool `json:"tools,omitempty"`
+	// Configures the realtime input behavior in BidiGenerateContent.
+	RealtimeInputConfig *RealtimeInputConfig `json:"realtimeInputConfig,omitempty"`
 	// Configures session resumption mechanism.
 	// If included server will send SessionResumptionUpdate messages.
 	SessionResumption *SessionResumptionConfig `json:"sessionResumption,omitempty"`
@@ -3469,6 +3471,10 @@ type ActivityEnd struct {
 type LiveClientRealtimeInput struct {
 	// Inlined bytes data for media input.
 	MediaChunks []*Blob `json:"mediaChunks,omitempty"`
+	// Marks the start of user activity.
+	ActivityStart *ActivityStart `json:"activityStart,omitempty"`
+	// Marks the end of user activity.
+	ActivityEnd *ActivityEnd `json:"activityEnd,omitempty"`
 }
 
 // Client generated response to a `ToolCall` received from the server.
@@ -3542,6 +3548,8 @@ type LiveConnectConfig struct {
 	// The transcription of the output aligns with the language code
 	// specified for the output audio.
 	OutputAudioTranscription *AudioTranscriptionConfig `json:"outputAudioTranscription,omitempty"`
+	// Configures the realtime input behavior in BidiGenerateContent.
+	RealtimeInputConfig *RealtimeInputConfig `json:"realtimeInputConfig,omitempty"`
 	// Configures context window compression mechanism.
 	// If included, server will compress context window to fit into given length.
 	ContextWindowCompression *ContextWindowCompressionConfig `json:"contextWindowCompression,omitempty"`
