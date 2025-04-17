@@ -269,6 +269,11 @@ func liveConnectConfigToMldev(ac *apiClient, fromObject map[string]any, parentOb
 		setValueByPath(parentObject, []string{"setup", "generationConfig", "maxOutputTokens"}, fromMaxOutputTokens)
 	}
 
+	fromMediaResolution := getValueByPath(fromObject, []string{"mediaResolution"})
+	if fromMediaResolution != nil {
+		setValueByPath(parentObject, []string{"setup", "generationConfig", "mediaResolution"}, fromMediaResolution)
+	}
+
 	fromSeed := getValueByPath(fromObject, []string{"seed"})
 	if fromSeed != nil {
 		setValueByPath(parentObject, []string{"setup", "generationConfig", "seed"}, fromSeed)
@@ -387,6 +392,11 @@ func liveConnectConfigToVertex(ac *apiClient, fromObject map[string]any, parentO
 	fromMaxOutputTokens := getValueByPath(fromObject, []string{"maxOutputTokens"})
 	if fromMaxOutputTokens != nil {
 		setValueByPath(parentObject, []string{"setup", "generationConfig", "maxOutputTokens"}, fromMaxOutputTokens)
+	}
+
+	fromMediaResolution := getValueByPath(fromObject, []string{"mediaResolution"})
+	if fromMediaResolution != nil {
+		setValueByPath(parentObject, []string{"setup", "generationConfig", "mediaResolution"}, fromMediaResolution)
 	}
 
 	fromSeed := getValueByPath(fromObject, []string{"seed"})
