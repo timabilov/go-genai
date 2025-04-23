@@ -147,6 +147,8 @@ const (
 	FinishReasonSafety FinishReason = "SAFETY"
 	// The token generation stopped because of potential recitation.
 	FinishReasonRecitation FinishReason = "RECITATION"
+	// The token generation stopped because of using an unsupported language.
+	FinishReasonLanguage FinishReason = "LANGUAGE"
 	// All other reasons that stopped the token generation.
 	FinishReasonOther FinishReason = "OTHER"
 	// Token generation stopped because the content contains forbidden terms.
