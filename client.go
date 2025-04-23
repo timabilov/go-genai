@@ -119,6 +119,12 @@ func defaultEnvVarProvider() map[string]string {
 	if v, ok := os.LookupEnv("GOOGLE_CLOUD_REGION"); ok {
 		vars["GOOGLE_CLOUD_REGION"] = v
 	}
+	if v, ok := os.LookupEnv("GOOGLE_GEMINI_BASE_URL"); ok {
+		vars["GOOGLE_GEMINI_BASE_URL"] = v
+	}
+	if v, ok := os.LookupEnv("GOOGLE_VERTEX_BASE_URL"); ok {
+		vars["GOOGLE_VERTEX_BASE_URL"] = v
+	}
 	return vars
 }
 
@@ -213,6 +219,10 @@ func NewClient(ctx context.Context, cc *ClientConfig) (*Client, error) {
 		cc.Credentials = cred
 	}
 
+	baseURL := getBaseURL(cc.Backend, &cc.HTTPOptions, envVars)
+	if baseURL != "" {
+		cc.HTTPOptions.BaseURL = baseURL
+	}
 	if cc.HTTPOptions.BaseURL == "" && cc.Backend == BackendVertexAI {
 		if cc.Location == "global" {
 			cc.HTTPOptions.BaseURL = "https://aiplatform.googleapis.com/"

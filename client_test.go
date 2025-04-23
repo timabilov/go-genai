@@ -222,6 +222,54 @@ func TestNewClient(t *testing.T) {
 				t.Errorf("Expected Backend %s, got %s", BackendGeminiAPI, client.clientConfig.Backend)
 			}
 		})
+
+		t.Run("Base URL from HTTPOptions", func(t *testing.T) {
+			baseURL := "https://test-base-url.com/"
+			client, err := NewClient(ctx, &ClientConfig{Project: "test-project", Location: "test-location", Backend: BackendVertexAI,
+				HTTPOptions: HTTPOptions{
+					BaseURL: baseURL,
+				}})
+			if err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+			if client.clientConfig.HTTPOptions.BaseURL != baseURL {
+				t.Errorf("Expected base URL %q, got %q", baseURL, client.clientConfig.HTTPOptions.BaseURL)
+			}
+		})
+
+		t.Run("Base URL from SetDefaultBaseURLs", func(t *testing.T) {
+			baseURL := "https://test-base-url.com/"
+			SetDefaultBaseURLs(BaseURLParameters{
+				VertexURL: baseURL,
+			})
+			client, err := NewClient(ctx, &ClientConfig{Project: "test-project", Location: "test-location", Backend: BackendVertexAI})
+			if err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+			if client.clientConfig.HTTPOptions.BaseURL != baseURL {
+				t.Errorf("Expected base URL %q, got %q", baseURL, client.clientConfig.HTTPOptions.BaseURL)
+			}
+			SetDefaultBaseURLs(BaseURLParameters{
+				GeminiURL: "",
+				VertexURL: "",
+			})
+		})
+
+		t.Run("Base URL from environment", func(t *testing.T) {
+			baseURL := "https://test-base-url.com/"
+			client, err := NewClient(ctx, &ClientConfig{Project: "test-project", Location: "test-location", Backend: BackendVertexAI,
+				envVarProvider: func() map[string]string {
+					return map[string]string{
+						"GOOGLE_VERTEX_BASE_URL": baseURL,
+					}
+				}})
+			if err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+			if client.clientConfig.HTTPOptions.BaseURL != baseURL {
+				t.Errorf("Expected base URL %q, got %q", baseURL, client.clientConfig.HTTPOptions.BaseURL)
+			}
+		})
 	})
 
 	t.Run("GoogleAI", func(t *testing.T) {
@@ -257,6 +305,54 @@ func TestNewClient(t *testing.T) {
 			}
 			if client.clientConfig.APIKey != apiKey {
 				t.Errorf("Expected API key %q, got %q", apiKey, client.clientConfig.APIKey)
+			}
+		})
+
+		t.Run("Base URL from HTTPOptions", func(t *testing.T) {
+			baseURL := "https://test-base-url.com/"
+			client, err := NewClient(ctx, &ClientConfig{APIKey: "test-api-key", Backend: BackendGeminiAPI,
+				HTTPOptions: HTTPOptions{
+					BaseURL: baseURL,
+				}})
+			if err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+			if client.clientConfig.HTTPOptions.BaseURL != baseURL {
+				t.Errorf("Expected base URL %q, got %q", baseURL, client.clientConfig.HTTPOptions.BaseURL)
+			}
+		})
+
+		t.Run("Base URL from SetDefaultBaseURLs", func(t *testing.T) {
+			baseURL := "https://test-base-url.com/"
+			SetDefaultBaseURLs(BaseURLParameters{
+				GeminiURL: baseURL,
+			})
+			client, err := NewClient(ctx, &ClientConfig{APIKey: "test-api-key", Backend: BackendGeminiAPI})
+			if err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+			if client.clientConfig.HTTPOptions.BaseURL != baseURL {
+				t.Errorf("Expected base URL %q, got %q", baseURL, client.clientConfig.HTTPOptions.BaseURL)
+			}
+			SetDefaultBaseURLs(BaseURLParameters{
+				GeminiURL: "",
+				VertexURL: "",
+			})
+		})
+
+		t.Run("Base URL from environment", func(t *testing.T) {
+			baseURL := "https://test-base-url.com/"
+			client, err := NewClient(ctx, &ClientConfig{APIKey: "test-api-key", Backend: BackendGeminiAPI,
+				envVarProvider: func() map[string]string {
+					return map[string]string{
+						"GOOGLE_GEMINI_BASE_URL": baseURL,
+					}
+				}})
+			if err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+			if client.clientConfig.HTTPOptions.BaseURL != baseURL {
+				t.Errorf("Expected base URL %q, got %q", baseURL, client.clientConfig.HTTPOptions.BaseURL)
 			}
 		})
 	})
