@@ -28,6 +28,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const maxChunkSize = 8 * 1024 * 1024 // 8 MB chunk size
@@ -136,11 +137,11 @@ func buildRequest(ctx context.Context, ac *apiClient, path string, body map[stri
 	}
 	// Set headers
 	doMergeHeaders(httpOptions.Headers, &req.Header)
-	doMergeHeaders(sdkHeader(ac), &req.Header)
+	doMergeHeaders(sdkHeader(ctx, ac), &req.Header)
 	return req, nil
 }
 
-func sdkHeader(ac *apiClient) http.Header {
+func sdkHeader(ctx context.Context, ac *apiClient) http.Header {
 	header := make(http.Header)
 	header.Set("Content-Type", "application/json")
 	if ac.clientConfig.APIKey != "" {
@@ -151,7 +152,27 @@ func sdkHeader(ac *apiClient) http.Header {
 	versionHeaderValue := fmt.Sprintf("%s %s", libraryLabel, languageLabel)
 	header.Set("user-agent", versionHeaderValue)
 	header.Set("x-goog-api-client", versionHeaderValue)
+	timeoutSeconds := inferTimeout(ctx, ac).Seconds()
+	if timeoutSeconds > 0 {
+		header.Set("x-server-timeout", strconv.FormatInt(int64(timeoutSeconds), 10))
+	}
 	return header
+}
+
+func inferTimeout(ctx context.Context, ac *apiClient) time.Duration {
+	// ac.clientConfig.HTTPClient is not nil because it's initialized in the NewClient function.
+	requestTimeout := ac.clientConfig.HTTPClient.Timeout
+	contextTimeout := 0 * time.Second
+	if deadline, ok := ctx.Deadline(); ok {
+		contextTimeout = time.Until(deadline)
+	}
+	if requestTimeout != 0 && contextTimeout != 0 {
+		return min(requestTimeout, contextTimeout)
+	}
+	if requestTimeout != 0 {
+		return requestTimeout
+	}
+	return contextTimeout
 }
 
 func doRequest(ac *apiClient, req *http.Request) (*http.Response, error) {
@@ -361,7 +382,7 @@ func (ac *apiClient) uploadFile(ctx context.Context, r io.Reader, uploadURL stri
 			return nil, fmt.Errorf("Failed to create upload request for chunk at offset %d: %w", offset, err)
 		}
 		doMergeHeaders(httpOptions.Headers, &req.Header)
-		doMergeHeaders(sdkHeader(ac), &req.Header)
+		doMergeHeaders(sdkHeader(ctx, ac), &req.Header)
 
 		req.Header.Set("X-Goog-Upload-Command", uploadCommand)
 		req.Header.Set("X-Goog-Upload-Offset", strconv.FormatInt(offset, 10))
