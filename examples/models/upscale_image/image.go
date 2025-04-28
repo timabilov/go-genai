@@ -25,7 +25,7 @@ import (
 	"log"
 	"net/http"
 
-	"google.golang.org/genai"
+	"github.com/timabilov/go-genai/genai"
 )
 
 func print(r any) {
