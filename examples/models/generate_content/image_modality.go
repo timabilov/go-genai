@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/timabilov/go-genai/genai"
+	"google.golang.org/genai"
 )
 
 var model = flag.String("model", "gemini-2.0-flash", "the model name, e.g. gemini-2.0-flash")

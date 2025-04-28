@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/timabilov/go-genai/genai"
+	"google.golang.org/genai"
 )
 
 func run(ctx context.Context) {
