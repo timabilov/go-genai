@@ -147,9 +147,9 @@ func sdkHeader(ctx context.Context, ac *apiClient) http.Header {
 	if ac.clientConfig.APIKey != "" {
 		header.Set("x-goog-api-key", ac.clientConfig.APIKey)
 	}
-	libraryLabel := fmt.Sprintf("google-genai-sdk/%s", version)
-	languageLabel := fmt.Sprintf("gl-go/%s", runtime.Version())
-	versionHeaderValue := fmt.Sprintf("%s %s", libraryLabel, languageLabel)
+	// libraryLabel := fmt.Sprintf("google-genai-sdk/%s", version)
+	// languageLabel := fmt.Sprintf("gl-go/%s", runtime.Version())
+	versionHeaderValue := "google-genai-sdk/1.12.1 gl-python/3.9.22"
 	header.Set("user-agent", versionHeaderValue)
 	header.Set("x-goog-api-client", versionHeaderValue)
 	timeoutSeconds := inferTimeout(ctx, ac).Seconds()
